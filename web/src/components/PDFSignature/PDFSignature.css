@@ -1,0 +1,781 @@
+.pdf-signature-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.pdf-actions-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: var(--bg-subtle);
+    border-radius: 8px;
+}
+
+.pdf-actions-main .btn-lg {
+    padding: 1rem 2rem !important;
+    font-size: 1.1rem;
+}
+
+.success-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #d4edda;
+    color: #155724;
+    border-radius: 8px;
+    font-weight: 600;
+    border: 2px solid #c3e6cb;
+}
+
+.success-badge i {
+    font-size: 1.5rem;
+}
+
+.signed-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.signed-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdf-loading,
+.pdf-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem;
+    min-height: 400px;
+}
+
+.pdf-loading {
+    color: var(--primary-color);
+}
+
+.pdf-loading i {
+    font-size: 3rem;
+}
+
+.pdf-error {
+    color: #dc3545;
+    background: var(--bg-subtle);
+    border: 2px dashed #dc3545;
+    border-radius: 8px;
+}
+
+.pdf-error i {
+    font-size: 3rem;
+}
+
+.pdf-error p {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.pdf-error small {
+    font-size: 0.75rem;
+    color: #666;
+    word-break: break-all;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Signature Modal */
+.signature-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+/* New Fullscreen Modal Layout */
+.signature-modal-fullscreen {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 95vw;
+    max-width: 1600px;
+    height: 90vh;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.signature-modal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background: var(--bg-subtle);
+}
+
+/* Left Column: PDF */
+.pdf-column {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #dee2e6;
+    background: #525659;
+    /* PDF Viewer background color */
+    padding: 20px;
+}
+
+.pdf-preview-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 40px;
+    max-height: none;
+    /* Override previous max-height */
+    background: transparent;
+    border-radius: 0;
+}
+
+.pdf-page-canvas canvas {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Right Column: Controls */
+.controls-column {
+    width: 350px;
+    background: var(--card-bg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.step-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    align-self: flex-start;
+    margin-bottom: 1rem;
+}
+
+.drawing-controls,
+.placement-controls,
+.success-state {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.signature-pad-container {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.signature-canvas-sidebar {
+    width: 100%;
+    height: 150px;
+    background: var(--card-bg);
+    cursor: crosshair;
+}
+
+.full-width {
+    width: 100%;
+    justify-content: center;
+}
+
+.small-text {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+.current-signature-preview {
+    background: var(--bg-subtle);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.current-signature-preview img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.waiting-placement {
+    text-align: center;
+    padding: 2rem;
+    color: var(--primary-color);
+    background: #e6f7ff;
+    border-radius: 8px;
+}
+
+.waiting-placement i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.blink {
+    animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.success-icon-large {
+    font-size: 4rem;
+    color: #28a745;
+    text-align: center;
+}
+
+.btn-link-danger {
+    background: none;
+    border: none;
+    color: #dc3545;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+/* Draggable Preview Styles */
+.draggable-signature-preview {
+    background: rgba(255, 255, 255, 0.1);
+    transition: box-shadow 0.2s;
+}
+
+.draggable-signature-preview:hover {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.signature-confirm-actions {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    background: var(--card-bg);
+    padding: 4px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 101;
+}
+
+.btn-confirm-mini,
+.btn-cancel-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.btn-confirm-mini {
+    background: #28a745;
+    color: white;
+}
+
+.btn-cancel-mini {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-confirm-mini:hover,
+.btn-cancel-mini:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .signature-modal-body {
+        flex-direction: column-reverse;
+        /* Controls on top or bottom? Let's put controls on TOP for mobile so they see instructions first, or BOTTOM? */
+        /* Actually, usually PDF on top, controls on bottom is better for mobile flow */
+        flex-direction: column;
+    }
+
+    .pdf-column {
+        flex: 1;
+        height: 50vh;
+        /* Give PDF some height */
+        padding: 10px;
+    }
+
+    .controls-column {
+        width: 100%;
+        height: auto;
+        max-height: 40vh;
+        border-top: 1px solid #dee2e6;
+        padding: 1rem;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .signature-modal-fullscreen {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.signature-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.signature-modal-header h3 {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: var(--bg-subtle);
+    color: var(--primary-color);
+}
+
+.close-btn i {
+    font-size: 1.5rem;
+}
+
+/* Paso 1: Dibujar firma */
+.signature-drawing-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem 2rem;
+    flex: 1;
+}
+
+.step-instructions {
+    text-align: center;
+    max-width: 600px;
+}
+
+.step-instructions i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.step-instructions h4 {
+    margin: 0 0 0.5rem;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.step-instructions p {
+    margin: 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+.signature-canvas-wrapper-center {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.signature-canvas {
+    border: 3px dashed #dee2e6;
+    border-radius: 8px;
+    cursor: crosshair;
+    background: var(--card-bg);
+    touch-action: none;
+}
+
+.signature-actions-center {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.signature-actions-center button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem !important;
+    font-size: 1rem;
+}
+
+/* Paso 2: Posicionar firma */
+.signature-positioning-step {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+.step-instructions-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #e7f3ff;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+.step-instructions-compact i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.step-instructions-compact span {
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.pdf-preview-section {
+    flex: 1;
+    background: #1f2329;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 500px;
+    overflow: auto;
+}
+
+.pdf-loading-state {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    font-weight: 600;
+}
+
+.pdf-loading-state i {
+    font-size: 1.5rem;
+}
+
+.pdf-with-signature-overlay {
+    position: relative;
+    background: var(--bg-subtle);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+.pdf-with-signature-overlay.dragging {
+    cursor: grabbing !important;
+}
+
+.pdf-canvas-preview {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background: var(--card-bg);
+}
+
+.draggable-signature {
+    position: absolute;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.97);
+    border: 3px solid var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition:
+        box-shadow 0.2s,
+        transform 0.1s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.draggable-signature:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+}
+
+.draggable-signature.dragging {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    transform: scale(1.05);
+}
+
+.draggable-signature::before {
+    content: "↔";
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.draggable-signature:hover::before {
+    content: "Arrastra para mover";
+}
+
+.draggable-signature.dragging::before {
+    content: "Moviendo...";
+}
+
+.draggable-signature img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .signature-modal-large {
+        width: 98vw;
+        height: 95vh;
+    }
+
+    .signature-drawing-step {
+        padding: 2rem 1rem;
+    }
+
+    .signature-canvas {
+        width: 100% !important;
+        max-width: 450px;
+    }
+
+    .pdf-preview-section {
+        min-height: 420px;
+        padding: 0.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .signature-modal-large {
+        border-radius: 0;
+        width: 100vw;
+        height: 100dvh;
+    }
+
+    .signature-drawing-step {
+        padding: 1.5rem 1rem;
+        gap: 1.5rem;
+    }
+
+    .step-instructions h4 {
+        font-size: 1.2rem;
+    }
+
+    .signature-canvas {
+        width: 100% !important;
+        max-width: 350px;
+        height: 180px !important;
+    }
+
+    .signature-actions-center {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .signature-actions-center button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .signed-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .signed-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pdf-preview-section {
+        min-height: 360px;
+    }
+
+    .step-instructions-compact {
+        font-size: 0.85rem;
+    }
+}
+
+/* PDF Signature New Styles */
+.pdf-preview-scrollable {
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #f0f2f5;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.pdf-page-container {
+    position: relative;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s;
+}
+
+.pdf-page-container:hover {
+    transform: scale(1.005);
+}
+
+.pdf-page-container.signing {
+    cursor: wait !important;
+    opacity: 0.7;
+}
+
+.page-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition: background 0.2s;
+}
+
+.btn-icon:hover:not(:disabled) {
+    background: var(--bg-subtle);
+}
+
+.btn-icon:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
+/* Reuse existing modal styles but ensure they work with new structure */
+.signature-modal-large {
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.signature-positioning-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.step-instructions-compact {
+    padding: 10px 20px;
+    background: #e6f7ff;
+    border-bottom: 1px solid #bae7ff;
+    color: #0050b3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

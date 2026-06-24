@@ -1,0 +1,101 @@
+/* Barra flotante de acción de lote (página Pagos) */
+.treasury-actionbar {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    border-radius: 14px;
+    padding: 14px 22px;
+    max-width: calc(100% - 48px);
+}
+
+.treasury-actionbar__info {
+    color: var(--primary-text);
+    font-size: 0.95rem;
+}
+
+.treasury-actionbar__warn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 12px;
+    color: #e08a2b;
+    font-size: 0.85rem;
+}
+
+.treasury-actionbar__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.treasury-actionbar__controls select {
+    padding: 9px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+}
+
+.treasury-actionbar__controls .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 24px;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.treasury-actionbar__controls .btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Botones de acción en la tabla de lotes */
+.treasury-actions {
+    flex-wrap: wrap;
+}
+
+.treasury-actions .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+.treasury-actions .btn-action:hover {
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+}
+
+.treasury-actions .btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .treasury-actionbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+}

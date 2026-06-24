@@ -1,0 +1,51 @@
+/* Email en solo lectura (edición): se mantiene type=email y aspecto de campo */
+.subuser-input-readonly {
+    background: var(--bg-subtle, #f5f5f5);
+    cursor: default;
+    color: var(--text-muted, #666);
+}
+
+.subuser-avatar-block {
+    margin-top: 1rem;
+}
+
+.subuser-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.35rem;
+}
+
+.subuser-avatar-preview-wrap {
+    flex-shrink: 0;
+}
+
+.subuser-avatar-preview {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border-light, #e0e0e0);
+    display: block;
+    background: var(--card-bg, #fff);
+}
+
+.subuser-avatar-placeholder {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 2px dashed var(--border-light, #ccc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-subtle, #f5f5f5);
+    color: var(--text-muted, #888);
+    font-size: 2rem;
+}
+
+.subuser-avatar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}

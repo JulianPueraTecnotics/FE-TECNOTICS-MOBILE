@@ -1,0 +1,904 @@
+/* ============================================================
+   Editor de cotizaciones — "documento continuo" (estilo fichas_tecnicas).
+   Bloques apilados que comparten bordes; colores mapeados al tema del portal.
+   ============================================================ */
+.cot-page {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    padding: 1rem 16px 0;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---- Barra de navegación (accesos directos) ---- */
+.cot-page-nav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.cot-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--accent-teal);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.cot-nav-link:hover {
+    text-decoration: underline;
+}
+
+.cot-nav-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border-light);
+}
+
+@media (max-width: 560px) {
+    .cot-nav-sep {
+        display: none;
+    }
+}
+
+/* ---- TOPBAR (redondeada arriba) ---- */
+.cot-topbar {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border-light);
+    border-radius: 8px 8px 0 0;
+    background: var(--card-bg);
+    min-height: 52px;
+    overflow: visible;
+}
+
+.cot-topbar-brand {
+    padding: 0 20px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-right: 1px solid var(--border-light);
+    white-space: nowrap;
+    min-width: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--primary-color);
+}
+
+.cot-title-input {
+    flex: 1;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 0;
+    color: var(--primary-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cot-topbar-actions {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-left: 1px solid var(--border-light);
+    flex-shrink: 0;
+}
+
+/* ---- BODY TOP (cliente 38 / meta 62) ---- */
+.cot-body-top {
+    display: grid;
+    grid-template-columns: 38fr 62fr;
+    border: 1px solid var(--border-light);
+    border-top: none;
+    background: var(--card-bg);
+    min-height: 220px;
+}
+
+.cot-client-panel {
+    border-right: 1px solid var(--border-light);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.cot-client-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 190px;
+    gap: 6px;
+    background: var(--bg-subtle);
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    padding: 24px 16px;
+    transition: background 0.18s;
+}
+
+.cot-client-empty:hover:not(:disabled) {
+    background: var(--border-light);
+}
+
+.cot-client-empty-icon {
+    font-size: 2.8rem;
+    color: var(--text-muted);
+}
+
+.cot-client-empty h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin: 4px 0 0;
+}
+
+.cot-client-empty p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+    text-align: center;
+}
+
+.cot-client-selected {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.cot-client-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.cot-client-name-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--primary-text);
+    line-height: 1.3;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cot-change-client-btn {
+    width: 28px;
+    height: 28px;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.18s;
+    flex-shrink: 0;
+}
+
+.cot-change-client-btn:hover:not(:disabled) {
+    background: var(--secondary-color);
+}
+
+.cot-client-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.83rem;
+}
+
+.cot-client-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary-text);
+    line-height: 1.35;
+}
+
+.cot-client-list b {
+    color: var(--text-muted);
+    min-width: 70px;
+    flex-shrink: 0;
+    font-weight: 600;
+}
+
+.cot-client-email-row {
+    align-items: center;
+}
+
+.cot-email-input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 0.82rem;
+    background: var(--bg-subtle);
+    color: var(--primary-text);
+}
+
+.cot-email-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: var(--card-bg);
+}
+
+/* Más destinatarios */
+.cot-dest {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.cot-dest-lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.cot-dest-input-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cot-dest-add {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--primary-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cot-dest-add:hover:not(:disabled) {
+    background: var(--bg-subtle);
+    border-color: var(--primary-color);
+}
+
+.cot-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.cot-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    font-size: 0.76rem;
+    color: var(--primary-text);
+}
+
+.cot-chip button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0;
+    line-height: 1;
+}
+
+.cot-chip button:hover {
+    color: var(--tertiary-color, #dc2626);
+}
+
+/* ---- META PANEL ---- */
+.cot-meta-panel {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cot-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+}
+
+.cot-meta-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cot-meta-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.cot-meta-val {
+    font-size: 0.92rem;
+    color: var(--primary-text);
+    font-weight: 500;
+}
+
+.cot-meta-select,
+.cot-meta-date {
+    font-size: 0.9rem;
+    color: var(--primary-text);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 6px 9px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    width: 100%;
+}
+
+.cot-meta-select:focus,
+.cot-meta-date:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 12%, transparent);
+}
+
+.cot-valor-letras {
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    letter-spacing: 0.3px;
+    word-break: break-word;
+}
+
+/* ---- TABLA ---- */
+.cot-table-section {
+    border: 1px solid var(--border-light);
+    border-top: none;
+    background: var(--card-bg);
+    overflow: hidden;
+}
+
+.cot-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cot-table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.cot-table th {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    padding: 9px 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.73rem;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.cot-table td {
+    border: 1px solid var(--border-light);
+    padding: 7px 10px;
+    text-align: center;
+    color: var(--primary-text);
+    vertical-align: middle;
+}
+
+.cot-add-cell {
+    padding: 0 !important;
+    text-align: left !important;
+}
+
+.cot-add-item-btn {
+    height: 36px;
+    padding: 0 14px;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.18s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cot-add-item-btn:hover:not(:disabled) {
+    background: var(--secondary-color);
+}
+
+.cot-td-edit {
+    padding: 0 !important;
+}
+
+.cot-td-edit input {
+    width: 100%;
+    height: 36px;
+    border: none;
+    padding: 0 8px;
+    text-align: center;
+    background: var(--bg-subtle);
+    font-size: 0.88rem;
+    outline: none;
+    color: var(--primary-text);
+}
+
+.cot-td-edit input:focus {
+    background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg));
+}
+
+.cot-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.cot-icon-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: background 0.18s;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.cot-icon-btn--del {
+    border-color: var(--tertiary-color, #dc2626);
+    color: var(--tertiary-color, #dc2626);
+}
+
+.cot-icon-btn--del:hover:not(:disabled) {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.cot-icon-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.cot-table-meta {
+    padding: 7px 12px;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.83rem;
+    color: var(--text-muted);
+}
+
+/* ---- BARRA DE TOTALES (6) ---- */
+.cot-totals-bar {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    border: 1px solid var(--border-light);
+    border-top: none;
+    background: var(--card-bg);
+}
+
+.cot-total-item {
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border-right: 1px solid var(--border-light);
+}
+
+.cot-total-item:last-child {
+    border-right: none;
+}
+
+.cot-total-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.cot-total-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    text-align: center;
+}
+
+.cot-reten-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.cot-reten-inp {
+    width: 48px;
+    height: 26px;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 0 4px;
+    color: var(--primary-text);
+    background: var(--card-bg);
+}
+
+.cot-reten-inp:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.cot-total-item--grand .cot-total-label {
+    color: var(--secondary-color);
+}
+
+.cot-grand-total {
+    color: var(--secondary-color) !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+}
+
+/* ---- OBSERVACIONES ---- */
+.cot-obs-panel {
+    border: 1px solid var(--border-light);
+    border-top: none;
+    background: var(--card-bg);
+    padding: 10px 12px;
+}
+
+.cot-obs-panel textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    outline: none;
+    background: var(--bg-subtle);
+    color: var(--primary-text);
+}
+
+.cot-obs-panel textarea:focus {
+    border-color: var(--primary-color);
+    background: var(--card-bg);
+}
+
+/* ---- FOOTER (redondeado abajo) ---- */
+.cot-footer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-light);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: var(--card-bg);
+    flex-wrap: wrap;
+}
+
+.cot-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.cot-footer-total-display {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.cot-dollar-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.cot-footer-total-lbl {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.cot-footer-total-num {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+.cot-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+/* ---- BOTONES ---- */
+.cot-action-btns {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.cot-btn-outline,
+.cot-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+    color: var(--primary-text);
+    white-space: nowrap;
+}
+
+.cot-btn-outline {
+    border: 1.5px solid var(--border-light);
+    background: var(--card-bg);
+}
+
+.cot-btn-outline:hover:not(:disabled) {
+    background: var(--bg-subtle);
+    border-color: var(--text-muted);
+}
+
+.cot-btn-ghost {
+    border: 1.5px solid transparent;
+    background: transparent;
+}
+
+.cot-btn-ghost:hover:not(:disabled) {
+    background: var(--bg-subtle);
+}
+
+.cot-btn-outline:disabled,
+.cot-btn-ghost:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Split-button */
+.cot-split-btn-wrap {
+    position: relative;
+}
+
+.cot-split-btn {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cot-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    border: none;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
+    white-space: nowrap;
+}
+
+.cot-btn-primary:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.cot-btn-primary:hover:not(:disabled) {
+    background: var(--secondary-color);
+}
+
+.cot-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cot-split-arrow {
+    border-radius: 0 6px 6px 0 !important;
+    padding: 7px 6px !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
+    gap: 0 !important;
+}
+
+.cot-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 200;
+    min-width: 165px;
+    overflow: hidden;
+}
+
+.cot-dropdown-menu--up {
+    top: auto;
+    bottom: calc(100% + 4px);
+}
+
+.cot-dropdown-menu button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.86rem;
+    color: var(--primary-text);
+    transition: background 0.15s;
+    text-align: left;
+}
+
+.cot-dropdown-menu button:hover {
+    background: var(--bg-subtle);
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 1024px) {
+    .cot-page {
+        padding: 1rem 12px 0;
+    }
+    .cot-body-top {
+        grid-template-columns: 40fr 60fr;
+    }
+    .cot-topbar-brand {
+        min-width: 110px;
+        font-size: 0.88rem;
+        padding: 0 14px;
+    }
+    .cot-total-label {
+        font-size: 0.63rem;
+    }
+    .cot-total-value {
+        font-size: 0.83rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .cot-page {
+        padding: 1rem 8px 0;
+    }
+    .cot-topbar {
+        flex-wrap: wrap;
+        border-radius: 6px 6px 0 0;
+        min-height: unset;
+    }
+    .cot-topbar-brand {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+        justify-content: flex-start;
+    }
+    .cot-title-input {
+        text-align: left;
+        justify-content: flex-start;
+    }
+    .cot-topbar-actions {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border-light);
+        justify-content: flex-end;
+    }
+    .cot-body-top {
+        grid-template-columns: 1fr;
+    }
+    .cot-client-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .cot-totals-bar {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .cot-total-item:nth-child(3) {
+        border-right: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .cot-meta-grid {
+        grid-template-columns: 1fr;
+    }
+    .cot-totals-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .cot-total-item:nth-child(2n) {
+        border-right: none;
+    }
+    .cot-footer-bar {
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 0 0 6px 6px;
+    }
+    .cot-table {
+        min-width: 620px;
+    }
+}
+
+@media (max-width: 400px) {
+    .cot-footer-left {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .cot-footer-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .cot-action-btns {
+        flex-wrap: wrap;
+        gap: 5px;
+        width: 100%;
+    }
+}

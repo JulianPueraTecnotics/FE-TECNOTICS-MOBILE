@@ -1,0 +1,21 @@
+/* Página de facturación (Dashboard): fondo, texto y contenedor adaptados al tema */
+.dashboard-page {
+    min-height: calc(100dvh - 54px);
+    background: var(--page-bg);
+    color: var(--primary-text);
+    padding: 0;
+}
+
+.dashboard-page__message {
+    padding: 2rem;
+    text-align: center;
+    color: var(--primary-text);
+    font-size: 1rem;
+}
+
+/* Contenedor del widget de facturación para que herede colores del tema */
+.dashboard-page [class*="billing"],
+.dashboard-page [class*="Billing"],
+.dashboard-page iframe {
+    color: var(--primary-text);
+}

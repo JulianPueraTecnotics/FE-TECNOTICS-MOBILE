@@ -1,0 +1,509 @@
+/* Sincronización con la DIAN – mismo lenguaje visual que Nómina/Clients (Arial, pill buttons, tokens) */
+.dian-page {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 54px);
+}
+
+.dian-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.dian-header__content h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.dian-header__content p {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    margin: 0.25rem 0 0;
+}
+
+/* Tarjetas */
+.dian-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+}
+
+.dian-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.dian-card__head h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dian-subtle {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.dian-card .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 9px 20px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: var(--accent-teal);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dian-card .btn-primary:hover:not(:disabled) {
+    background: var(--accent-teal-hover);
+}
+
+.dian-card .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Estado vacío */
+.dian-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.dian-empty i {
+    font-size: 2.5rem;
+    color: var(--border-light);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.dian-empty p {
+    margin: 0;
+}
+
+/* Grid de credenciales */
+.dian-cred-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.dian-cred-card {
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1rem;
+    background: var(--bg-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.dian-cred-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.dian-cred-card__top strong {
+    display: block;
+    color: var(--primary-text);
+    font-size: 0.95rem;
+}
+
+.dian-cred-card__nit {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.dian-cred-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.dian-cred-card__meta i {
+    margin-right: 0.3rem;
+}
+
+.dian-cred-card__err {
+    color: #dc3545;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dian-cred-card__actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border-light);
+    padding-top: 0.75rem;
+}
+
+/* Botones mini */
+.btn-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 5px 12px;
+    border-radius: 18px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid var(--border-light);
+    background: var(--card-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-mini:hover:not(:disabled) {
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+}
+
+.btn-mini:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-mini--danger:hover:not(:disabled) {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+/* Tabs */
+.dian-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 2px solid var(--border-light);
+    flex-wrap: wrap;
+}
+
+.dian-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.1rem;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.dian-tab:hover {
+    color: var(--accent-teal);
+}
+
+.dian-tab.active {
+    color: var(--accent-teal);
+    border-bottom-color: var(--accent-teal);
+}
+
+/* Filtros */
+.dian-filters {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.dian-filters select,
+.dian-filters input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: var(--card-bg);
+    color: var(--primary-text);
+}
+
+.dian-filters select:focus,
+.dian-filters input:focus {
+    outline: none;
+    border-color: var(--accent-teal);
+}
+
+/* Tabla */
+.dian-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dian-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.dian-table thead {
+    background: var(--bg-subtle);
+    border-bottom: 2px solid var(--border-light);
+}
+
+.dian-table th {
+    padding: 0.85rem 0.75rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+.dian-table td {
+    padding: 0.8rem 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--primary-text);
+}
+
+.dian-table tbody tr:hover {
+    background: var(--bg-subtle);
+}
+
+.dian-table tbody tr.is-selected {
+    background: rgba(90, 159, 180, 0.08);
+}
+
+.dian-table .cell-strong {
+    font-weight: 600;
+}
+
+.dian-table .cell-cufe {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.dian-row-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.dian-table .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    color: var(--accent-teal);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 1.05rem;
+}
+
+.dian-table .btn-icon:hover:not(:disabled) {
+    background: rgba(90, 159, 180, 0.12);
+}
+
+.dian-table .btn-icon:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.dian-table .btn-icon-danger:hover:not(:disabled) {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.dian-err-text {
+    font-size: 0.72rem;
+    color: #dc3545;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 0.2rem;
+}
+
+.dian-progress-text {
+    font-size: 0.72rem;
+    color: var(--accent-teal);
+    margin-top: 0.25rem;
+    font-weight: 600;
+}
+
+/* Badges */
+.dian-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 3px 10px;
+    border-radius: 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dian-badge--ok { background: rgba(5, 150, 105, 0.12); color: #059669; }
+.dian-badge--warning { background: rgba(234, 179, 8, 0.15); color: #b45309; }
+.dian-badge--danger { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
+.dian-badge--soft { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-light); }
+
+/* Conteos de documentos + enriquecimiento desde PDF en la fila del sync job. */
+.dian-doc-counts { display: flex; flex-direction: column; gap: 2px; }
+.dian-enrich-counts {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.78rem; color: var(--accent-teal, #5a9fb4);
+}
+.dian-enrich-counts i { font-size: 0.9rem; }
+
+.dian-status-queued { background: rgba(234, 179, 8, 0.15); color: #b45309; }
+.dian-status-running { background: rgba(90, 159, 180, 0.15); color: var(--accent-teal); }
+.dian-status-completed { background: rgba(5, 150, 105, 0.12); color: #059669; }
+.dian-status-failed { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
+
+.dian-event-emitted { background: rgba(5, 150, 105, 0.12); color: #059669; }
+.dian-event-failed { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
+.dian-event-pending { background: rgba(234, 179, 8, 0.15); color: #b45309; }
+
+/* Paginación (reutiliza estructura de Nómina) */
+.dian-page .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.dian-page .pagination button {
+    padding: 5px 20px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 2px solid var(--border-light);
+    background: var(--card-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dian-page .pagination button:hover:not(:disabled) {
+    background: var(--accent-teal);
+    color: #fff;
+    border-color: var(--accent-teal);
+}
+
+.dian-page .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dian-page .pagination__info {
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.rotating {
+    animation: dian-rotate 1s linear infinite;
+}
+
+@keyframes dian-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive: tabla → cards */
+@media (max-width: 767px) {
+    .dian-page {
+        padding: 1rem;
+    }
+
+    .dian-card {
+        padding: 1.25rem 1rem;
+    }
+
+    .dian-card__head {
+        align-items: stretch;
+    }
+
+    .dian-card .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .dian-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 0.7rem 0.4rem;
+        font-size: 0.78rem;
+    }
+
+    .dian-table thead {
+        display: none;
+    }
+
+    .dian-table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: var(--card-bg);
+    }
+
+    .dian-table tbody tr:hover {
+        background: var(--card-bg);
+    }
+
+    .dian-table tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border: none;
+        border-bottom: 1px solid var(--bg-subtle);
+        text-align: right;
+        gap: 0.75rem;
+    }
+
+    .dian-table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .dian-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: var(--primary-color);
+        flex-shrink: 0;
+        text-align: left;
+    }
+
+    .dian-row-actions {
+        justify-content: flex-end;
+    }
+}

@@ -1,0 +1,380 @@
+.pubq {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f1f5f9;
+    min-height: 100dvh;
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pubq-state {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #64748b;
+    text-align: center;
+    padding: 2rem;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.pubq-state i {
+    font-size: 48px;
+    color: #f59e0b;
+}
+
+.pubq-state h1 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.4rem;
+}
+
+.pubq-doc {
+    background: #fff;
+    width: 100%;
+    max-width: 900px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem 2.25rem;
+}
+
+/* Encabezado */
+.pubq-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 3px solid #1e3a8a;
+    padding-bottom: 1rem;
+}
+
+.pubq-title {
+    margin: 0;
+    color: #1e3a8a;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.pubq-number {
+    margin: 2px 0 0;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.pubq-head-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.pubq-qr {
+    width: 88px;
+    height: 88px;
+}
+
+.pubq-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.pubq-badge--approved {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.pubq-badge--draft {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.pubq-badge--sent {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.pubq-badge--accepted {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.pubq-badge--rejected,
+.pubq-badge--expired {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.pubq-badge--invoiced {
+    background: #ccfbf1;
+    color: #0f766e;
+}
+
+/* Tarjetas cliente/detalles */
+.pubq-cards {
+    display: flex;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.pubq-card {
+    flex: 1;
+    min-width: 220px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+}
+
+.pubq-card h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+.pubq-card-big {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.pubq-card-row {
+    font-size: 0.85rem;
+    color: #374151;
+    margin-top: 3px;
+}
+
+/* Tabla */
+.pubq-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.pubq-table thead th {
+    background: #1e3a8a;
+    color: #fff;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    padding: 0.65rem 0.5rem;
+    text-align: left;
+}
+
+.pubq-table th.r,
+.pubq-table td.r {
+    text-align: right;
+}
+
+.pubq-table tbody td {
+    padding: 0.65rem 0.5rem;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: top;
+    color: #1f2937;
+}
+
+.pubq-it-name {
+    font-weight: 600;
+}
+
+.pubq-it-desc {
+    color: #6b7280;
+    font-size: 0.78rem;
+    margin-top: 2px;
+}
+
+/* Totales */
+.pubq-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.pubq-notas {
+    flex: 1;
+    min-width: 240px;
+}
+
+.pubq-lbl {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.pubq-letras {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.82rem;
+    font-style: italic;
+    margin-top: 0.6rem;
+    text-transform: capitalize;
+}
+
+.pubq-tot {
+    width: 300px;
+    max-width: 100%;
+}
+
+.pubq-tl {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+}
+
+.pubq-tl span {
+    color: #6b7280;
+}
+
+.pubq-tl strong {
+    color: #111827;
+}
+
+.pubq-tl--grand {
+    border-top: 2px solid #1e3a8a;
+    margin-top: 0.4rem;
+    padding-top: 0.7rem;
+}
+
+.pubq-tl--grand span {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.pubq-tl--grand strong {
+    font-size: 1.4rem;
+    color: #1e3a8a;
+}
+
+/* Acciones */
+.pubq-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.pubq-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    border: none;
+}
+
+.pubq-btn--primary {
+    background: #1e3a8a;
+    color: #fff;
+}
+
+.pubq-btn--primary:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.pubq-btn--ghost {
+    background: #fff;
+    color: #1e3a8a;
+    border: 2px solid #cbd5e1;
+}
+
+.pubq-btn--ghost:hover:not(:disabled) {
+    border-color: #1e3a8a;
+}
+
+.pubq-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modal aprobación */
+.pubq-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000;
+}
+
+.pubq-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.pubq-modal h3 {
+    margin: 0 0 0.5rem;
+    color: #1e3a8a;
+}
+
+.pubq-modal p {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+}
+
+.pubq-modal input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+}
+
+.pubq-modal input:focus {
+    outline: none;
+    border-color: #1e3a8a;
+}
+
+.pubq-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.25rem;
+}
+
+.rotating {
+    animation: pubqRotate 1s linear infinite;
+}
+
+@keyframes pubqRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .pubq-doc {
+        padding: 1.25rem;
+    }
+    .pubq-actions {
+        flex-direction: column-reverse;
+    }
+    .pubq-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

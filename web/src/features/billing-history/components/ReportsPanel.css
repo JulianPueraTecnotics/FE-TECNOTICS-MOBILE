@@ -1,0 +1,148 @@
+/* Eleva los charts/tablas del panel de Cartera al look premium (sombra + radius). */
+.reports-table-card,
+.stats-chart-card {
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 6px 16px rgba(15, 23, 42, 0.04);
+    border-radius: 14px;
+    background: var(--card-bg, #fff);
+}
+
+.reports-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.reports-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.reports-chip {
+    border: 1px solid var(--border-light, #e2e8f0);
+    background: var(--bg-subtle, #f8fafc);
+    color: #475569;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.reports-chip:hover {
+    border-color: #94a3b8;
+}
+
+.reports-chip--active {
+    background: var(--accent-teal, #5a9fb4);
+    border-color: var(--accent-teal, #5a9fb4);
+    color: #fff;
+}
+
+.reports-custom-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.reports-custom-range input {
+    border: 1px solid var(--border-light, #e2e8f0);
+    border-radius: 8px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.reports-empty {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.reports-table-card {
+    background: var(--bg-subtle, #f8fafc);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.25rem;
+    overflow-x: auto;
+}
+
+.reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.reports-table thead th {
+    text-align: left;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 0.5rem 0.65rem;
+    border-bottom: 2px solid var(--border-light, #e2e8f0);
+    white-space: nowrap;
+}
+
+.reports-table tbody td {
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid var(--border-light, #eef2f6);
+    color: #1e293b;
+}
+
+.reports-table tbody tr:hover {
+    background: rgba(90, 159, 180, 0.06);
+}
+
+/* Tema oscuro */
+[data-theme="dark"] .reports-chip {
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .reports-chip--active {
+    background: var(--accent-teal, #5a9fb4);
+    color: #fff;
+}
+
+[data-theme="dark"] .reports-table tbody td {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .reports-table thead th {
+    color: #94a3b8;
+}
+
+/* Pestañas del módulo de estadísticas/reportes */
+.billing-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.billing-tab {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.billing-tab:hover {
+    background: var(--bg-subtle, #f1f5f9);
+}
+
+.billing-tab--active {
+    background: var(--primary-color, #002737);
+    color: #fff;
+}

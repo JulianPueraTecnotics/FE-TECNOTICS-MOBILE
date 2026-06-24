@@ -1,0 +1,82 @@
+.searchable-select {
+  position: relative;
+  width: 100%;
+}
+
+.searchable-select__input {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #c0c0c0);
+  font-size: 14px;
+  background: var(--card-bg);
+  box-sizing: border-box;
+}
+
+.searchable-select__input:focus {
+  outline: none;
+  border-color: var(--primary-color, #2563eb);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.searchable-select__input:disabled {
+  background: var(--bg-subtle);
+  cursor: not-allowed;
+}
+
+.searchable-select__toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+}
+
+.searchable-select__toggle:disabled {
+  cursor: not-allowed;
+}
+
+.searchable-select__chevron-open {
+  transform: rotate(180deg);
+}
+
+.searchable-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.searchable-select__option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.searchable-select__option:hover,
+.searchable-select__option--selected {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.searchable-select__option--empty {
+  cursor: default;
+  color: #888;
+}

@@ -1,0 +1,787 @@
+[
+    {
+        "codigo_iso": "AED",
+        "descripcion_ingles": "United Arab Emirates. Dirhams",
+        "descripcion_espanol": "Dirham de los Emiratos Arabes Unidos"
+    },
+    {
+        "codigo_iso": "AFA",
+        "descripcion_ingles": "Afghanistan, Afghanis",
+        "descripcion_espanol": "Afganistan"
+    },
+    {
+        "codigo_iso": "ALL",
+        "descripcion_ingles": "Albania, Leke",
+        "descripcion_espanol": "Lek Albanés"
+    },
+    {
+        "codigo_iso": "AMD",
+        "descripcion_ingles": "Armenia, Drams",
+        "descripcion_espanol": "Dram Armenio"
+    },
+    {
+        "codigo_iso": "ANG",
+        "descripcion_ingles": "Netherlands Antilles, Guilders",
+        "descripcion_espanol": "Guilder de Antillas holandesas"
+    },
+    {
+        "codigo_iso": "AOA",
+        "descripcion_ingles": "Angola, Kwanza",
+        "descripcion_espanol": "Kwanza Angolés"
+    },
+    {
+        "codigo_iso": "ARS",
+        "descripcion_ingles": "Argentina, Pesos",
+        "descripcion_espanol": "Peso Argentino"
+    },
+    {
+        "codigo_iso": "AUD",
+        "descripcion_ingles": "Australia, Dollars",
+        "descripcion_espanol": "Dólar Australiano"
+    },
+    {
+        "codigo_iso": "AWG",
+        "descripcion_ingles": "Aruba, Guilders",
+        "descripcion_espanol": "Guilder de Aruba"
+    },
+    {
+        "codigo_iso": "AZM",
+        "descripcion_ingles": "Azerbaijan, Manats",
+        "descripcion_espanol": "Manat de Azerbaijan"
+    },
+    {
+        "codigo_iso": "BAM",
+        "descripcion_ingles": "Bosnia and Herzegovina, Convertible Marka",
+        "descripcion_espanol": "Dinar de Bosnia-Herzogovinia"
+    },
+    {
+        "codigo_iso": "BBD",
+        "descripcion_ingles": "Barbados, Dollars",
+        "descripcion_espanol": "Dólar de Barbados"
+    },
+    {
+        "codigo_iso": "BDT",
+        "descripcion_ingles": "Bangladesh, Taka",
+        "descripcion_espanol": "Taka de Bangladesh"
+    },
+    {
+        "codigo_iso": "BGN",
+        "descripcion_ingles": "Bulgaria, Leva",
+        "descripcion_espanol": "Lev Bulgaro"
+    },
+    {
+        "codigo_iso": "BHD",
+        "descripcion_ingles": "Bahrain, Dinars",
+        "descripcion_espanol": "Dinar de Barein"
+    },
+    {
+        "codigo_iso": "BIF",
+        "descripcion_ingles": "Burundi, Francs",
+        "descripcion_espanol": "Franco de Burundi"
+    },
+    {
+        "codigo_iso": "BMD",
+        "descripcion_ingles": "Bermuda, Dollars",
+        "descripcion_espanol": "Dólar de Bermudas"
+    },
+    {
+        "codigo_iso": "BND",
+        "descripcion_ingles": "Brunei Darussalam, Dollars",
+        "descripcion_espanol": "Dólar de Brunei"
+    },
+    {
+        "codigo_iso": "BOB",
+        "descripcion_ingles": "Bolivia, Bolivianos",
+        "descripcion_espanol": "Boliviano de Bolivia"
+    },
+    {
+        "codigo_iso": "BRL",
+        "descripcion_ingles": "Brazil, Brazil Real",
+        "descripcion_espanol": "Real de Brazil"
+    },
+    {
+        "codigo_iso": "BSD",
+        "descripcion_ingles": "Bahamas, Dollars",
+        "descripcion_espanol": "Dólar de Bahamas"
+    },
+    {
+        "codigo_iso": "BTN",
+        "descripcion_ingles": "Bhutan, Ngultrum",
+        "descripcion_espanol": "Ngultrun de Butan"
+    },
+    {
+        "codigo_iso": "BWP",
+        "descripcion_ingles": "Botswana, Pulas",
+        "descripcion_espanol": "Pula de Botswana"
+    },
+    {
+        "codigo_iso": "BYR",
+        "descripcion_ingles": "Belarus, Rubles",
+        "descripcion_espanol": "Rublo de Belorusia"
+    },
+    {
+        "codigo_iso": "BZD",
+        "descripcion_ingles": "Belize, Dollars",
+        "descripcion_espanol": "Dólar de Belize"
+    },
+    {
+        "codigo_iso": "CAD",
+        "descripcion_ingles": "Canada, Dollars",
+        "descripcion_espanol": "Dólar Canadiense"
+    },
+    {
+        "codigo_iso": "CDF",
+        "descripcion_ingles": "Congo/Kinshasa, Congolese Francs",
+        "descripcion_espanol": "Franco Congoleño"
+    },
+    {
+        "codigo_iso": "CHF",
+        "descripcion_ingles": "Switzerland, Francs",
+        "descripcion_espanol": "Franco Suizo"
+    },
+    {
+        "codigo_iso": "CLP",
+        "descripcion_ingles": "Chile, Pesos",
+        "descripcion_espanol": "Peso Chileno"
+    },
+    {
+        "codigo_iso": "CNY",
+        "descripcion_ingles": "China, Yuan Renminbi",
+        "descripcion_espanol": "Yuan Chino"
+    },
+    {
+        "codigo_iso": "COP",
+        "descripcion_ingles": "Colombia, Pesos",
+        "descripcion_espanol": "Peso de Colombia"
+    },
+    {
+        "codigo_iso": "CRC",
+        "descripcion_ingles": "Costa Rica, Colones",
+        "descripcion_espanol": "Colon de Costa Rica"
+    },
+    {
+        "codigo_iso": "CSD",
+        "descripcion_ingles": "Serbia, Dinars",
+        "descripcion_espanol": "Dinar Servio"
+    },
+    {
+        "codigo_iso": "CUP",
+        "descripcion_ingles": "Cuba, Pesos",
+        "descripcion_espanol": "Peso Cubano"
+    },
+    {
+        "codigo_iso": "CVE",
+        "descripcion_ingles": "Cape Verde, Escudos",
+        "descripcion_espanol": "Escudo de Cabo Verde"
+    },
+    {
+        "codigo_iso": "CYP",
+        "descripcion_ingles": "Cyprus, Pounds",
+        "descripcion_espanol": "Libra de Chipre"
+    },
+    {
+        "codigo_iso": "CZK",
+        "descripcion_ingles": "Czech Republic, Koruny",
+        "descripcion_espanol": "Krona Checa"
+    },
+    {
+        "codigo_iso": "DJF",
+        "descripcion_ingles": "Djibouti, Francs",
+        "descripcion_espanol": "Franco de Djibouti"
+    },
+    {
+        "codigo_iso": "DKK",
+        "descripcion_ingles": "Denmark, Kroner",
+        "descripcion_espanol": "Corona Danesa"
+    },
+    {
+        "codigo_iso": "DOP",
+        "descripcion_ingles": "Dominican Republic, Pesos",
+        "descripcion_espanol": "Peso Dominicano"
+    },
+    {
+        "codigo_iso": "DZD",
+        "descripcion_ingles": "Algeria, Algeria Dinars",
+        "descripcion_espanol": "Dinar de Algeria"
+    },
+    {
+        "codigo_iso": "EEK",
+        "descripcion_ingles": "Estonia, Krooni",
+        "descripcion_espanol": "Corona de Estonia"
+    },
+    {
+        "codigo_iso": "EGP",
+        "descripcion_ingles": "Egypt, Pounds",
+        "descripcion_espanol": "Libra Egipcia"
+    },
+    {
+        "codigo_iso": "ERN",
+        "descripcion_ingles": "Eritrea, Nakfa",
+        "descripcion_espanol": "Nakfa de Eritrea"
+    },
+    {
+        "codigo_iso": "ETB",
+        "descripcion_ingles": "Ethiopia, Birr",
+        "descripcion_espanol": "Birr de Etiopía"
+    },
+    {
+        "codigo_iso": "EUR",
+        "descripcion_ingles": "Euro Member Countries - EURO",
+        "descripcion_espanol": "Moneda Unica Europea. Moneda de los estados miembros de la Union Europea EU (EURO)"
+    },
+    {
+        "codigo_iso": "FJD",
+        "descripcion_ingles": "Fiji, Dollars",
+        "descripcion_espanol": "Dólar de Fiji"
+    },
+    {
+        "codigo_iso": "FKP",
+        "descripcion_ingles": "Falkland Islands (Malvinas), Pounds",
+        "descripcion_espanol": "Libra de Falkland"
+    },
+    {
+        "codigo_iso": "GBP",
+        "descripcion_ingles": "United Kingdom, Pounds",
+        "descripcion_espanol": "Libra Británica"
+    },
+    {
+        "codigo_iso": "GEL",
+        "descripcion_ingles": "Georgia, Lari",
+        "descripcion_espanol": "Lari de Georgia"
+    },
+    {
+        "codigo_iso": "GGP",
+        "descripcion_ingles": "Guernsey, Pounds",
+        "descripcion_espanol": "Libra de Guernsey"
+    },
+    {
+        "codigo_iso": "GHC",
+        "descripcion_ingles": "Ghana, Cedis",
+        "descripcion_espanol": "Cedi de Ghana"
+    },
+    {
+        "codigo_iso": "GIP",
+        "descripcion_ingles": "Gibraltar, Pounds",
+        "descripcion_espanol": "Libra de Gibraltar"
+    },
+    {
+        "codigo_iso": "GMD",
+        "descripcion_ingles": "Gambia, Dalasi",
+        "descripcion_espanol": "Dalasi de Gambia"
+    },
+    {
+        "codigo_iso": "GNF",
+        "descripcion_ingles": "Guinea, Francs",
+        "descripcion_espanol": "Franco de Guinea"
+    },
+    {
+        "codigo_iso": "GTQ",
+        "descripcion_ingles": "Guatemala, Quetzales",
+        "descripcion_espanol": "Quedzal de Guatemala"
+    },
+    {
+        "codigo_iso": "GYD",
+        "descripcion_ingles": "Guyana, Dollars",
+        "descripcion_espanol": "Dólar Guayanés"
+    },
+    {
+        "codigo_iso": "HKD",
+        "descripcion_ingles": "Hong Kong, Dollars",
+        "descripcion_espanol": "Dólar de Hong Kong"
+    },
+    {
+        "codigo_iso": "HNL",
+        "descripcion_ingles": "Honduras, Lempiras",
+        "descripcion_espanol": "Lempira de Honduras"
+    },
+    {
+        "codigo_iso": "HRK",
+        "descripcion_ingles": "Croatia, Kuna",
+        "descripcion_espanol": "Dinar de Croacia"
+    },
+    {
+        "codigo_iso": "HTG",
+        "descripcion_ingles": "Haiti, Gourdes",
+        "descripcion_espanol": "Gourde de Haiti"
+    },
+    {
+        "codigo_iso": "HUF",
+        "descripcion_ingles": "Hungary, Forint",
+        "descripcion_espanol": "Florín Húngaro"
+    },
+    {
+        "codigo_iso": "IDR",
+        "descripcion_ingles": "Indonesia, Rupiahs",
+        "descripcion_espanol": "Rupia Indonesia"
+    },
+    {
+        "codigo_iso": "ILS",
+        "descripcion_ingles": "Israel, New Shekels",
+        "descripcion_espanol": "Scheckel Israelí"
+    },
+    {
+        "codigo_iso": "IMP",
+        "descripcion_ingles": "Isle of Man, Pounds",
+        "descripcion_espanol": "Libra Isla del Hombre"
+    },
+    {
+        "codigo_iso": "INR",
+        "descripcion_ingles": "India, Rupees",
+        "descripcion_espanol": "Rupia India"
+    },
+    {
+        "codigo_iso": "IQD",
+        "descripcion_ingles": "Iraq, Dinars",
+        "descripcion_espanol": "Dinar Iraquí"
+    },
+    {
+        "codigo_iso": "IRR",
+        "descripcion_ingles": "Iran, Rials",
+        "descripcion_espanol": "Rial Iraní"
+    },
+    {
+        "codigo_iso": "ISK",
+        "descripcion_ingles": "Iceland, Kronur",
+        "descripcion_espanol": "Corona Islandesa"
+    },
+    {
+        "codigo_iso": "JMD",
+        "descripcion_ingles": "Jamaica, Dollars",
+        "descripcion_espanol": "Dólar de Jamaica"
+    },
+    {
+        "codigo_iso": "JOD",
+        "descripcion_ingles": "Jordan, Dinars",
+        "descripcion_espanol": "Dinar de Jordania"
+    },
+    {
+        "codigo_iso": "JPY",
+        "descripcion_ingles": "Japan, Yen",
+        "descripcion_espanol": "Yen Japonés"
+    },
+    {
+        "codigo_iso": "KES",
+        "descripcion_ingles": "Kenya, Shillings",
+        "descripcion_espanol": "Chelin de Kenya"
+    },
+    {
+        "codigo_iso": "KGS",
+        "descripcion_ingles": "Kyrgyzstan, Soms",
+        "descripcion_espanol": "Som de Kirghizstan"
+    },
+    {
+        "codigo_iso": "KHR",
+        "descripcion_ingles": "Cambodia, Riels",
+        "descripcion_espanol": "Riel de Camboya"
+    },
+    {
+        "codigo_iso": "KMF",
+        "descripcion_ingles": "Comoros. Francs",
+        "descripcion_espanol": "Franco de Comoros"
+    },
+    {
+        "codigo_iso": "KPW",
+        "descripcion_ingles": "Korea (North), Won",
+        "descripcion_espanol": "Won de Corea del Norte"
+    },
+    {
+        "codigo_iso": "KRW",
+        "descripcion_ingles": "Korea (South), Won",
+        "descripcion_espanol": "Won de Corea del Sur"
+    },
+    {
+        "codigo_iso": "KWD",
+        "descripcion_ingles": "Kuwait, Dinars",
+        "descripcion_espanol": "Dinar de Kuwait"
+    },
+    {
+        "codigo_iso": "KYD",
+        "descripcion_ingles": "Cayman Islands, Dollars",
+        "descripcion_espanol": "Dólar de las Islas Caimán"
+    },
+    {
+        "codigo_iso": "KZT",
+        "descripcion_ingles": "Kazakstan, Tenge",
+        "descripcion_espanol": "Tenge de Kazakhstán"
+    },
+    {
+        "codigo_iso": "LAK",
+        "descripcion_ingles": "Laos, Kips",
+        "descripcion_espanol": "Kip de Letonia"
+    },
+    {
+        "codigo_iso": "LBP",
+        "descripcion_ingles": "Lebanon, Pounds",
+        "descripcion_espanol": "Libra Libanesa"
+    },
+    {
+        "codigo_iso": "LKR",
+        "descripcion_ingles": "Sri Lanka, Rupees",
+        "descripcion_espanol": "Rupia de Ceilán"
+    },
+    {
+        "codigo_iso": "LRD",
+        "descripcion_ingles": "Liberia Dollars",
+        "descripcion_espanol": "Dólar de Liberia"
+    },
+    {
+        "codigo_iso": "LSL",
+        "descripcion_ingles": "Lesotho, Maloti",
+        "descripcion_espanol": "Loti de Lesotho"
+    },
+    {
+        "codigo_iso": "LTL",
+        "descripcion_ingles": "Lithuania, Litai",
+        "descripcion_espanol": "Lita de Lituania"
+    },
+    {
+        "codigo_iso": "LVL",
+        "descripcion_ingles": "Latvia, Lati",
+        "descripcion_espanol": "Lat Latonia"
+    },
+    {
+        "codigo_iso": "LYD",
+        "descripcion_ingles": "Libya, Dinars",
+        "descripcion_espanol": "Dinar Libio"
+    },
+    {
+        "codigo_iso": "MAD",
+        "descripcion_ingles": "Morocco, Dirhams",
+        "descripcion_espanol": "Dirham Marroquí"
+    },
+    {
+        "codigo_iso": "MDL",
+        "descripcion_ingles": "Moldova, Lei",
+        "descripcion_espanol": "Lei de Moldavia"
+    },
+    {
+        "codigo_iso": "MGA",
+        "descripcion_ingles": "Madagascar, Ariary",
+        "descripcion_espanol": "Franco de Madagascar"
+    },
+    {
+        "codigo_iso": "MKD",
+        "descripcion_ingles": "Macedonia, Denars",
+        "descripcion_espanol": "Dinar de Macedonia"
+    },
+    {
+        "codigo_iso": "MMK",
+        "descripcion_ingles": "Myanmar (Burma), Kyats",
+        "descripcion_espanol": "Kyats de Birmania"
+    },
+    {
+        "codigo_iso": "MNT",
+        "descripcion_ingles": "Mongolia, Tugriks",
+        "descripcion_espanol": "Tugrik de Mongolia"
+    },
+    {
+        "codigo_iso": "MOP",
+        "descripcion_ingles": "Macau, Patacas",
+        "descripcion_espanol": "Pataca de Macao"
+    },
+    {
+        "codigo_iso": "MRO",
+        "descripcion_ingles": "Mauritania, Ouguiyas",
+        "descripcion_espanol": "Ouguiya de Mauritania"
+    },
+    {
+        "codigo_iso": "MTL",
+        "descripcion_ingles": "Malta, Liri",
+        "descripcion_espanol": "Lira de Malta"
+    },
+    {
+        "codigo_iso": "MUR",
+        "descripcion_ingles": "Mauritius, Rupees",
+        "descripcion_espanol": "Rupia de Mauritius"
+    },
+    {
+        "codigo_iso": "MVR",
+        "descripcion_ingles": "Maldives (Maldive Islands), Rufiyaa",
+        "descripcion_espanol": "Rufia de Maldivas"
+    },
+    {
+        "codigo_iso": "MWK",
+        "descripcion_ingles": "Malawi, Kwachas",
+        "descripcion_espanol": "Kwacha de Malawi"
+    },
+    {
+        "codigo_iso": "MXN",
+        "descripcion_ingles": "Mexico, Pesos",
+        "descripcion_espanol": "Peso Mexicano"
+    },
+    {
+        "codigo_iso": "MYR",
+        "descripcion_ingles": "Malaysia, Ringgits",
+        "descripcion_espanol": "Ringgit de Malaysia"
+    },
+    {
+        "codigo_iso": "MZM",
+        "descripcion_ingles": "Mozambique, Meticais",
+        "descripcion_espanol": "Metical de Mozambique"
+    },
+    {
+        "codigo_iso": "NAD",
+        "descripcion_ingles": "Namibia, Dollars",
+        "descripcion_espanol": "Dólar de Namibia"
+    },
+    {
+        "codigo_iso": "NGN",
+        "descripcion_ingles": "Nigeria, Nairas",
+        "descripcion_espanol": "Naira de Nigeria"
+    },
+    {
+        "codigo_iso": "NIO",
+        "descripcion_ingles": "Nicaragua, Gold Cordobas",
+        "descripcion_espanol": "Cordoba de Nicaragua"
+    },
+    {
+        "codigo_iso": "NOK",
+        "descripcion_ingles": "Norway, Krone",
+        "descripcion_espanol": "Córona Noruega"
+    },
+    {
+        "codigo_iso": "NPR",
+        "descripcion_ingles": "Nepal, Nepal Rupees",
+        "descripcion_espanol": "Rupia de Nepal"
+    },
+    {
+        "codigo_iso": "NZD",
+        "descripcion_ingles": "New Zealand, Dollars",
+        "descripcion_espanol": "Dólar de Nueva Zelanda"
+    },
+    {
+        "codigo_iso": "OMR",
+        "descripcion_ingles": "Oman, Rials",
+        "descripcion_espanol": "Rial de Omán"
+    },
+    {
+        "codigo_iso": "PAB",
+        "descripcion_ingles": "Panama, Balboa",
+        "descripcion_espanol": "Balboa de Panamá"
+    },
+    {
+        "codigo_iso": "PEN",
+        "descripcion_ingles": "Peru, Nuevos Soles",
+        "descripcion_espanol": "Sol de Perú - Nuevo"
+    },
+    {
+        "codigo_iso": "PGK",
+        "descripcion_ingles": "Papua New Guinea, Kina",
+        "descripcion_espanol": "Kina de Papua Nueva Guinea"
+    },
+    {
+        "codigo_iso": "PHP",
+        "descripcion_ingles": "Philippines, Pesos",
+        "descripcion_espanol": "Peso Filipino"
+    },
+    {
+        "codigo_iso": "PKR",
+        "descripcion_ingles": "Pakistan, Rupees",
+        "descripcion_espanol": "Rupia de Pakistán"
+    },
+    {
+        "codigo_iso": "PLN",
+        "descripcion_ingles": "Poland, Zlotych",
+        "descripcion_espanol": "Zloty de Polonia"
+    },
+    {
+        "codigo_iso": "PYG",
+        "descripcion_ingles": "Paraguay, Guarani",
+        "descripcion_espanol": "Guarani de Paraguay"
+    },
+    {
+        "codigo_iso": "QAR",
+        "descripcion_ingles": "Qatar, Rials",
+        "descripcion_espanol": "Riyal de Qatar"
+    },
+    {
+        "codigo_iso": "ROL",
+        "descripcion_ingles": "Romania, Lei",
+        "descripcion_espanol": "Lei de Rumania"
+    },
+    {
+        "codigo_iso": "RUR",
+        "descripcion_ingles": "Russia, Rubles",
+        "descripcion_espanol": "Rublo Ruso"
+    },
+    {
+        "codigo_iso": "RWF",
+        "descripcion_ingles": "Rwanda, Rwanda Francs",
+        "descripcion_espanol": "Franco de Rwanda"
+    },
+    {
+        "codigo_iso": "SAR",
+        "descripcion_ingles": "Saudi Arabia, Riyals",
+        "descripcion_espanol": "Riyal de Arabia Saudi"
+    },
+    {
+        "codigo_iso": "SBD",
+        "descripcion_ingles": "Solomon Islands, Dollars",
+        "descripcion_espanol": "Dólar de las Islas Solomon"
+    },
+    {
+        "codigo_iso": "SCR",
+        "descripcion_ingles": "Seychelles, Rupees",
+        "descripcion_espanol": "Rupias de Seychelles"
+    },
+    {
+        "codigo_iso": "SDD",
+        "descripcion_ingles": "Sudan, Dinars",
+        "descripcion_espanol": "Dinar de Sudan"
+    },
+    {
+        "codigo_iso": "SEK",
+        "descripcion_ingles": "Sweden, Kronor",
+        "descripcion_espanol": "Córona Sueca"
+    },
+    {
+        "codigo_iso": "SGD",
+        "descripcion_ingles": "Singapore, Dollars",
+        "descripcion_espanol": "Dólar de Singapur"
+    },
+    {
+        "codigo_iso": "SHP",
+        "descripcion_ingles": "Saint Helena, Pounds",
+        "descripcion_espanol": "Libra de St.Helena"
+    },
+    {
+        "codigo_iso": "SIT",
+        "descripcion_ingles": "Slovenia, Tolars",
+        "descripcion_espanol": "Tolar de Eslovenia"
+    },
+    {
+        "codigo_iso": "SKK",
+        "descripcion_ingles": "Slovakia, Koruny",
+        "descripcion_espanol": "Córona Eslovaca"
+    },
+    {
+        "codigo_iso": "SLL",
+        "descripcion_ingles": "Sierra Leone, Leones",
+        "descripcion_espanol": "Sierra León"
+    },
+    {
+        "codigo_iso": "SOS",
+        "descripcion_ingles": "Somalia, Shillings",
+        "descripcion_espanol": "Chellín de Somalia"
+    },
+    {
+        "codigo_iso": "SRD",
+        "descripcion_ingles": "Suriname, Dollars",
+        "descripcion_espanol": "Dólar de Surinan"
+    },
+    {
+        "codigo_iso": "STD",
+        "descripcion_ingles": "São Tome and Principe, Dobras",
+        "descripcion_espanol": "Sao Tome / Principe Dobra"
+    },
+    {
+        "codigo_iso": "SVC",
+        "descripcion_ingles": "El Salvador, Colones",
+        "descripcion_espanol": "Colon de El Salvador"
+    },
+    {
+        "codigo_iso": "SYP",
+        "descripcion_ingles": "Syria, Pounds",
+        "descripcion_espanol": "Libra de Siria"
+    },
+    {
+        "codigo_iso": "SZL",
+        "descripcion_ingles": "Swaziland, Emalangeni",
+        "descripcion_espanol": "Lilangeni de Swaziland"
+    },
+    {
+        "codigo_iso": "THB",
+        "descripcion_ingles": "Thailand, Baht",
+        "descripcion_espanol": "Baht de Tailandia"
+    },
+    {
+        "codigo_iso": "TMM",
+        "descripcion_ingles": "Turkmenistan, Manats",
+        "descripcion_espanol": "Manat de Turkmenistán"
+    },
+    {
+        "codigo_iso": "TND",
+        "descripcion_ingles": "Tunisia, Dinars",
+        "descripcion_espanol": "Dinar de Tunícia"
+    },
+    {
+        "codigo_iso": "TOP",
+        "descripcion_ingles": "Tonga, Pa'anga",
+        "descripcion_espanol": "Pa'anga de Tonga"
+    },
+    {
+        "codigo_iso": "TRL",
+        "descripcion_ingles": "Turkey, Liras",
+        "descripcion_espanol": "Lira de Turquía"
+    },
+    {
+        "codigo_iso": "TTD",
+        "descripcion_ingles": "Trinidad and Tobago, Dollars",
+        "descripcion_espanol": "Dólar de Trinidad y Tobago"
+    },
+    {
+        "codigo_iso": "TVD",
+        "descripcion_ingles": "Tuvalu, Tuvalu Dollars",
+        "descripcion_espanol": "Dólar de Tuvalu"
+    },
+    {
+        "codigo_iso": "TWD",
+        "descripcion_ingles": "Taiwan, New Dollars",
+        "descripcion_espanol": "Dólar Nuevo de Taiwán"
+    },
+    {
+        "codigo_iso": "TZS",
+        "descripcion_ingles": "Tanzania, Shillings",
+        "descripcion_espanol": "Chellín de Tanzania"
+    },
+    {
+        "codigo_iso": "UAH",
+        "descripcion_ingles": "Ukraine, Hryvnia",
+        "descripcion_espanol": "Karbowanez de Ucrainia"
+    },
+    {
+        "codigo_iso": "UGX",
+        "descripcion_ingles": "Uganda, Shillings",
+        "descripcion_espanol": "Chellin de Uganda"
+    },
+    {
+        "codigo_iso": "USD",
+        "descripcion_ingles": "United States of America, Dollars",
+        "descripcion_espanol": "Dólar de los Estados Unidos de America"
+    },
+    {
+        "codigo_iso": "UYU",
+        "descripcion_ingles": "Uruguay, Pesos",
+        "descripcion_espanol": "Pesos Uruguayos"
+    },
+    {
+        "codigo_iso": "UZS",
+        "descripcion_ingles": "Uzbekistan, Sums",
+        "descripcion_espanol": "Som de Uzbekistan"
+    },
+    {
+        "codigo_iso": "VEB",
+        "descripcion_ingles": "Venezuela, Bolivares",
+        "descripcion_espanol": "Bolivar de Venezuela"
+    },
+    {
+        "codigo_iso": "VEF",
+        "descripcion_ingles": "Venezuela, Bolivares",
+        "descripcion_espanol": "Bolivar Fuerte de Venezuela"
+    },
+    {
+        "codigo_iso": "VND",
+        "descripcion_ingles": "Viet Nam, Dong D",
+        "descripcion_espanol": "ong de Vietnám"
+    },
+    {
+        "codigo_iso": "VUV",
+        "descripcion_ingles": "Vanuatu, Vatu",
+        "descripcion_espanol": "Vatu de Vanuatu"
+    },
+    {
+        "codigo_iso": "WST",
+        "descripcion_ingles": "Samoa, Tala",
+        "descripcion_espanol": "Tala de Samoa"
+    }
+]

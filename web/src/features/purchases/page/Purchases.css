@@ -1,0 +1,246 @@
+.purchases-page {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.purchases-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border-light);
+}
+
+.purchases-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.purchases-header h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.6rem;
+}
+
+.purchases-header p {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+}
+
+.purchases-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.purchases-actions .search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 2px solid var(--border-light);
+    border-radius: 24px;
+    padding: 8px 16px;
+    background: var(--card-bg);
+}
+
+.purchases-actions .search-box i {
+    color: var(--text-muted);
+}
+
+.purchases-actions .search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--primary-text);
+    min-width: 220px;
+}
+
+.purchases-actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 10px 22px;
+    border-radius: 24px;
+    border: none;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.purchases-actions .btn-primary:hover {
+    background: var(--accent-teal-hover);
+}
+
+.purchases-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.purchases-summary strong {
+    color: var(--primary-color);
+    font-size: 1.05rem;
+}
+
+.purchases-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+.purchases-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.purchases-table thead th {
+    text-align: left;
+    padding: 12px 14px;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--border-light);
+    white-space: nowrap;
+}
+
+.purchases-table tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--primary-text);
+    font-size: 0.92rem;
+}
+
+.purchases-table tbody tr:hover {
+    background: var(--bg-subtle);
+}
+
+.purchases-table .document-number {
+    font-weight: 600;
+}
+
+.purchases-table .document-total {
+    font-weight: 700;
+    color: var(--primary-color);
+    white-space: nowrap;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.status-badge.status-paid {
+    background: rgba(90, 159, 180, 0.15);
+    color: var(--accent-teal);
+}
+
+.status-badge.status-pending {
+    background: rgba(255, 159, 67, 0.15);
+    color: #e08a2b;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s;
+}
+
+.btn-icon:hover {
+    color: var(--tertiary-color);
+    border-color: var(--tertiary-color);
+}
+
+.purchases-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.purchases-empty i {
+    font-size: 3rem;
+    color: var(--border-light);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.purchases-empty .btn-primary {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 10px 22px;
+    border-radius: 24px;
+    border: none;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.2rem;
+}
+
+.pagination button {
+    padding: 8px 18px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination__info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+    .purchases-page {
+        padding: 1rem;
+    }
+    .purchases-actions .search-box input {
+        min-width: 140px;
+    }
+}

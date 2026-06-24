@@ -1,0 +1,534 @@
+/* ============================================
+   PANEL SUPERADMIN — mismo estilo que el resto de la app
+   ============================================ */
+.admin-page {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 54px);
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.admin-page-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.admin-page-header p {
+    margin: 0.25rem 0 0;
+    color: var(--secondary-text, #6b7280);
+    font-size: 0.875rem;
+}
+
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Buscador */
+.admin-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 0.55rem 0.85rem;
+    min-width: 260px;
+}
+
+.admin-search i {
+    color: var(--secondary-text, #6b7280);
+}
+
+.admin-search input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.9rem;
+    color: var(--primary-text, #1f2937);
+}
+
+/* Botones */
+.admin-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+    background: var(--accent-teal-hover, #4a8fa4);
+}
+
+.admin-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    background: transparent;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-btn-secondary:hover:not(:disabled) {
+    background: var(--bg-subtle, #f1f5f9);
+}
+
+.admin-btn-danger {
+    border-color: #f1aeb5;
+    color: #b02a37;
+}
+
+.admin-btn-danger:hover:not(:disabled) {
+    background: #fdf0f1;
+}
+
+.admin-btn-primary:disabled,
+.admin-btn-secondary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Tarjeta / tabla */
+.admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--primary-text, #1f2937);
+}
+
+.admin-table th {
+    background: var(--bg-subtle, #f7fafc);
+    color: var(--secondary-text, #6b7280);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-table tbody tr.admin-row-clickable {
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.admin-table tbody tr.admin-row-clickable:hover {
+    background: var(--bg-subtle, #f7fafc);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Celda de empresa con logo */
+.admin-company-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-logo {
+    min-width: 120px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-subtle, #f7fafc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    color: var(--secondary-text, #9ca3af);
+}
+
+.admin-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.admin-logo-lg {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+}
+
+.admin-company-cell-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-company-name {
+    font-weight: 600;
+    color: var(--primary-text, #1f2937);
+}
+
+.admin-company-email {
+    font-size: 0.78rem;
+    color: var(--secondary-text, #6b7280);
+}
+
+/* Stats del detalle */
+.admin-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.admin-stat {
+    background: var(--bg-subtle, #f7fafc);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    text-align: center;
+}
+
+.admin-stat-value {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.1;
+}
+
+.admin-stat-label {
+    font-size: 0.75rem;
+    color: var(--secondary-text, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-detail-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.admin-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.admin-badge-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.admin-badge-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.admin-badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Pestañas del detalle */
+.admin-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.admin-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--secondary-text, #6b7280);
+    cursor: pointer;
+    margin-bottom: -1px;
+}
+
+.admin-tab:hover {
+    color: var(--primary-color);
+}
+
+.admin-tab.active {
+    color: var(--accent-teal);
+    border-bottom-color: var(--accent-teal);
+}
+
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    color: var(--secondary-text, #6b7280);
+    font-size: 0.875rem;
+}
+
+.admin-pagination button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--card-bg);
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    cursor: pointer;
+}
+
+.admin-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.admin-empty,
+.admin-loading {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--secondary-text, #6b7280);
+    font-size: 0.9rem;
+}
+
+/* Detalle */
+.admin-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--accent-teal);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    padding: 0;
+}
+
+.admin-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+}
+
+.admin-section-card h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--primary-color);
+}
+
+.admin-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+.admin-info-item label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--secondary-text, #6b7280);
+    margin-bottom: 0.25rem;
+}
+
+.admin-info-item span {
+    font-size: 0.9rem;
+    color: var(--primary-text, #1f2937);
+    word-break: break-word;
+}
+
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.admin-section-header h2 {
+    margin: 0;
+}
+
+.admin-section-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Formulario en modal (crear admin / reset password) */
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.admin-field label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--primary-text, #1f2937);
+}
+
+.admin-field input {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text, #1f2937);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.admin-field input:focus {
+    border-color: var(--accent-teal);
+}
+
+.admin-select {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text, #1f2937);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.admin-select:focus {
+    border-color: var(--accent-teal);
+}
+
+.admin-textarea {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text, #1f2937);
+    font-size: 0.9rem;
+    outline: none;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.admin-textarea:focus {
+    border-color: var(--accent-teal);
+}
+
+/* Lista de prefijos */
+.admin-prefix-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.admin-prefix {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    background: var(--bg-subtle, #f7fafc);
+}
+
+.admin-prefix-main {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.admin-prefix-code {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+.admin-prefix-meta {
+    font-size: 0.8rem;
+    color: var(--secondary-text, #6b7280);
+    margin-top: 0.25rem;
+    width: 100%;
+}
+
+.admin-prefix-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .admin-page {
+        padding: 1.25rem 1rem;
+    }
+    .admin-table th:nth-child(3),
+    .admin-table td:nth-child(3) {
+        display: none;
+    }
+}

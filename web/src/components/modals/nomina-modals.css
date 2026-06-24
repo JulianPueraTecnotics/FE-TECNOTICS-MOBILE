@@ -1,0 +1,604 @@
+/* Estilos base compartidos por EmpleadoModal y NominaModal — mismo lenguaje visual que ClientModal */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    animation: overlayFadeIn 0.25s ease-out;
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Panel lateral (drawer) desde la derecha */
+.nomina-drawer {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    padding: 0;
+}
+
+.nomina-drawer-panel.modal-container {
+    width: 100%;
+    max-width: 800px;
+    min-width: 320px;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 12px 0 0 12px;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.2);
+    animation: drawerSlideIn 0.3s ease-out;
+}
+
+@keyframes drawerSlideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.modal-container {
+    background: var(--card-bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--primary-color);
+    color: white;
+    flex-shrink: 0;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-close:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Secciones del formulario */
+.nomina-section {
+    margin-bottom: 1.5rem;
+}
+
+.nomina-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0 0.875rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* Permite que el item del grid se encoja por debajo de su contenido (selects con texto largo),
+       evitando el desbordamiento horizontal del panel. */
+    min-width: 0;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    /* El select hereda el ancho de la columna en vez de crecer con el texto de sus opciones. */
+    max-width: 100%;
+    text-overflow: ellipsis;
+    padding: 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    font-size: 1rem;
+    color: var(--primary-text);
+    transition: all 0.2s;
+    background: var(--card-bg);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+.form-group input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    background: var(--bg-subtle);
+    cursor: not-allowed;
+}
+
+.field-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Nota de ayuda a nivel de sección o introducción del formulario */
+.section-hint {
+    margin: 0 0 12px;
+    font-style: normal;
+    line-height: 1.4;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    grid-column: 1 / -1;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-teal);
+    cursor: pointer;
+}
+
+.checkbox-row label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary-text);
+    cursor: pointer;
+}
+
+/* Selección múltiple de trabajadores (lote) */
+.nomina-section-count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.empleado-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.empleado-pick {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    overflow: hidden;
+}
+
+.empleado-pick.sel {
+    border-color: var(--accent-teal);
+}
+
+.empleado-pick-head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+}
+
+.empleado-pick-head input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-teal);
+    cursor: pointer;
+}
+
+.empleado-pick-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--primary-text);
+}
+
+.empleado-pick-doc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.empleado-pick-total {
+    margin-left: auto;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+}
+
+.empleado-pick-head .btn-link {
+    margin-left: 0.5rem;
+}
+
+.empleado-pick-body {
+    padding: 0.75rem;
+    border-top: 1px dashed var(--border-light);
+    background: var(--bg-subtle);
+}
+
+/* Resultado del lote emitido */
+.lote-result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lote-result-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+}
+
+.lote-result-row i {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.lote-result-row.ok i {
+    color: #16a34a;
+}
+
+.lote-result-row.fail i {
+    color: #dc3545;
+}
+
+.lote-result-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.lote-result-info strong {
+    font-size: 0.9rem;
+    color: var(--primary-text);
+}
+
+.lote-result-info span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Listas dinámicas de conceptos (horas extra, bonificaciones, auxilios) */
+.concepto-list {
+    margin-top: 1rem;
+}
+
+.concepto-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    margin-bottom: 0.5rem;
+}
+
+.concepto-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.concepto-row select,
+.concepto-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--primary-text);
+    background: var(--card-bg);
+}
+
+.concepto-row select {
+    flex: 1.4;
+}
+
+.btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    color: var(--secondary-color, var(--accent-teal));
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.375rem;
+}
+
+.btn-link:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.btn-icon-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    background: none;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+.btn-icon-danger:hover:not(:disabled) {
+    background: #dc35451a;
+    border-color: #dc3545;
+}
+
+.btn-icon-danger:disabled,
+.btn-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Tarjeta de totales */
+.totales-card {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.totales-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0;
+    font-size: 0.9rem;
+    color: var(--primary-text);
+}
+
+.totales-row.total {
+    border-top: 1px solid var(--border-light);
+    margin-top: 0.375rem;
+    padding-top: 0.625rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--primary-color);
+}
+
+.totales-row .deduccion {
+    color: #dc3545;
+}
+
+/* Info box */
+.info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.info-box i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.info-box p {
+    font-size: 0.875rem;
+    color: var(--primary-text);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Footer */
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.modal-footer .btn-primary,
+.modal-footer .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-footer .btn-primary {
+    background: var(--accent-teal);
+    color: white;
+    border-radius: 24px;
+    padding: 10px 24px;
+}
+
+.modal-footer .btn-primary:hover:not(:disabled) {
+    background: var(--accent-teal-hover);
+}
+
+.modal-footer .btn-secondary {
+    background: var(--card-bg);
+    color: var(--primary-color);
+    border: 2px solid var(--border-light);
+    border-radius: 24px;
+    padding: 10px 24px;
+}
+
+.modal-footer .btn-secondary:hover:not(:disabled) {
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+    background: var(--bg-subtle);
+}
+
+.modal-footer button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.rotating {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .nomina-drawer-panel.modal-container {
+        max-width: 100%;
+        min-width: 0;
+        border-radius: 0;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .modal-footer button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ── Detalle de nómina (NominaDetailModal) ── */
+.detail-row {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: flex-start;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    flex: 0 0 38%;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.detail-value {
+    flex: 1;
+    color: #0f172a;
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+.detail-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    word-break: break-all;
+}
+
+.detail-descr {
+    white-space: pre-line;
+    font-size: 0.82rem;
+    color: #475569;
+}
+
+.detail-concepto {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-concepto:last-child {
+    border-bottom: none;
+}
+
+.detail-concepto-name {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.88rem;
+}
+
+.detail-concepto-val {
+    color: #475569;
+    font-size: 0.82rem;
+    text-align: right;
+    word-break: break-word;
+}

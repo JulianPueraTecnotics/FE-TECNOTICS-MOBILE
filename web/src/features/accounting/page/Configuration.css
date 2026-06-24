@@ -1,0 +1,396 @@
+.config-page {
+    padding: 1.5rem;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.config-shell {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.config-sidebar {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.config-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.15rem;
+    color: var(--primary-color);
+    margin: 0.25rem 0 1rem;
+}
+
+.config-nav-group {
+    margin-bottom: 1rem;
+}
+
+.config-nav-group__label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 0.4rem 0.4rem;
+}
+
+.config-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    text-align: left;
+    padding: 9px 12px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    color: var(--primary-text);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.15s, color 0.15s;
+}
+
+.config-nav-item:hover {
+    background: var(--bg-subtle);
+}
+
+.config-nav-item.active {
+    background: var(--accent-teal);
+    color: #fff;
+}
+
+.config-content {
+    min-width: 0;
+}
+
+/* Las páginas embebidas (Profile/SubUsers) ya traen su propio contenedor; lo
+   neutralizamos un poco para que encajen dentro del shell de configuración. */
+.config-content .profile-page,
+.config-content .sub-users-page {
+    padding: 0;
+}
+
+/* ===== Tarjetas contables (acc-*) ===== */
+.acc-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.acc-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.acc-card h2 {
+    margin: 0 0 0.25rem;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+.acc-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.acc-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.acc-head-actions .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.acc-head-actions .btn-secondary:hover {
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+}
+
+.acc-head-actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.acc-head-actions .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.acc-h3 {
+    margin: 1.5rem 0 0.5rem;
+    color: var(--primary-text);
+    font-size: 1rem;
+}
+
+.acc-sub {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0 0 1rem;
+}
+
+.acc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.acc-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.acc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.acc-field label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.acc-field input,
+.acc-field select {
+    padding: 9px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+    outline: none;
+}
+
+.acc-field input:focus,
+.acc-field select:focus {
+    border-color: var(--accent-teal);
+}
+
+.acc-tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.7rem;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: rgba(255, 159, 67, 0.15);
+    color: #e08a2b;
+}
+
+.acc-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.acc-table th,
+.acc-table td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.9rem;
+    color: var(--primary-text);
+}
+
+.acc-table th {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+}
+
+.acc-table input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+    outline: none;
+}
+
+.acc-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.acc-actions .btn-primary {
+    padding: 9px 22px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.acc-actions .btn-secondary,
+.acc-roles-list .btn-secondary {
+    padding: 9px 18px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--primary-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.acc-actions .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.acc-rangelist {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.acc-rangelist li {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Roles */
+.acc-roles-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.acc-roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.acc-rolelist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.acc-rolelist li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 4px 6px 4px 10px;
+}
+
+.acc-rolelist li.active {
+    border-color: var(--accent-teal);
+}
+
+.acc-rolelist__name {
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    color: var(--primary-text);
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
+.acc-rolelist__name span {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.acc-perm-group {
+    margin-top: 1rem;
+}
+
+.acc-perm-group h4 {
+    margin: 0 0 0.5rem;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.acc-perm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1rem;
+}
+
+.acc-perm {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.88rem;
+    color: var(--primary-text);
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    color: var(--tertiary-color);
+    border-color: var(--tertiary-color);
+}
+
+@media (max-width: 920px) {
+    .config-shell {
+        grid-template-columns: 1fr;
+    }
+    .config-sidebar {
+        position: static;
+    }
+    .acc-roles-layout {
+        grid-template-columns: 1fr;
+    }
+    .acc-grid,
+    .acc-grid-3,
+    .acc-perm-grid {
+        grid-template-columns: 1fr;
+    }
+}

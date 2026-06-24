@@ -1,0 +1,65 @@
+.coming-soon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100dvh - 120px);
+    padding: 2rem 1rem;
+}
+
+.coming-soon__card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.coming-soon__icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.coming-soon__icon i {
+    font-size: 34px;
+}
+
+.coming-soon__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    color: var(--primary-text);
+}
+
+.coming-soon__badge {
+    display: inline-block;
+    margin: 0 0 1rem;
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: var(--accent-teal, #14b8a6);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.coming-soon__text {
+    margin: 0 0 1.75rem;
+    color: var(--secondary-text, var(--primary-text));
+    line-height: 1.5;
+}
+
+.coming-soon__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}

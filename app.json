@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "Tecnotics Facturación",
+    "slug": "tecnotics-facturacion-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "tecnoticsmobile",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#002737"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tecnotics.facturacion.mobile",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.tecnotics.facturacion.mobile",
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#002737"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiBaseUrl": "https://facturacionelectronicatt.tecnotics.co",
+      "feUrl": "https://facturacionelectronicatt.tecnotics.co"
+    }
+  }
+}

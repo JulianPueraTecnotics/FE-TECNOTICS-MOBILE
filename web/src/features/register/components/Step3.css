@@ -1,0 +1,295 @@
+.step3-container {
+  width: 100%;
+}
+
+.step3-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.step3-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.step3-header p {
+  font-size: 1rem;
+  color: #718096;
+}
+
+/* Contract Reminder */
+.contract-reminder {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.contract-reminder > i {
+  font-size: 1.5rem;
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.contract-reminder > div {
+  flex: 1;
+}
+
+.contract-reminder strong {
+  display: block;
+  color: #92400e;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.contract-reminder p {
+  color: #b45309;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.btn-download-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-download-small:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Files Grid */
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.file-upload-card {
+  background: var(--bg-subtle);
+  border: 2px dashed #cbd5e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.file-upload-card:hover {
+  border-color: var(--secondary-color);
+  background: var(--bg-subtle);
+}
+
+.file-upload-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.file-upload-header i {
+  font-size: 1.5rem;
+  color: var(--secondary-color);
+}
+
+.file-upload-header h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.file-upload-body {
+  position: relative;
+}
+
+/* File Input */
+.file-input {
+  display: none;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  padding: 1rem;
+}
+
+.file-label:hover {
+  transform: scale(1.02);
+}
+
+.file-label i {
+  font-size: 2.5rem;
+  color: #a0aec0;
+  margin-bottom: 0.5rem;
+}
+
+.file-label p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.25rem;
+}
+
+.file-label span {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* File Preview */
+.file-preview {
+  position: relative;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.file-preview img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.pdf-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.pdf-icon i {
+  font-size: 3rem;
+  color: #ef4444;
+}
+
+.pdf-icon p {
+  font-size: 0.875rem;
+  color: #4a5568;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+}
+
+.btn-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-remove:hover:not(:disabled) {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.btn-remove:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.form-actions .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-actions .btn-primary:hover:not(:disabled) {
+  background: var(--secondary-color);
+}
+
+.form-actions .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rotating {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .files-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contract-reminder {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

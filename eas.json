@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">= 18.1.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://facturacionelectronicatt.tecnotics.co",
+        "EXPO_PUBLIC_FE_URL": "https://facturacionelectronicatt.tecnotics.co",
+        "EAS_BUILD_NO_EXPO_GO_WARNING": "true"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://facturacionelectronicatt.tecnotics.co",
+        "EXPO_PUBLIC_FE_URL": "https://facturacionelectronicatt.tecnotics.co",
+        "EAS_BUILD_NO_EXPO_GO_WARNING": "true"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://facturacionelectronicatt.tecnotics.co",
+        "EXPO_PUBLIC_FE_URL": "https://facturacionelectronicatt.tecnotics.co",
+        "EAS_BUILD_NO_EXPO_GO_WARNING": "true"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -1,0 +1,1025 @@
+/* Mismo tipo de letra y colores que el PDF: Arial/Helvetica, paleta documento */
+.home {
+    width: 100%;
+    overflow-x: hidden;
+    background-color: var(--page-bg);
+    color: var(--primary-text);
+    font-size: 15px;
+    line-height: 1.55;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Solo las secciones que NO son el hero tienen ancho limitado */
+.home section:not(.home__hero) {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+
+@media (max-width: 767px) {
+    .home section:not(.home__hero) {
+        padding: 2rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .home section:not(.home__hero) {
+        padding: 1.5rem 0.75rem;
+    }
+}
+
+.home section:not(.home__hero) + section {
+    border-top: 1px solid #e0e0e0;
+}
+
+.home h1,
+.home h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+.home h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.home h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--primary-text);
+}
+
+/* Hero – ancho completo: no hereda max-width de .home section */
+.home__hero {
+    position: relative;
+    width: 100%;
+    min-height: min(82vh, 680px);
+    display: flex;
+    align-items: center;
+    padding: 2rem clamp(1.5rem, 8vw, 5rem) 4rem;
+    border-top: none;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.home__hero-bg {
+    position: absolute;
+    inset: 0;
+}
+
+.home__hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.home__hero-slide--active {
+    opacity: 1;
+    z-index: 0;
+}
+
+.home__hero-overlay {
+    display: none;
+}
+
+.home__hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 520px;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    background: rgba(0, 39, 55, 0.5);
+}
+
+.home__hero h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.home__hero p {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.home__hero .home__cta {
+    display: inline-block;
+    background-color: var(--accent-teal);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.home__hero .home__cta:hover {
+    background-color: var(--accent-teal-hover);
+    color: #fff;
+}
+
+.home__hero-dots {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.home__hero-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.home__hero-dot:hover {
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+.home__hero-dot--active {
+    background: var(--card-bg);
+    border-color: var(--card-bg);
+}
+
+/* Hero en móvil: grid de imágenes arriba, texto y CTA abajo (sin carrusel) */
+@media (max-width: 767px) {
+    .home__hero {
+        flex-direction: column;
+        min-height: auto;
+        padding: 1.25rem 1rem 2rem;
+        align-items: stretch;
+    }
+
+    .home__hero .home__hero-bg {
+        position: relative;
+        height: 160px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .home__hero .home__hero-slide {
+        position: relative;
+        opacity: 1;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .home__hero .home__hero-overlay {
+        display: none;
+    }
+
+    .home__hero .home__hero-content {
+        order: 1;
+        max-width: 100%;
+        margin-top: 1.5rem;
+        padding: 0 0.25rem;
+        text-align: center;
+        background: transparent;
+    }
+
+    .home__hero h1 {
+        color: var(--primary-text);
+        font-size: 1.5rem;
+    }
+
+    .home__hero p {
+        color: var(--text-muted);
+        font-size: 0.9375rem;
+    }
+
+    .home__hero .home__cta {
+        margin-top: 0.5rem;
+    }
+
+    .home__hero-dots {
+        display: none;
+    }
+}
+
+/* 4 bloques con iconos azules */
+.home__features-wrap {
+    background: var(--card-bg);
+}
+
+.home__features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem 1.25rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .home__features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .home__features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.home__feature-card {
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: center;
+}
+
+.home__feature-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(90, 159, 180, 0.15);
+    color: var(--accent-teal);
+}
+
+.home__feature-icon i {
+    font-size: 1.5rem;
+}
+
+.home__feature-card h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+.home__feature-card p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+/* Facturación Electrónica Inteligente: título centrado + imagen + lista */
+.home__intro-title {
+    text-align: center;
+    margin-top: 3rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+@media (max-width: 480px) {
+    .home__intro-title,
+    .home__control-title {
+        font-size: 1.375rem;
+    }
+
+    .home__steps-main-title {
+        font-size: 1.25rem;
+    }
+
+    .home__plans-title {
+        font-size: 1.25rem;
+    }
+
+    .home__faq-title {
+        font-size: 1.25rem;
+    }
+}
+
+.home__intro-subtitle {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+
+.home__intro-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .home__intro-row {
+        grid-template-columns: 1fr;
+    }
+
+    .home__intro-image-wrap {
+        order: 1;
+    }
+
+    .home__intro-benefits {
+        order: 2;
+    }
+}
+
+.home__intro-image-wrap {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(90, 159, 180, 0.2), 0 8px 24px rgba(90, 159, 180, 0.12);
+}
+
+.home__intro-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: top;
+}
+
+.home__intro-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.home__intro-benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--primary-text);
+}
+
+.home__intro-benefits li i {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    color: var(--accent-teal);
+    margin-top: 0.1rem;
+}
+
+/* Control total – mismo layout que Facturación Inteligente: título + imagen + lista con checks */
+.home__control {
+    background: var(--card-bg);
+}
+
+.home__control-title {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.home__control-subtitle {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+
+.home__control-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .home__control-row {
+        grid-template-columns: 1fr;
+    }
+
+    .home__control-image-wrap {
+        order: 1;
+    }
+
+    .home__control-benefits {
+        order: 2;
+    }
+}
+
+.home__control-image-wrap {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(90, 159, 180, 0.2), 0 8px 24px rgba(90, 159, 180, 0.12);
+}
+
+.home__control-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: top;
+}
+
+.home__control-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.home__control-benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--primary-text);
+}
+
+.home__control-benefits li i {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    color: var(--accent-teal);
+    margin-top: 0.1rem;
+}
+
+/* 4 pasos – estilo imagen: iconos circulares azules, línea conectora, títulos en azul claro */
+.home__steps-section {
+    background: var(--card-bg);
+}
+
+.home__steps-main-title {
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.home__steps-subtitle {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 2.5rem;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+#como-funciona {
+    scroll-margin-top: 60px;
+}
+
+.home__steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-top: 0;
+    position: relative;
+}
+
+.home__steps::before {
+    content: "";
+    position: absolute;
+    top: 28px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 2px;
+    background: #d0d7de;
+    z-index: 0;
+}
+
+@media (max-width: 900px) {
+    .home__steps::before {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .home__steps {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem 1rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .home__steps {
+        grid-template-columns: 1fr;
+    }
+}
+
+.home__step {
+    text-align: center;
+    padding: 0 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.home__step-icon-wrap {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--accent-teal);
+    border: 3px solid var(--accent-teal-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.home__step-icon-wrap i {
+    font-size: 1.5rem;
+}
+
+.home__step-connector {
+    width: 2px;
+    height: 16px;
+    margin: 0.5rem auto;
+    background: #d0d7de;
+}
+
+.home__step-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--accent-teal);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.home__step-desc {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Planes – estilo imagen: puntos azules, precio en pill gradiente, checks azules, botón azul */
+#planes {
+    scroll-margin-top: 60px;
+}
+
+/* Planes más anchos: contenedor 1280px para que cada tarjeta sea más ancha */
+.home section.home__plans-section {
+    max-width: 1280px;
+}
+
+.home__plans-section {
+    background: var(--card-bg);
+}
+
+.home__plans-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.home__plans-title {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+.home__plans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+    .home__plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .home__plans-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.home__plan-card {
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.home__plan-card--popular {
+    border-color: var(--accent-teal);
+    box-shadow: 0 4px 16px rgba(90, 159, 180, 0.2);
+}
+
+.home__plan-badge {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-teal-hover) 100%);
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 0 0 12px 12px;
+    letter-spacing: 0.08em;
+}
+
+.home__plan-card h3 {
+    margin-bottom: 0.35rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+.home__plan-desc {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.home__plan-price-pill {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    background: var(--accent-teal);
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+}
+
+.home__plan-que-incluye {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--primary-text);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.home__plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    flex: 1;
+}
+
+.home__plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    padding: 0.25rem 0;
+    color: var(--primary-text);
+    line-height: 1.35;
+}
+
+.home__plan-features li i {
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: var(--accent-teal);
+    margin-top: 0.1rem;
+}
+
+.home__plan-cta {
+    display: block;
+    text-align: center;
+    background: var(--accent-teal);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    margin-top: auto;
+    transition: background-color 0.2s;
+}
+
+.home__plan-cta:hover {
+    background: var(--accent-teal-hover);
+    color: #fff;
+}
+
+/* Plan Personalizado: dropdowns decorativos */
+.home__plan-custom-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.home__plan-select-wrap {
+    position: relative;
+}
+
+.home__plan-select-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.home__plan-select {
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--primary-text);
+    background: var(--bg-subtle);
+    appearance: none;
+    cursor: not-allowed;
+}
+
+.home__plan-select-arrow {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 1.125rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* FAQ – acordeón desplegable, borde azul claro, chevron */
+.home__faq {
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-light);
+}
+
+.home__faq-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.home__faq-box {
+    max-width: 640px;
+    margin: 0 auto;
+    border: 1px solid rgba(90, 159, 180, 0.35);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.home__faq-item {
+    border-bottom: 1px solid rgba(90, 159, 180, 0.2);
+}
+
+.home__faq-item:last-child {
+    border-bottom: none;
+}
+
+.home__faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: none;
+    background: var(--card-bg);
+    font-size: 0.9375rem;
+    color: var(--primary-text);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.home__faq-question:hover {
+    background: var(--bg-subtle);
+}
+
+.home__faq-question span {
+    flex: 1;
+}
+
+.home__faq-chevron {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    transition: transform 0.25s ease;
+}
+
+.home__faq-item--open .home__faq-chevron {
+    transform: rotate(180deg);
+}
+
+.home__faq-answer {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+}
+
+.home__faq-item--open .home__faq-answer {
+    max-height: 200px;
+}
+
+.home__faq-answer p {
+    margin: 0;
+    padding: 0 1.25rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+    white-space: pre-line;
+}
+
+/* Modo oscuro: secciones de la home con fondo transparente */
+[data-theme="dark"] .home__hero-dot--active,
+[data-theme="dark"] .home__features-wrap,
+[data-theme="dark"] .home__control,
+[data-theme="dark"] .home__steps-section,
+[data-theme="dark"] .home__plans-section,
+[data-theme="dark"] .home__plan-card,
+[data-theme="dark"] .home__faq,
+[data-theme="dark"] .home__faq-box,
+[data-theme="dark"] .home__faq-question {
+    background: transparent !important;
+}
+
+[data-theme="dark"] .home__faq-question:hover {
+    background: transparent !important;
+}
+
+[data-theme="dark"] .home__plan-select {
+    background: transparent !important;
+}
+
+/* Footer */
+.home__footer {
+    width: 100%;
+    padding: 3rem 1.5rem 2rem;
+    border-top: 1px solid var(--border-light);
+    margin-top: 2rem;
+}
+
+.home__footer-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.home__footer-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.home__footer-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.home__footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.home__footer-links a {
+    color: var(--primary-text);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.home__footer-links a:hover {
+    color: var(--accent-teal);
+}
+
+.home__footer-social .home__footer-links {
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.home__footer-social .home__footer-links a {
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+.home__footer-social .home__footer-links a:hover {
+    background: var(--accent-teal);
+    color: #fff;
+}
+
+.home__footer-dev {
+    align-items: center;
+    text-align: center;
+}
+
+.home__footer-dev-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.home__footer-dev-logo {
+    display: inline-block;
+    max-width: 140px;
+    line-height: 0;
+}
+
+.home__footer-dev-logo img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+[data-theme="dark"] .home__footer-dev-logo img {
+    filter: invert(1) grayscale(1);
+}
+
+@media (max-width: 768px) {
+    .home__footer-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+
+    .home__footer-brand-link {
+        margin: 0 auto;
+    }
+
+    .home__footer-social .home__footer-links {
+        justify-content: center;
+    }
+
+    .home__footer-actions .home__footer-links {
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .home__footer {
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .home__footer-inner {
+        gap: 1.5rem;
+    }
+
+    .home__footer-title {
+        font-size: 0.8125rem;
+    }
+
+    .home__footer-links a {
+        font-size: 0.875rem;
+    }
+
+    .home__footer-brand-link {
+        max-width: 140px;
+    }
+
+    .home__footer-dev-logo {
+        max-width: 120px;
+    }
+}

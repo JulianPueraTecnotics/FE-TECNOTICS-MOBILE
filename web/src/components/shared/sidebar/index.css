@@ -1,0 +1,240 @@
+.sidebar {
+    width: 100%;
+    height: 100dvh;
+    right: -100%;
+    position: fixed;
+    background: var(--card-bg);
+    z-index: 100;
+    transition: all 0.3s ease-in-out;
+    padding-top: 0.30rem;
+    top: 0;
+}
+
+.sidebar__open {
+    right: 0;
+}
+
+.siderbar__container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar__header {
+    width: 100%;
+    max-height: 58px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.30rem;
+    margin-bottom: 2rem;
+
+    .sidebar__brand {
+        max-width: 180px;
+
+        img {
+            width: 100%;
+        }
+    }
+
+    .sidebar__header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sidebar__theme-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        color: var(--primary-text);
+        border-radius: 8px;
+    }
+
+    .sidebar__theme-toggle:hover {
+        color: var(--primary-color);
+    }
+
+    .sidebar__theme-toggle i {
+        font-size: 20px;
+    }
+
+    .sidebar__menu-button {
+        i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+    }
+}
+
+.sidebar__column {
+    width: 100%;
+    padding: 0 1rem;
+}
+
+.sidebar__menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+    list-style: none;
+    gap: 10px;
+}
+
+.sidebar__menu-item {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--border-light);
+}
+
+.sidebar__menu-link {
+    width: 100%;
+    text-decoration: none;
+    display: flex;
+    gap: 10px;
+    color: var(--primary-text);
+}
+
+.sidebar__menu-link:hover {
+    color: var(--primary-color);
+}
+
+.sidebar__menu-item--trial {
+    border: none;
+}
+
+.sidebar__menu-item--trial .sidebar__menu-link--trial {
+    background-color: var(--accent-teal);
+    color: white;
+    justify-content: center;
+    border: none;
+    border-radius: 24px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar__menu-item--trial .sidebar__menu-link--trial:hover {
+    background-color: var(--accent-teal-hover);
+    color: white;
+}
+
+/* Registrarse: mismo estilo que Comenzar prueba, sin fondo detrás del botón */
+.sidebar__menu-item.btn-secondary {
+    border: none;
+    background: none;
+}
+
+.sidebar__menu-item.btn-secondary .sidebar__menu-link {
+    background-color: var(--accent-teal);
+    color: white;
+    justify-content: center;
+    border-radius: 24px;
+    padding: 9px 20px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar__menu-item.btn-secondary .sidebar__menu-link:hover {
+    background-color: var(--accent-teal-hover);
+    color: white;
+}
+
+/* ============================================================
+   DESKTOP (≥768px): sidebar FIJO a la izquierda (patrón software
+   contable). SOLO aplica con sesión de empresa (html.has-app-sidebar);
+   en páginas públicas (home/login) el sidebar sigue siendo drawer oculto
+   y la navegación pública vive en el header superior.
+   ============================================================ */
+@media (min-width: 768px) {
+    html.has-app-sidebar .sidebar {
+        /* Anclado a la izquierda, bajo el header */
+        left: 0;
+        right: auto;
+        top: 54px;
+        width: 264px;
+        max-width: 264px;
+        height: calc(100dvh - 54px);
+        border-right: 1px solid var(--border-light);
+        overflow-y: auto;
+        overflow-x: hidden;
+        transition: none;
+        padding-top: 0;
+    }
+
+    /* En desktop el sidebar de empresa siempre está visible: el toggle no lo oculta */
+    html.has-app-sidebar .sidebar.sidebar__open,
+    html.has-app-sidebar .sidebar.sidebar__closed {
+        left: 0;
+        right: auto;
+    }
+
+    /* En desktop el logo y el botón de menú/tema viven en el header superior,
+       no en el sidebar: ocultamos su cabecera interna para no duplicar. */
+    html.has-app-sidebar .sidebar__header {
+        display: none;
+    }
+
+    html.has-app-sidebar .sidebar__column {
+        padding: 1rem 0.75rem;
+    }
+
+    /* Items más compactos y sin caja pesada, estilo navegación lateral */
+    html.has-app-sidebar .sidebar__menu {
+        gap: 4px;
+    }
+
+    html.has-app-sidebar .sidebar__menu-item {
+        padding: 0;
+        border: none;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link {
+        padding: 10px 12px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link:hover {
+        background: var(--bg-subtle);
+    }
+
+    /* Enlace activo resaltado */
+    html.has-app-sidebar .sidebar__menu-link.active {
+        background: var(--accent-teal);
+        color: #fff;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link.active:hover {
+        background: var(--accent-teal-hover);
+        color: #fff;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar__column {
+        padding: 0 0.75rem;
+    }
+
+    .sidebar__menu-item {
+        padding: 0.75rem 1rem;
+        min-height: 48px;
+    }
+
+    .sidebar__theme-toggle {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .sidebar__menu-button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+[data-theme="dark"] .sidebar__brand img {
+    filter: invert(1) grayscale(1);
+}

@@ -1,0 +1,294 @@
+.pubr {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f1f5f9;
+    min-height: 100dvh;
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pubr-state {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #64748b;
+    text-align: center;
+    padding: 2rem;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.pubr-state i {
+    font-size: 48px;
+    color: #f59e0b;
+}
+
+.pubr-state h1 {
+    margin: 0;
+    color: #1f2937;
+}
+
+.pubr-doc {
+    background: #fff;
+    width: 100%;
+    max-width: 860px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem 2.25rem;
+}
+
+.pubr-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 3px solid #0f766e;
+    padding-bottom: 1rem;
+}
+
+.pubr-title {
+    margin: 0;
+    color: #0f766e;
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.pubr-number {
+    margin: 2px 0 0;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.pubr-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pubr-badge--signed {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.pubr-badge--pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.pubr-cards {
+    display: flex;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.pubr-card {
+    flex: 1;
+    min-width: 220px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+}
+
+.pubr-card h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.pubr-card-big {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.pubr-card-row {
+    font-size: 0.85rem;
+    color: #374151;
+    margin-top: 3px;
+}
+
+.pubr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.pubr-table thead th {
+    background: #0f766e;
+    color: #fff;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    padding: 0.65rem 0.5rem;
+    text-align: left;
+}
+
+.pubr-table th.r,
+.pubr-table td.r {
+    text-align: right;
+}
+
+.pubr-table tbody td {
+    padding: 0.65rem 0.5rem;
+    border-bottom: 1px solid #eef2f7;
+    color: #1f2937;
+    vertical-align: top;
+}
+
+.pubr-it-name {
+    font-weight: 600;
+}
+
+.pubr-it-desc {
+    color: #6b7280;
+    font-size: 0.78rem;
+    margin-top: 2px;
+}
+
+.pubr-notas {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #374151;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+}
+
+/* Firmada */
+.pubr-signed {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: 1.75rem;
+    padding: 1.1rem 1.25rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+}
+
+.pubr-signed i {
+    font-size: 2rem;
+    color: #16a34a;
+}
+
+.pubr-signed strong {
+    color: #15803d;
+}
+
+.pubr-signed p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+/* Área de firma */
+.pubr-sign-area {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pubr-sign-area h3 {
+    margin: 0 0 0.25rem;
+    color: #0f766e;
+}
+
+.pubr-sign-hint {
+    margin: 0 0 0.9rem;
+    color: #6b7280;
+    font-size: 0.88rem;
+}
+
+.pubr-sign-name {
+    width: 100%;
+    max-width: 360px;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.pubr-sign-name:focus {
+    outline: none;
+    border-color: #0f766e;
+}
+
+.pubr-sign-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 0.9rem;
+}
+
+.pubr-foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1.25rem;
+}
+
+.pubr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    border: none;
+}
+
+.pubr-btn--primary {
+    background: #0f766e;
+    color: #fff;
+}
+
+.pubr-btn--primary:hover:not(:disabled) {
+    background: #115e59;
+}
+
+.pubr-btn--ghost {
+    background: #fff;
+    color: #0f766e;
+    border: 2px solid #cbd5e1;
+}
+
+.pubr-btn--ghost:hover:not(:disabled) {
+    border-color: #0f766e;
+}
+
+.pubr-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.rotating {
+    animation: pubrRotate 1s linear infinite;
+}
+
+@keyframes pubrRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .pubr-doc {
+        padding: 1.25rem;
+    }
+    .pubr-sign-actions {
+        flex-direction: column-reverse;
+    }
+    .pubr-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

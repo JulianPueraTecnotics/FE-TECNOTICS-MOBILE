@@ -1,0 +1,287 @@
+/* Shell móvil Tecnotics — header fijo, drawer de menú completo, bottom nav */
+
+:root {
+    --mobile-header-height: 56px;
+    --mobile-bottom-nav-height: 62px;
+}
+
+html.mobile-app {
+    -webkit-tap-highlight-color: transparent;
+}
+
+html.mobile-app body {
+    padding-top: calc(var(--mobile-header-height) + env(safe-area-inset-top, 0px));
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    overscroll-behavior-y: none;
+}
+
+html.mobile-app.has-bottom-nav body {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+html.mobile-app .container-scroll,
+html.mobile-app .container-noscroll {
+    min-height: calc(100dvh - var(--mobile-header-height) - env(safe-area-inset-top, 0px));
+    height: calc(100dvh - var(--mobile-header-height) - env(safe-area-inset-top, 0px));
+}
+
+html.mobile-app.has-bottom-nav .container-scroll,
+html.mobile-app.has-bottom-nav .container-noscroll {
+    min-height: calc(
+        100dvh - var(--mobile-header-height) - var(--mobile-bottom-nav-height) -
+            env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+    height: calc(
+        100dvh - var(--mobile-header-height) - var(--mobile-bottom-nav-height) -
+            env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: calc(var(--mobile-header-height) + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-header);
+    display: flex;
+    align-items: center;
+}
+
+.mobile-header__inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: var(--mobile-header-height);
+}
+
+.mobile-header__left,
+.mobile-header__right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mobile-header__brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.mobile-header__brand img {
+    height: 36px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+}
+
+[data-theme="dark"] .mobile-header__brand img {
+    filter: invert(1) grayscale(1);
+}
+
+.mobile-header__icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    color: var(--primary-text);
+    flex-shrink: 0;
+}
+
+.mobile-header__icon-btn:hover,
+.mobile-header__icon-btn:active {
+    background: var(--bg-subtle);
+}
+
+.mobile-header__icon-btn i {
+    font-size: 22px;
+}
+
+.mobile-header__title {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 4px;
+}
+
+.mobile-header .user-menu-button {
+    padding: 4px 6px;
+    gap: 6px;
+}
+
+.mobile-header .user-info {
+    display: none;
+}
+
+.mobile-header .user-avatar {
+    width: 34px;
+    height: 34px;
+}
+
+/* ── Drawer (menú completo del portal) ──────────────────────────────────── */
+.mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.mobile-drawer-overlay--open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(320px, 88vw);
+    max-width: 100%;
+    background: var(--card-bg);
+    z-index: 1101;
+    transform: translateX(-105%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-drawer--open {
+    transform: translateX(0);
+}
+
+.mobile-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
+}
+
+.mobile-drawer__brand img {
+    height: 32px;
+    width: auto;
+    max-width: 160px;
+}
+
+[data-theme="dark"] .mobile-drawer__brand img {
+    filter: invert(1) grayscale(1);
+}
+
+.mobile-drawer__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mobile-drawer__scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 14px 24px;
+}
+
+.mobile-drawer__scroll .sidebar__menu-item {
+    padding: 0.85rem 1rem;
+    min-height: 48px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 8px;
+}
+
+.mobile-drawer__scroll .sidebar__menu-link.active {
+    background: var(--accent-teal);
+    color: #fff;
+    border-radius: 8px;
+}
+
+.mobile-drawer__scroll .sidebar__submenu {
+    margin-top: 8px;
+}
+
+.mobile-drawer__divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 12px 0;
+}
+
+/* ── Bottom navigation ──────────────────────────────────────────────────── */
+.mobile-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    height: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--header-bg);
+    border-top: 1px solid var(--border-header);
+    display: flex;
+    align-items: stretch;
+}
+
+.mobile-bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 6px 2px;
+    min-height: var(--mobile-bottom-nav-height);
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.mobile-bottom-nav__item i {
+    font-size: 22px;
+}
+
+.mobile-bottom-nav__item.active,
+.mobile-bottom-nav__item--active {
+    color: var(--accent-teal);
+    font-weight: 600;
+}
+
+.mobile-bottom-nav__item:active {
+    background: var(--bg-subtle);
+}
+
+/* TEC FAB: subir sobre bottom nav */
+html.mobile-app.has-bottom-nav .tec-fab {
+    bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+html.mobile-app.has-bottom-nav .tec-panel:not(.tec-panel--fullscreen) {
+    bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 12px);
+}

@@ -1,0 +1,43 @@
+/* Overrides globales: app 100% móvil, sin layout desktop del portal */
+
+html.mobile-app.has-app-sidebar body,
+html.mobile-app body {
+    padding-left: env(safe-area-inset-left, 0px) !important;
+}
+
+html.mobile-app .sidebar {
+    display: none !important;
+}
+
+html.mobile-app header:not(.mobile-header) {
+    display: none !important;
+}
+
+/* Tablas y grids: scroll horizontal en pantallas estrechas */
+html.mobile-app table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+html.mobile-app .page-header,
+html.mobile-app .page-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+html.mobile-app input,
+html.mobile-app select,
+html.mobile-app textarea {
+    font-size: 16px;
+}
+
+html.mobile-app .modal-overlay,
+html.mobile-app [class*="modal"] {
+    max-height: 100dvh;
+}
+
+/* Home landing: ocultar secciones muy pesadas en móvil app */
+html.mobile-app .home {
+    padding-bottom: 24px;
+}

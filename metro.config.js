@@ -1,0 +1,53 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+const path = require("path");
+const { getDefaultConfig } = require("expo/metro-config");
+
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+
+config.resolver.unstable_enablePackageExports = true;
+
+// Portal en web/src — Metro lo incluye en el bundle Expo (sin WebView).
+config.watchFolders = [path.resolve(__dirname, "web")];
+
+// Una sola resolución de deps: raíz Expo (evita web/node_modules de Vite).
+config.resolver.nodeModulesPaths = [path.resolve(__dirname, "node_modules")];
+
+const cssStub = path.resolve(__dirname, "stubs/css.js");
+const hotToastStub = path.resolve(__dirname, "stubs/react-hot-toast.js");
+const reactPdfStub = path.resolve(__dirname, "stubs/react-pdf.js");
+const pdfjsStub = path.resolve(__dirname, "stubs/pdfjs-dist.js");
+const rrRoot = path.resolve(__dirname, "node_modules/react-router/dist/development");
+const origResolve = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName.endsWith(".css") && platform !== "web") {
+    return { type: "sourceFile", filePath: cssStub };
+  }
+  // react-hot-toast → goober → document (solo web).
+  if (
+    platform !== "web" &&
+    (moduleName === "react-hot-toast" || moduleName.startsWith("react-hot-toast/"))
+  ) {
+    return { type: "sourceFile", filePath: hotToastStub };
+  }
+  if (platform !== "web" && (moduleName === "react-pdf" || moduleName.startsWith("react-pdf/"))) {
+    return { type: "sourceFile", filePath: reactPdfStub };
+  }
+  if (platform !== "web" && (moduleName === "pdfjs-dist" || moduleName.startsWith("pdfjs-dist/"))) {
+    return { type: "sourceFile", filePath: pdfjsStub };
+  }
+  // En nativo usar CJS (.js): los .mjs de react-router traen import.meta (Vite HMR).
+  if (moduleName === "react-router/dom") {
+    const file = platform === "web" ? "dom-export.mjs" : "dom-export.js";
+    return { type: "sourceFile", filePath: path.join(rrRoot, file) };
+  }
+  if (platform !== "web" && moduleName === "react-router") {
+    return { type: "sourceFile", filePath: path.join(rrRoot, "index.js") };
+  }
+  if (origResolve) {
+    return origResolve(context, moduleName, platform);
+  }
+  return context.resolveRequest(context, moduleName, platform);
+};
+
+module.exports = config;

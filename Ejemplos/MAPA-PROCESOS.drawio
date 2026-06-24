@@ -1,0 +1,53 @@
+<mxfile host="app.diagrams.net"><diagram name="Mapa de procesos">
+<mxGraphModel dx="1000" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="900" math="0" shadow="0">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="g1" value="EMISIÓN A SIMBA / DIAN" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eef6ff;strokeColor=#9aa5b1;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#334155;" vertex="1" parent="1"><mxGeometry x="40" y="40" width="360" height="300" as="geometry"/></mxCell>
+<mxCell id="g2" value="IMPORTACIÓN (no SIMBA)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#9aa5b1;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#334155;" vertex="1" parent="1"><mxGeometry x="40" y="380" width="360" height="180" as="geometry"/></mxCell>
+<mxCell id="g3" value="PROCESOS INTERNOS (no SIMBA)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#9aa5b1;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#334155;" vertex="1" parent="1"><mxGeometry x="40" y="600" width="360" height="240" as="geometry"/></mxCell>
+<mxCell id="n4" value="Factura de venta (01)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="75" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n5" value="Factura POS (01/20)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="75" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n6" value="Nota crédito (03)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="130" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n7" value="Nota débito (02)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="130" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n8" value="Documento soporte (11)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="185" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n9" value="Nómina electrónica (102)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="185" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n10" value="Compra (XML/ZIP DIAN)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="415" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n11" value="Gasto (XML/ZIP DIAN)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="415" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n12" value="Recepción por correo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="145" y="480" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n13" value="Recaudo de cliente" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="635" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n14" value="Pago a proveedor (lote)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="635" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n15" value="Depreciación" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="695" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n16" value="Cierre anual" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="230" y="695" width="150" height="40" as="geometry"/></mxCell>
+<mxCell id="n17" value="Retención sobre compra" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="145" y="760" width="160" height="40" as="geometry"/></mxCell>
+<mxCell id="n18" value="SIMBA → DIAN
+(CUFE / CUNE)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde68a;strokeColor=#b45309;fontColor=#7c2d12;fontSize=12;" vertex="1" parent="1"><mxGeometry x="480" y="110" width="160" height="60" as="geometry"/></mxCell>
+<mxCell id="n19" value="📒 LIBRO MAYOR
+motor de partida doble
+(postAuto idempotente)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#4338ca;fontColor=#312e81;fontSize=12;" vertex="1" parent="1"><mxGeometry x="470" y="420" width="200" height="90" as="geometry"/></mxCell>
+<mxCell id="n20" value="Exógena · Estados financieros · Analítica" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#333333;fontColor=#000000;fontSize=12;" vertex="1" parent="1"><mxGeometry x="740" y="435" width="200" height="60" as="geometry"/></mxCell>
+<mxCell id="e21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b45309;fontSize=10;" edge="1" parent="1" source="n4" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b45309;fontSize=10;" edge="1" parent="1" source="n5" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b45309;fontSize=10;" edge="1" parent="1" source="n6" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b45309;fontSize=10;" edge="1" parent="1" source="n7" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b45309;fontSize=10;" edge="1" parent="1" source="n8" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b45309;fontSize=10;" edge="1" parent="1" source="n9" target="n18"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e27" value="FV" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n4" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e28" value="FV" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n5" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e29" value="NC (reverso)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n6" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e30" value="no contabiliza" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#94a3b8;fontSize=10;dashed=1;" edge="1" parent="1" source="n7" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e31" value="no contabiliza" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#94a3b8;fontSize=10;dashed=1;" edge="1" parent="1" source="n8" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e32" value="NOM" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n9" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n12" target="n10"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e34" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n12" target="n11"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e35" value="CC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n10" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e36" value="CC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n11" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e37" value="recontabiliza CC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n17" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e38" value="RC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n13" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e39" value="CE" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n14" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e40" value="DEP" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n15" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e41" value="CL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n16" target="n19"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="e42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;fontSize=10;" edge="1" parent="1" source="n19" target="n20"><mxGeometry relative="1" as="geometry"/></mxCell>
+</root>
+</mxGraphModel>
+</diagram></mxfile>

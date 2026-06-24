@@ -1,0 +1,427 @@
+.billing-history-page {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 54px);
+}
+
+.billing-history-layout {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.billing-history-dashboard-section {
+    flex: 0 0 auto;
+}
+
+.billing-history-console-section {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* —— Consola de eventos —— */
+.event-console {
+    background: #1a1d23;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    font-family: "Consolas", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.event-console-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #252830;
+    border-bottom: 1px solid #3d424d;
+}
+
+.event-console-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+}
+
+.event-console-icon {
+    color: #6ee7b7;
+    font-weight: bold;
+}
+
+.event-console-title h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin: 0;
+}
+
+.event-console-subtitle {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.event-console-actions {
+    flex-shrink: 0;
+}
+
+.event-console-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background: #334155;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
+}
+
+.event-console-btn:hover:not(:disabled) {
+    background: #475569;
+    border-color: #64748b;
+}
+
+.event-console-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.event-console-btn-clear {
+    border-color: #7f1d1d;
+    background: rgba(127, 29, 29, 0.3);
+    color: #fca5a5;
+}
+
+.event-console-btn-clear:hover:not(:disabled) {
+    background: rgba(185, 28, 28, 0.4);
+    border-color: #b91c1c;
+}
+
+.event-console-body {
+    padding: 1rem 1.25rem;
+    min-height: 200px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.event-console-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.event-console-body::-webkit-scrollbar-track {
+    background: #252830;
+}
+
+.event-console-body::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+.event-console-body::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+.event-console-toolbar {
+    margin-bottom: 0.75rem;
+}
+
+.event-console-meta {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.event-console-output {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.event-console-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.25rem 0;
+    word-break: break-word;
+}
+
+.event-console-timestamp {
+    flex-shrink: 0;
+    color: #6ee7b7;
+    font-size: 0.85rem;
+}
+
+.event-console-msg {
+    color: #e2e8f0;
+}
+
+.event-console-prompt {
+    color: #6ee7b7;
+    flex-shrink: 0;
+}
+
+.event-console-line-muted {
+    color: #64748b;
+}
+
+.event-console-loading,
+.event-console-empty {
+    color: #94a3b8;
+}
+
+.event-console-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: #252830;
+    border-top: 1px solid #3d424d;
+}
+
+.event-console-pagination .event-console-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.event-console-pagination-info {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--bg-subtle);
+    border-radius: 8px;
+    border-left: 4px solid #0066cc;
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.card-icon.invoices {
+    background-color: #e7f3ff;
+    color: #0066cc;
+}
+
+.card-icon.amount {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.card-icon.paid {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.card-icon.pending {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-content h3 {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.card-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.card-label {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.history-table-container {
+    overflow-x: auto;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table thead {
+    background-color: var(--bg-subtle);
+}
+
+.history-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.history-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.history-table tbody tr:hover {
+    background-color: var(--bg-subtle);
+}
+
+.period-cell {
+    font-weight: 600;
+    color: #333;
+}
+
+.amount-cell {
+    font-weight: 600;
+    color: #333;
+}
+
+.paid-cell {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.pending-cell {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.btn-view {
+    background: none;
+    border: none;
+    color: #0066cc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.btn-view:hover {
+    background-color: #e7f3ff;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .billing-history-page {
+        padding: 1rem;
+    }
+
+    .event-console-header {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .event-console-title h1 {
+        font-size: 1rem;
+    }
+
+    .event-console-body {
+        padding: 0.75rem 1rem;
+        max-height: 50vh;
+        font-size: 0.8rem;
+    }
+
+    .event-console-line {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .summary-card {
+        padding: 1rem;
+    }
+
+    .card-value {
+        font-size: 1.25rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .billing-history-page {
+        padding: 0.75rem;
+    }
+
+    .event-console-pagination {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .event-console-body {
+        max-height: 45vh;
+        font-size: 0.75rem;
+    }
+
+    .summary-card {
+        padding: 0.875rem;
+    }
+
+    .card-value {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .billing-history-page {
+        padding: 0.5rem;
+    }
+
+    .event-console-header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .event-console-body {
+        padding: 0.5rem 0.75rem;
+    }
+}

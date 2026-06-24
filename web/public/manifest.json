@@ -1,0 +1,17 @@
+{
+  "name": "Tecnotics Facturación",
+  "short_name": "Tecnotics",
+  "description": "Facturación electrónica DIAN — app móvil Tecnotics",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#002737",
+  "theme_color": "#002737",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

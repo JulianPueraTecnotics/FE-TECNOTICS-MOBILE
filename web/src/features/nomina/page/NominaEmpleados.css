@@ -1,0 +1,484 @@
+/* Nómina y empleados – mismo estilo que Clients/Documents: Arial, colores y botones pill */
+.nomina-page {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 54px);
+}
+
+.nomina-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 2rem;
+}
+
+.nomina-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nomina-page .header-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.nomina-page .header-content h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.nomina-page .header-content p {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.nomina-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.nomina-actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    background: var(--accent-teal);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.nomina-actions .btn-primary:hover {
+    background: var(--accent-teal-hover);
+    color: #fff;
+}
+
+/* Tabs */
+.nomina-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    border-bottom: 2px solid var(--border-light);
+}
+
+.nomina-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.nomina-tab:hover {
+    color: var(--accent-teal);
+}
+
+.nomina-tab.active {
+    color: var(--accent-teal);
+    border-bottom-color: var(--accent-teal);
+}
+
+.nomina-page .page-loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.nomina-page .pagination--top {
+    padding-top: 0;
+    margin-bottom: 1rem;
+}
+
+.nomina-page .pagination--bottom {
+    margin-top: 1rem;
+}
+
+.nomina-page .pagination button {
+    padding: 5px 20px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border: 2px solid var(--border-light);
+    background: var(--card-bg);
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.nomina-page .pagination button:hover:not(:disabled) {
+    background: var(--accent-teal);
+    color: #fff;
+    border-color: var(--accent-teal);
+}
+
+.nomina-page .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nomina-page .pagination__info {
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+}
+
+/* Tabla */
+.nomina-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nomina-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.nomina-table thead {
+    background: var(--bg-subtle);
+    border-bottom: 2px solid var(--border-light);
+}
+
+.nomina-table th {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.875rem;
+}
+
+.nomina-table td {
+    padding: 0.875rem 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--primary-text);
+}
+
+.nomina-table tbody tr:hover {
+    background: var(--bg-subtle);
+}
+
+.nomina-page .cell-strong {
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+.nomina-page .cell-cune {
+    font-family: monospace;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.nomina-page tr.row-clickable {
+    cursor: pointer;
+}
+
+.nomina-page tr.row-clickable:hover {
+    background: var(--hover-bg, #f8fafc);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nomina-page .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 8px;
+    color: var(--accent-teal);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 1.125rem;
+}
+
+.nomina-page .btn-icon:hover {
+    background: rgba(90, 159, 180, 0.12);
+    color: var(--accent-teal-hover);
+}
+
+.nomina-page .btn-icon-danger:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+/* Badges de estado */
+.status-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-approved {
+    background: rgba(5, 150, 105, 0.12);
+    color: #059669;
+}
+
+.status-rejected {
+    background: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+}
+
+.status-pending {
+    background: rgba(234, 179, 8, 0.15);
+    color: #b45309;
+}
+
+.status-sent {
+    background: rgba(90, 159, 180, 0.15);
+    color: var(--accent-teal);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .nomina-page {
+        padding: 1rem;
+    }
+
+    .nomina-container {
+        padding: 1.25rem 1rem;
+    }
+
+    .nomina-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nomina-page .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .nomina-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nomina-actions .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nomina-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+
+    /* Tabla como cards en móvil */
+    .nomina-table-container {
+        overflow: visible;
+    }
+
+    .nomina-table thead {
+        display: none;
+    }
+
+    .nomina-table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: var(--card-bg);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .nomina-table tbody tr:hover {
+        background: var(--card-bg);
+    }
+
+    .nomina-table tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border: none;
+        border-bottom: 1px solid var(--bg-subtle);
+        text-align: right;
+    }
+
+    .nomina-table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .nomina-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+        text-align: left;
+    }
+}
+
+/* ── Vista agrupada por lote/periodo ── */
+.lote-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.lote-group {
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+
+.lote-group.open {
+    border-color: var(--accent-teal);
+}
+
+.lote-group-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+}
+
+.lote-chevron {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.lote-chevron.rot {
+    transform: rotate(90deg);
+}
+
+.lote-group-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+.lote-group-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.lote-group-badges {
+    display: flex;
+    gap: 0.375rem;
+    margin-left: auto;
+}
+
+.lote-group-total {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary-text);
+    min-width: 110px;
+    text-align: right;
+}
+
+.lote-group-body {
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+@media (max-width: 700px) {
+    .lote-group-head {
+        flex-wrap: wrap;
+    }
+    .lote-group-badges {
+        margin-left: 0;
+        width: 100%;
+    }
+    .lote-group-total {
+        min-width: auto;
+    }
+}
+
+/* ── Certificados (Formulario 220) ── */
+.nomina-cert__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.nomina-cert__head h3 {
+    margin: 0 0 0.25rem;
+    color: var(--primary-color, #002737);
+    font-size: 1.05rem;
+}
+
+.nomina-cert__sub {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    max-width: 640px;
+}
+
+.nomina-cert__year {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nomina-cert__year label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+}
+
+.nomina-cert__year input {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1px solid var(--border-light, #e2e8f0);
+    border-radius: 8px;
+}

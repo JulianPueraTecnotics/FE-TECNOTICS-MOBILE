@@ -1,0 +1,402 @@
+.batch-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: batchFade 0.2s ease-out;
+}
+
+@keyframes batchFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.batch-modal.modal-container {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 720px;
+    max-height: 92dvh;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.batch-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    background: var(--primary-color);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.batch-modal .modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.batch-modal .modal-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    font-size: 1.35rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.batch-modal .modal-close:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.batch-modal .modal-body {
+    padding: 1.4rem;
+    overflow-y: auto;
+}
+
+.batch-client {
+    background: var(--bg-subtle);
+    color: var(--primary-text);
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.88rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.batch-client i {
+    color: var(--accent-teal);
+}
+
+/* Modo de retención (radios) */
+.batch-retmode {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+
+.batch-retmode-lbl {
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+.batch-retmode label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    color: var(--primary-text);
+}
+
+.batch-retmode input[type="radio"] {
+    accent-color: var(--accent-teal);
+}
+
+/* Valor total pagado global */
+.batch-global {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.batch-global label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+.batch-global label small {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.batch-global input {
+    padding: 0.7rem;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: var(--card-bg);
+    color: var(--primary-text);
+}
+
+.batch-global input:focus {
+    outline: none;
+    border-color: var(--accent-teal);
+}
+
+.batch-fill-link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--accent-teal);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+.batch-fill-link:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+/* Tabla del lote */
+.batch-table {
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+
+.batch-head,
+.batch-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1.2fr 0.5fr 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.55rem 0.75rem;
+}
+
+/* Sin columna de check (modos general/sin retención) */
+.batch-head.batch-head--noret,
+.batch-row--noret {
+    grid-template-columns: 1.6fr 1fr 1.2fr 1fr;
+}
+
+.batch-head {
+    background: var(--bg-subtle);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.batch-row {
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+    color: var(--primary-text);
+}
+
+.batch-cell-factura {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+}
+
+.batch-cell-factura small {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
+.batch-row input[type="number"] {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: var(--card-bg);
+    color: var(--primary-text);
+}
+
+.batch-row input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-teal);
+}
+
+.batch-cell-check {
+    text-align: center;
+}
+
+.batch-cell-check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-teal);
+}
+
+.batch-cell-ret {
+    display: flex;
+    flex-direction: column;
+    color: #b45309;
+    font-weight: 600;
+}
+
+.batch-cell-ret small {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+}
+
+/* Form grid */
+.batch-modal .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.batch-modal .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.batch-modal .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.batch-modal .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+.batch-modal .form-group input,
+.batch-modal .form-group select {
+    padding: 0.7rem;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: var(--card-bg);
+    color: var(--primary-text);
+}
+
+.batch-modal .form-group input:focus,
+.batch-modal .form-group select:focus {
+    outline: none;
+    border-color: var(--accent-teal);
+}
+
+/* Totales */
+.batch-totals {
+    background: var(--bg-subtle);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.batch-totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+}
+
+.batch-totals-row span {
+    color: var(--text-muted);
+}
+
+.batch-totals-row strong {
+    color: var(--primary-text);
+}
+
+.batch-totals-row--ret strong {
+    color: #b45309;
+}
+
+.batch-totals-row--total {
+    border-top: 1px dashed var(--border-light);
+    margin-top: 0.25rem;
+    padding-top: 0.6rem;
+}
+
+.batch-totals-row--total strong {
+    color: var(--accent-teal);
+    font-size: 1.05rem;
+}
+
+.batch-send-receipt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--primary-text);
+    margin-bottom: 1.1rem;
+    cursor: pointer;
+}
+
+.batch-send-receipt input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-teal);
+}
+
+.batch-modal .modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.batch-modal .modal-footer .btn-primary,
+.batch-modal .modal-footer .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    border: none;
+}
+
+.batch-modal .modal-footer .btn-primary {
+    background: var(--accent-teal);
+    color: #fff;
+}
+
+.batch-modal .modal-footer .btn-primary:hover:not(:disabled) {
+    background: var(--accent-teal-hover);
+}
+
+.batch-modal .modal-footer .btn-secondary {
+    background: var(--card-bg);
+    color: var(--primary-color);
+    border: 2px solid var(--border-light);
+}
+
+.batch-modal .modal-footer button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.rotating {
+    animation: batchRotate 1s linear infinite;
+}
+
+@keyframes batchRotate {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+    .batch-head { display: none; }
+    .batch-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem 0.75rem;
+    }
+    .batch-cell-factura { grid-column: 1 / -1; }
+    .batch-modal .form-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,119 @@
+/* Se monta por encima de los modales-drawer (z-index alto a propósito). Mismo lenguaje visual que ConfirmModal. */
+.unsaved-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+  padding: 1rem;
+  animation: unsavedFadeIn 0.2s ease-in-out;
+}
+
+@keyframes unsavedFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.unsaved-container {
+  background: var(--card-bg, #ffffff);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: unsavedScaleIn 0.3s ease-out;
+}
+
+@keyframes unsavedScaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.unsaved-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: #f59e0b;
+}
+
+.unsaved-icon i {
+  font-size: 3rem;
+}
+
+.unsaved-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+}
+
+.unsaved-message {
+  font-size: 1rem;
+  color: #718096;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.unsaved-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.unsaved-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding: 0.875rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.unsaved-btn-keep {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+.unsaved-btn-keep:hover {
+  background: #cbd5e0;
+}
+
+.unsaved-btn-discard {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.unsaved-btn-discard:hover {
+  background: #fecaca;
+}
+
+.unsaved-btn-save {
+  background: #667eea;
+  color: #ffffff;
+}
+.unsaved-btn-save:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 480px) {
+  .unsaved-container {
+    padding: 1.5rem;
+  }
+  .unsaved-actions {
+    flex-direction: column-reverse;
+  }
+  .unsaved-btn {
+    width: 100%;
+  }
+}

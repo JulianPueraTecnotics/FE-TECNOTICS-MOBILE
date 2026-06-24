@@ -1,0 +1,219 @@
+/* Panel lateral deslizante (productos / clientes) — estilo fichas_tecnicas, tema del portal. */
+.side-picker {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+.side-picker__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.27);
+}
+
+.side-picker__panel {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 520px;
+    height: 100dvh;
+    background: var(--card-bg);
+    border-left: 1px solid var(--border-light);
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    animation: sidePickerIn 0.3s ease-out;
+}
+
+@keyframes sidePickerIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.side-picker__header {
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--primary-color);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.side-picker__header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.side-picker__close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    font-size: 1.35rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.side-picker__close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.side-picker__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px;
+    background: var(--bg-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.side-picker__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+.side-picker__search i {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.side-picker__search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.95rem;
+    color: var(--primary-text);
+}
+
+.side-picker__create {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent-teal);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.side-picker__create:hover {
+    background: var(--accent-teal-hover);
+}
+
+.side-picker__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.side-picker__item-edit {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.side-picker__item-edit:hover {
+    background: var(--bg-subtle);
+}
+
+.side-picker__empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 32px 12px;
+    font-size: 0.9rem;
+}
+
+.side-picker__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: border-color 0.18s, transform 0.18s;
+    flex-wrap: wrap;
+}
+
+.side-picker__item:hover {
+    border-color: var(--primary-color);
+    transform: translateX(3px);
+}
+
+.side-picker__item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.side-picker__item-name {
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+.side-picker__item-code {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.side-picker__item-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    width: 100%;
+}
+
+.side-picker__item-price {
+    font-weight: 700;
+    color: var(--primary-color);
+    white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+    .side-picker__panel {
+        max-width: 100%;
+        border-left: none;
+    }
+}

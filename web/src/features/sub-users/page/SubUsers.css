@@ -1,0 +1,17 @@
+/* Chips de estado — mismos tokens que `Documents.css` (.status-badge) */
+.subusers-page .status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.subusers-page .status-paid {
+    background: #d4edda;
+    color: #155724;
+}
+
+.subusers-page .status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}

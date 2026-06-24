@@ -1,0 +1,9 @@
+.signature-pad {
+    width: 100%;
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #fff;
+    touch-action: none;
+    cursor: crosshair;
+    display: block;
+}

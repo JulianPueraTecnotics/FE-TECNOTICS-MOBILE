@@ -1,0 +1,264 @@
+header {
+    width: 100%;
+    height: 54px;
+    min-height: 54px;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-header);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 0 24px;
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__column {
+    display: flex;
+    align-items: center;
+}
+
+.header__column:first-child {
+    gap: 20px;
+}
+
+/* Agrupa navegación + tema + menú a la derecha (junto al botón de modo oscuro) */
+.header__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header__brand {
+    max-width: 180px;
+}
+
+.header__brand img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+[data-theme="dark"] .header__brand img {
+    filter: invert(1) grayscale(1);
+}
+
+.header__theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    color: var(--primary-text);
+    border-radius: 8px;
+}
+
+.header__theme-toggle:hover {
+    color: var(--primary-color);
+}
+
+.header__theme-toggle i {
+    font-size: 20px;
+}
+
+.header__menu-button {
+    display: none;
+}
+
+.header__menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 2px;
+}
+
+.header__menu-item {
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+/* Hover sutil para los links de navegación (excluye los botones pill) */
+.header__menu-item:not(.btn-secondary):not(.btn-primary):not(.header__menu-item--trial):hover {
+    background-color: var(--bg-subtle, rgba(0, 0, 0, 0.05));
+}
+
+/* Resaltado del link activo (ruta actual) */
+.header__menu-item:not(.btn-secondary):not(.btn-primary):not(.header__menu-item--trial):has(> .header__menu-link.active) {
+    background-color: rgba(90, 159, 180, 0.14);
+}
+
+/* Alinear el menú de usuario con la altura del header */
+.header__menu-item .user-menu {
+    display: flex;
+    align-items: center;
+}
+
+.header__menu-link {
+    color: var(--primary-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+
+.header__menu-link:hover {
+    color: var(--accent-teal);
+}
+
+/* Link de la ruta actual */
+.header__menu-link.active {
+    color: var(--accent-teal);
+    font-weight: 600;
+}
+
+.header__divider {
+    width: 1px;
+    height: 18px;
+    background-color: var(--border-header);
+    margin: 0 4px;
+}
+
+.header__menu-item--trial .header__menu-link--trial {
+    background-color: var(--accent-teal);
+    color: white;
+    padding: 9px 20px;
+    border-radius: 24px;
+    font-weight: 500;
+    font-size: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.header__menu-item--trial .header__menu-link--trial:hover {
+    background-color: var(--accent-teal-hover);
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Registrarse: mismo estilo que Comenzar prueba, sin fondo detrás del botón */
+.header__menu-item.btn-secondary {
+    background: none;
+}
+
+.header__menu-item.btn-secondary .header__menu-link {
+    background-color: var(--accent-teal);
+    color: white;
+    border-radius: 24px;
+    padding: 9px 20px;
+    font-weight: 500;
+    font-size: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.header__menu-item.btn-secondary .header__menu-link:hover {
+    background-color: var(--accent-teal-hover);
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================
+   DESKTOP (≥768px): el menú de empresa se muestra en el SIDEBAR
+   izquierdo fijo, no en el header. Aquí solo dejamos logo + tema
+   + menú de usuario. Ocultamos el menú de empresa del header.
+   ============================================================ */
+@media (min-width: 768px) {
+    .header__company-menu {
+        display: none;
+    }
+}
+
+/* TABLET/MÓVIL (<768px): el menú de empresa NO va en el header;
+   se accede por el botón hamburguesa que abre el sidebar drawer. */
+@media (max-width: 767px) {
+    .header__navs--company .header__company-menu {
+        display: none;
+    }
+
+    .header__menu-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem;
+    }
+
+    .header__menu-button i {
+        font-size: 24px;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 857px) {
+    .header__menu-item {
+        a {
+            span {
+                display: none;
+            }
+        }
+    }
+}
+
+@media (max-width: 548px) {
+    header {
+        padding: 0.3rem;
+    }
+}
+
+@media (max-width: 495px) {
+    header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .header__navs {
+        display: none;
+    }
+
+    .header__menu-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem;
+
+        i {
+            font-size: 24px;
+            margin-right: 0;
+        }
+    }
+
+    .header__theme-toggle {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .header__brand {
+        max-height: 48px;
+        max-width: 48px;
+
+        img {
+            height: 100%;
+        }
+    }
+}
