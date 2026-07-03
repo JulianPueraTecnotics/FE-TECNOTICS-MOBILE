@@ -7,6 +7,7 @@ import SearchableSelect, { type SearchableSelectOption } from '../../../componen
 import unidadesMedida from '../../../utils/unidades_medida.json';
 import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock';
 import { useFormDraft, isFormDirty } from '../../../hooks/useFormDraft';
+import { AppDrawer, FilterField, FieldControl } from '../../../components/design-system';
 import UnsavedChangesModal from '../UnsavedChangesModal/UnsavedChangesModal';
 import './ItemModal.css';
 
@@ -26,6 +27,8 @@ const createEmptyItemForm = (): CreateItemRequest => ({
     other: 0,
   },
   unidad_medida: '',
+  controla_inventario: false,
+  costeo: 'promedio',
 });
 
 interface ItemModalProps {
@@ -71,6 +74,8 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
           other: item.taxes?.other || 0,
         },
         unidad_medida: item.unidad_medida || '',
+        controla_inventario: item.controla_inventario ?? false,
+        costeo: item.costeo ?? 'promedio',
       });
     } else {
       // Al abrir en modo creación, restauramos el borrador guardado (si existe) o arrancamos vacío.
@@ -232,30 +237,42 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
 
   if (!isOpen) return null;
 
+  const titleId = 'item-modal-title';
+
   return (
     <>
-    <div
-      className="modal-overlay item-modal-drawer"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="item-modal-title"
-    >
-      <div className="modal-container item-modal-drawer-panel">
-        <div className="modal-header">
-          <h2 id="item-modal-title">{isEditMode ? 'Editar Item' : 'Crear Nuevo Item'}</h2>
-          <button className="modal-close" onClick={requestClose} disabled={loading}>
-            <i className="ri-close-line"></i>
+    <AppDrawer
+      title={isEditMode ? 'Editar item' : 'Crear nuevo item'}
+      titleIcon={isEditMode ? 'ri-edit-line' : 'ri-add-box-line'}
+      wide
+      closeDisabled={loading}
+      onClose={requestClose}
+      ariaLabelledBy={titleId}
+      footer={
+        <>
+          <button type="button" className="export-cancel" onClick={requestClose} disabled={loading}>
+            Cancelar
           </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="modal-body">
-          <div className="form-grid">
-            {/* Tipo */}
-            <div className="form-group">
-              <label htmlFor="kind">Tipo *</label>
-              <select
+          <button type="submit" form="item-form" className="export-submit" disabled={loading || codeDuplicate}>
+            {loading ? (
+              <>
+                <i className="ri-loader-4-line rotating" aria-hidden />
+                {isEditMode ? 'Actualizando…' : 'Creando…'}
+              </>
+            ) : (
+              isEditMode ? 'Actualizar' : 'Crear'
+            )}
+          </button>
+        </>
+      }
+    >
+        <form id="item-form" onSubmit={handleSubmit} className="item-modal-form">
+          <div className="led-form-grid">
+            <FilterField label="Tipo *" htmlFor="kind" icon="ri-price-tag-3-line">
+              <FieldControl
                 id="kind"
                 name="kind"
+                as="select"
                 value={formData.kind}
                 onChange={handleInputChange}
                 required
@@ -263,14 +280,21 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
               >
                 <option value="product">Producto</option>
                 <option value="service">Servicio</option>
-              </select>
-            </div>
-
-            {/* Código */}
-            <div className="form-group">
-              <label htmlFor="code">Código</label>
-              <input
-                type="text"
+              </FieldControl>
+            </FilterField>
+            <FilterField
+              label="Código"
+              htmlFor="code"
+              icon="ri-barcode-line"
+              hint={
+                codeDuplicate ? (
+                  <span id="code-duplicate-hint" className="ds-field-hint" role="alert">
+                    Este código ya existe. Debes usar otro.
+                  </span>
+                ) : undefined
+              }
+            >
+              <FieldControl
                 id="code"
                 name="code"
                 value={formData.code}
@@ -280,18 +304,9 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 aria-invalid={codeDuplicate}
                 aria-describedby={codeDuplicate ? 'code-duplicate-hint' : undefined}
               />
-              {codeDuplicate && (
-                <p id="code-duplicate-hint" className="item-code-duplicate-hint" role="alert">
-                  Este código ya existe. Debes usar otro.
-                </p>
-              )}
-            </div>
-
-            {/* Nombre */}
-            <div className="form-group full-width">
-              <label htmlFor="name">Nombre *</label>
-              <input
-                type="text"
+            </FilterField>
+            <FilterField className="led-form-grid__full" label="Nombre *" htmlFor="name" icon="ri-box-3-line">
+              <FieldControl
                 id="name"
                 name="name"
                 value={formData.name}
@@ -300,14 +315,12 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 placeholder="Nombre del producto o servicio"
                 disabled={loading}
               />
-            </div>
-
-            {/* Descripción */}
-            <div className="form-group full-width">
-              <label htmlFor="description">Descripción *</label>
-              <textarea
+            </FilterField>
+            <FilterField className="led-form-grid__full" label="Descripción *" htmlFor="description" icon="ri-file-text-line">
+              <FieldControl
                 id="description"
                 name="description"
+                as="textarea"
                 value={formData.description}
                 onChange={handleInputChange}
                 required
@@ -315,15 +328,12 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 rows={3}
                 disabled={loading}
               />
-            </div>
-
-            {/* Precio */}
-            <div className="form-group">
-              <label htmlFor="price">Precio Unitario *</label>
-              <input
-                type="number"
+            </FilterField>
+            <FilterField label="Precio Unitario *" htmlFor="price" icon="ri-money-dollar-circle-line">
+              <FieldControl
                 id="price"
                 name="price"
+                type="number"
                 value={formData.price}
                 onChange={handleInputChange}
                 required
@@ -332,34 +342,65 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 placeholder="0.00"
                 disabled={loading}
               />
-            </div>
-
-            {/* Costo unitario (solo productos): base del costo de ventas */}
+            </FilterField>
             {formData.kind === 'product' && (
-              <div className="form-group">
-                <label htmlFor="cost_price">Costo unitario</label>
-                <input
-                  type="number"
+              <FilterField
+                label="Costo unitario"
+                htmlFor="cost_price"
+                icon="ri-money-dollar-box-line"
+                hint={
+                  <span className="ds-field-hint">
+                    Costo del producto. Se usa para registrar el costo de ventas al facturar.
+                  </span>
+                }
+              >
+                <FieldControl
                   id="cost_price"
                   name="cost_price"
+                  type="number"
                   value={formData.cost_price ?? 0}
                   onChange={handleInputChange}
                   min="0"
                   step="0.01"
                   placeholder="0.00"
                   disabled={loading}
-                  title="Costo del producto. Se usa para registrar el costo de ventas al facturar."
                 />
+              </FilterField>
+            )}
+            {formData.kind === 'product' && (
+              <div className="checkbox-row">
+                <input
+                  type="checkbox"
+                  id="controla_inventario"
+                  name="controla_inventario"
+                  checked={!!formData.controla_inventario}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, controla_inventario: e.target.checked }))}
+                  disabled={loading}
+                />
+                <label htmlFor="controla_inventario">Controla existencias (kardex y costo de ventas real)</label>
               </div>
             )}
-
-            {/* Cantidad */}
-            <div className="form-group">
-              <label htmlFor="quantity">Cantidad *</label>
-              <input
-                type="number"
+            {formData.kind === 'product' && formData.controla_inventario && (
+              <FilterField label="Método de costeo" htmlFor="costeo" icon="ri-calculator-line">
+                <FieldControl
+                  id="costeo"
+                  name="costeo"
+                  as="select"
+                  value={formData.costeo ?? 'promedio'}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, costeo: e.target.value as 'promedio' | 'peps' | 'estandar' }))}
+                  disabled={loading}
+                >
+                  <option value="promedio">Promedio ponderado</option>
+                  <option value="peps">PEPS</option>
+                  <option value="estandar">Costo estándar</option>
+                </FieldControl>
+              </FilterField>
+            )}
+            <FilterField label="Cantidad *" htmlFor="quantity" icon="ri-hashtag">
+              <FieldControl
                 id="quantity"
                 name="quantity"
+                type="number"
                 value={formData.quantity}
                 onChange={handleInputChange}
                 required
@@ -368,28 +409,25 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 placeholder="1"
                 disabled={loading}
               />
-            </div>
-
-            {/* Unidad de medida */}
-            <div className="form-group">
-              <label htmlFor="unidad_medida">Unidad de medida</label>
+            </FilterField>
+            <FilterField label="Unidad de medida" htmlFor="unidad_medida" icon="ri-ruler-line">
               <SearchableSelect
                 id="unidad_medida"
+                embedded
                 options={unidadesMedidaOptions}
                 value={formData.unidad_medida ?? ''}
                 onChange={(value) => setFormData((prev) => ({ ...prev, unidad_medida: value }))}
                 placeholder="Buscar unidad de medida..."
                 disabled={loading}
                 aria-label="Unidad de medida"
+                displayValueOnly
               />
-            </div>
-
-            {/* IVA */}
-            <div className="form-group">
-              <label htmlFor="iva">IVA (%) *</label>
-              <select
+            </FilterField>
+            <FilterField label="IVA (%) *" htmlFor="iva" icon="ri-percent-line">
+              <FieldControl
                 id="iva"
                 name="iva"
+                as="select"
                 value={formData.taxes.iva}
                 onChange={handleInputChange}
                 required
@@ -398,16 +436,13 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 <option value="0">0% - Exento</option>
                 <option value="5">5%</option>
                 <option value="19">19%</option>
-              </select>
-            </div>
-
-            {/* Otros Impuestos */}
-            <div className="form-group">
-              <label htmlFor="other">Otros Impuestos (%)</label>
-              <input
-                type="number"
+              </FieldControl>
+            </FilterField>
+            <FilterField label="Otros Impuestos (%)" htmlFor="other" icon="ri-percent-line">
+              <FieldControl
                 id="other"
                 name="other"
+                type="number"
                 value={formData.taxes.other}
                 onChange={handleInputChange}
                 min="0"
@@ -416,10 +451,9 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
                 placeholder="0.00"
                 disabled={loading}
               />
-            </div>
+            </FilterField>
           </div>
 
-          {/* Total Preview */}
           <div className="total-preview">
             <div className="total-row">
               <span>Subtotal:</span>
@@ -440,30 +474,8 @@ const ItemModal: React.FC<ItemModalProps> = ({ isOpen, onClose, onSuccess, item 
               <strong>${calculateTotal().toLocaleString('es-CO', { minimumFractionDigits: 2 })}</strong>
             </div>
           </div>
-
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={requestClose}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className="btn-primary" disabled={loading || codeDuplicate}>
-              {loading ? (
-                <>
-                  <i className="ri-loader-4-line rotating"></i>
-                  {isEditMode ? 'Actualizando...' : 'Creando...'}
-                </>
-              ) : (
-                isEditMode ? 'Actualizar' : 'Crear'
-              )}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+    </AppDrawer>
     <UnsavedChangesModal
       isOpen={showUnsaved}
       onSaveDraft={handleSaveDraft}

@@ -1,19 +1,29 @@
-import { Suspense, lazy, useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSearchParams } from "react-router-dom";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsModuleScreen } from "../../../components/design-system-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import NativeModuleScreen from "../../../components/native/NativeModuleScreen.native";
+import ProfilePage from "../../profile/page/Profile.native";
+import SubUsersPage from "../../sub-users/page/SubUsers.native";
+import ConfigurationAccounting from "./ConfigurationAccounting.native";
 import {
   CONFIGURATION_NAV,
   isConfigurationSection,
   type ConfigurationSection,
 } from "./configuration.nav";
 
-const ProfilePage = lazy(() => import("../../profile/page/Profile.native"));
-
 const PROFILE_SECTIONS = new Set<ConfigurationSection>(["facturacion", "documentos", "eventos"]);
+const ACCOUNTING_SECTIONS = new Set<ConfigurationSection>([
+  "cuentas",
+  "consecutivos",
+  "centros",
+  "puc",
+  "impuestos",
+  "perfil_tributario",
+  "roles",
+  "auditoria",
+]);
 
 const SECTION_TO_PROFILE: Record<string, "billing-config" | "documents" | "events"> = {
   facturacion: "billing-config",
@@ -39,14 +49,11 @@ export default function ConfigurationNative() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Configuración</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Misma estructura que el portal — facturación, usuarios y contabilidad
-        </Text>
-      </View>
-
+    <DsModuleScreen
+      title="Configuración"
+      subtitle="Misma estructura que el portal — facturación, usuarios y contabilidad"
+      noScroll
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -62,14 +69,14 @@ export default function ConfigurationNative() {
               style={[
                 styles.tab,
                 active
-                  ? { backgroundColor: colors.bgSubtle, borderColor: colors.accent }
-                  : { borderColor: "transparent" },
+                  ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent }
+                  : { borderColor: colors.border },
               ]}
             >
               <Text
                 style={[
                   styles.tabText,
-                  { color: active ? colors.primary : colors.textMuted },
+                  { color: active ? "#fff" : colors.textMuted },
                   active ? styles.tabTextActive : null,
                 ]}
               >
@@ -82,37 +89,22 @@ export default function ConfigurationNative() {
 
       <View style={{ flex: 1 }}>
         {PROFILE_SECTIONS.has(section) ? (
-          <Suspense fallback={<LoadingScreen />}>
-            <ProfilePage
-              mode="configuration"
-              embedded
-              initialSection={SECTION_TO_PROFILE[section]}
-            />
-          </Suspense>
-        ) : section === "usuarios" ? (
-          <Suspense fallback={<LoadingScreen />}>
-            <NativeModuleScreen overridePath="/sub-usuarios" />
-          </Suspense>
-        ) : (
-          <NativeModuleScreen
-            overrideTitle={CONFIGURATION_NAV.find((n) => n.key === section)?.label}
-            overrideDescription={`Sección de configuración contable: ${CONFIGURATION_NAV.find((n) => n.key === section)?.label}. Conectada al mismo backend del portal.`}
+          <ProfilePage
+            mode="configuration"
+            embedded
+            initialSection={SECTION_TO_PROFILE[section]}
           />
-        )}
+        ) : section === "usuarios" ? (
+          <SubUsersPage />
+        ) : ACCOUNTING_SECTIONS.has(section) ? (
+          <ConfigurationAccounting section={section} />
+        ) : null}
       </View>
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  title: { fontSize: 22, fontWeight: "700", marginBottom: 4 },
-  subtitle: { fontSize: 14, lineHeight: 20 },
   tabsScroll: { maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
   tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
   tab: {

@@ -11,6 +11,44 @@ export interface DateRange {
     from?: string;
     to?: string;
 }
+
+/** Períodos rápidos compartidos por el panel del dueño y Estadísticas. */
+export type PeriodPreset = "dia" | "mes" | "trimestre" | "semestre" | "anio";
+export const PERIOD_PRESETS: { k: PeriodPreset; l: string }[] = [
+    { k: "dia", l: "Hoy" },
+    { k: "mes", l: "Mes" },
+    { k: "trimestre", l: "Trimestre" },
+    { k: "semestre", l: "Semestre" },
+    { k: "anio", l: "Año" },
+];
+export const PERIOD_LABEL: Record<PeriodPreset, string> = { dia: "hoy", mes: "mes", trimestre: "trimestre", semestre: "semestre", anio: "año" };
+
+/** Rango de fechas del período EN CURSO (día/mes/trimestre/semestre/año calendario). */
+export function presetRange(preset: PeriodPreset | string): DateRange {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    // Fecha LOCAL (no toISOString, que en UTC-5 corre el día en la noche).
+    const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    switch (preset) {
+        case "dia":
+            return { from: iso(now), to: iso(now) };
+        case "mes":
+            return { from: iso(new Date(y, m, 1)), to: iso(new Date(y, m + 1, 0)) };
+        case "trimestre": {
+            const q = Math.floor(m / 3) * 3;
+            return { from: iso(new Date(y, q, 1)), to: iso(new Date(y, q + 3, 0)) };
+        }
+        case "semestre": {
+            const s = m < 6 ? 0 : 6;
+            return { from: iso(new Date(y, s, 1)), to: iso(new Date(y, s + 6, 0)) };
+        }
+        case "anio":
+            return { from: iso(new Date(y, 0, 1)), to: iso(new Date(y, 11, 31)) };
+        default:
+            return {};
+    }
+}
 const qs = (range: DateRange = {}, extra: Record<string, string> = {}) => {
     const p = new URLSearchParams();
     if (range.from) p.set("from", range.from);

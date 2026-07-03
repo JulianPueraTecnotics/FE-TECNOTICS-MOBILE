@@ -5,6 +5,7 @@ import type { IRemision } from "../../../types";
 import { getPublicRemision, downloadPublicRemision, signPublicRemision } from "../../../services/remisiones.service";
 import { formatCOP } from "../../quotes/quotes.utils";
 import SignaturePad, { type SignaturePadHandle } from "../components/SignaturePad";
+import { FilterField, FieldControl } from "../../../components/design-system";
 import "./PublicRemision.css";
 
 const PublicRemision: React.FC = () => {
@@ -165,20 +166,24 @@ const PublicRemision: React.FC = () => {
                     <div className="pubr-sign-area">
                         <h3>Firma de recibido</h3>
                         <p className="pubr-sign-hint">Dibuja tu firma para confirmar que recibiste la entrega conforme.</p>
-                        <input
-                            className="pubr-sign-name"
-                            type="text"
-                            placeholder="Nombre de quien recibe"
-                            value={signedBy}
-                            onChange={(e) => setSignedBy(e.target.value)}
-                            disabled={signing}
-                        />
+                        <div className="pubr-sign-name-field">
+                            <FilterField label="Nombre de quien recibe" htmlFor="pubr-sign-name" icon="ri-user-line">
+                                <FieldControl
+                                    id="pubr-sign-name"
+                                    type="text"
+                                    placeholder="Nombre completo"
+                                    value={signedBy}
+                                    onChange={(e) => setSignedBy(e.target.value)}
+                                    disabled={signing}
+                                />
+                            </FilterField>
+                        </div>
                         <SignaturePad ref={padRef} height={220} disabled={signing} />
                         <div className="pubr-sign-actions">
-                            <button className="pubr-btn pubr-btn--ghost" onClick={() => padRef.current?.clear()} disabled={signing}>
+                            <button type="button" className="btn-secondary pubr-btn" onClick={() => padRef.current?.clear()} disabled={signing}>
                                 Limpiar
                             </button>
-                            <button className="pubr-btn pubr-btn--primary" onClick={handleSign} disabled={signing}>
+                            <button type="button" className="btn-primary pubr-btn" onClick={handleSign} disabled={signing}>
                                 {signing ? "Firmando..." : "Firmar entrega"}
                             </button>
                         </div>
@@ -186,7 +191,7 @@ const PublicRemision: React.FC = () => {
                 )}
 
                 <footer className="pubr-foot">
-                    <button className="pubr-btn pubr-btn--ghost" onClick={handleDownload} disabled={downloading}>
+                    <button type="button" className="btn-secondary pubr-btn" onClick={handleDownload} disabled={downloading}>
                         <i className={downloading ? "ri-loader-4-line rotating" : "ri-download-line"}></i> Descargar PDF
                     </button>
                 </footer>

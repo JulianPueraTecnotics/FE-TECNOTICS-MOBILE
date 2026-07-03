@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
+import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
@@ -352,14 +353,14 @@ export default function DianSyncNative() {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border, paddingHorizontal: 16 }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Sincronización DIAN</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>
-          Credenciales, jobs de sync, documentos y eventos
-        </Text>
-      </View>
-
+    <>
+    <DsModuleScreen
+      title="Sincronización DIAN"
+      subtitle="Credenciales, jobs de sync, documentos y eventos"
+      noScroll
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -370,9 +371,12 @@ export default function DianSyncNative() {
           <Pressable
             key={t}
             onPress={() => setTab(t)}
-            style={[styles.tab, tab === t ? { borderColor: colors.accent, backgroundColor: colors.bgSubtle } : null]}
+            style={[
+              styles.tab,
+              tab === t ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent } : { borderColor: colors.border },
+            ]}
           >
-            <Text style={{ color: tab === t ? colors.primary : colors.textMuted, fontWeight: "600", fontSize: 13 }}>
+            <Text style={{ color: tab === t ? "#fff" : colors.textMuted, fontWeight: "600", fontSize: 13 }}>
               {t === "sync" ? "Sync" : t === "documents" ? "Documentos" : t === "events" ? "Eventos" : "Logs"}
             </Text>
           </Pressable>
@@ -380,7 +384,7 @@ export default function DianSyncNative() {
       </ScrollView>
 
       <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
         keyboardShouldPersistTaps="handled"
       >
@@ -540,6 +544,7 @@ export default function DianSyncNative() {
           </View>
         ) : null}
       </ScrollView>
+    </DsModuleScreen>
 
       <Modal visible={credModal} animationType="slide" transparent onRequestClose={() => setCredModal(false)}>
         <View style={styles.modalOverlay}>
@@ -599,23 +604,18 @@ export default function DianSyncNative() {
           </View>
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: { paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
   tabs: { paddingHorizontal: 12, gap: 8, paddingVertical: 8 },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: SHELL_RADIUS.button,
     borderWidth: 1,
-    borderColor: "transparent",
   },
   card: {
     borderWidth: 1,

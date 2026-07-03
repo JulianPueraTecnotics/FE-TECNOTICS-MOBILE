@@ -25,12 +25,19 @@ export const updateBank = async (id: string, payload: Partial<Bank>): Promise<{ 
 export const deleteBank = async (id: string): Promise<{ ok: boolean; message: string }> => parse(await fetch(API_ROUTES.TREASURY_BANK_BY_ID(id), json("DELETE")));
 
 // ── Pagos / lotes ──
-export const getPayable = async (search = "", supplierId = ""): Promise<PayableResponse> => {
+export const getPayable = async (search = "", supplierId = "", page = 1, limit = 20): Promise<PayableResponse> => {
     const qs = new URLSearchParams();
     if (search) qs.set("search", search);
     if (supplierId) qs.set("supplierId", supplierId);
+    qs.set("page", String(page));
+    qs.set("limit", String(limit));
     return parse(await fetch(`${API_ROUTES.TREASURY_PAYABLE}?${qs.toString()}`, json("GET")));
 };
+
+export interface PayableSupplier { supplier_id: string; supplier_name: string; supplier_doc: string; count: number; saldo: number }
+/** Proveedores con facturas por pagar (para el selector). */
+export const getPayableSuppliers = async (): Promise<{ ok: boolean; suppliers: PayableSupplier[] }> =>
+    parse(await fetch(API_ROUTES.TREASURY_PAYABLE_SUPPLIERS, json("GET")));
 
 export const generateBatch = async (bankId: string, items: GenerateItem[]): Promise<{ ok: boolean; batch: PaymentBatch; message: string }> =>
     parse(await fetch(API_ROUTES.TREASURY_BATCHES, json("POST", { bankId, items })));

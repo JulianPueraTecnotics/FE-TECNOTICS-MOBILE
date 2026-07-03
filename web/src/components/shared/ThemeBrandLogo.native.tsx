@@ -1,24 +1,14 @@
 import { Image } from "react-native";
 import type { ImageStyle, StyleProp } from "react-native";
-import brandLogo from "../../assets/brand.png";
-import { useTheme } from "../../store/theme.context";
+import appLogo from "../../assets/app-logo";
 
 interface ThemeBrandLogoProps {
   style?: StyleProp<ImageStyle>;
 }
 
-/** Logo de facturación — en oscuro: equivalente visual a invert(1) grayscale(1). */
+/** Logo Tecnotics Contable (Designer.png). */
 const ThemeBrandLogo: React.FC<ThemeBrandLogoProps> = ({ style }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  return (
-    <Image
-      source={brandLogo}
-      style={[style, isDark && { tintColor: "#e6edf3" }]}
-      resizeMode="contain"
-    />
-  );
+  return <Image source={appLogo} style={style} resizeMode="contain" />;
 };
 
 export default ThemeBrandLogo;

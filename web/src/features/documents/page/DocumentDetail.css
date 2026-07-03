@@ -5,7 +5,7 @@
     max-width: 1200px;
     margin: 0 auto;
     background: var(--bg-subtle);
-    min-height: calc(100dvh - 54px);
+    min-height: calc(100dvh - var(--header-height));
 }
 
 .document-detail-container {

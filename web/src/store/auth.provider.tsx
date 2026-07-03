@@ -1,9 +1,17 @@
+import { Platform } from "react-native";
 import { useEffect, useState } from "react";
 import { AuthContext } from "./auth.context";
 import type { AuthContextType, AuthUser } from "./auth.context";
-import { validateAdminSessionService, validateSessionService } from "./auth.service";
+import { hasSessionHint, markSessionHint, validateSessionService } from "./auth.service";
+import { PATHS } from "../router/paths.contants";
 
-/** Mapea la respuesta de /admin/auth/me a un AuthUser con rol super_admin. */
+const PUBLIC_AUTH_PATHS = new Set([
+    PATHS.HOME,
+    PATHS.LOGIN,
+    PATHS.REGISTER,
+    PATHS.FORGOT_PASSWORD,
+]);
+
 function mapAdminToUser(data: Record<string, unknown>): AuthUser | null {
     const superAdminId = data.super_admin_id as string | undefined;
     if (!superAdminId) return null;
@@ -20,6 +28,9 @@ function mapAdminToUser(data: Record<string, unknown>): AuthUser | null {
 
 function mapMeToUser(data: Record<string, unknown>): AuthUser | null {
     const role = data.role as string | undefined;
+    if (role === "super_admin" || data.super_admin_id) {
+        return mapAdminToUser(data);
+    }
     if (role === "user" || data.user_id) {
         const userId = data.user_id as string | undefined;
         const companyId = data.company_id as string | undefined;
@@ -43,34 +54,49 @@ function mapMeToUser(data: Record<string, unknown>): AuthUser | null {
     };
 }
 
+function getPathname(): string {
+  if (Platform.OS !== "web" || typeof window === "undefined") return "/";
+  return window.location.pathname;
+}
+
+function isPublicAuthPath(): boolean {
+  const pathname = getPathname();
+  return (
+    PUBLIC_AUTH_PATHS.has(pathname)
+    || pathname.startsWith("/cot/public/")
+    || pathname.startsWith("/remision/firmar/")
+  );
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<AuthContextType["user"]>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        let cancelled = false;
+
         const validateSession = async () => {
+            if (isPublicAuthPath() && !hasSessionHint()) {
+                if (!cancelled) setIsLoading(false);
+                return;
+            }
+
             const userData = await validateSessionService();
+            if (cancelled) return;
 
             if (userData && typeof userData === "object") {
                 const mapped = mapMeToUser(userData as Record<string, unknown>);
                 if (mapped) {
+                    markSessionHint();
                     setUser(mapped);
-                    setIsLoading(false);
-                    return;
                 }
-            }
-
-            // Sin sesión de empresa/subusuario: probar sesión de superadmin.
-            const adminData = await validateAdminSessionService();
-            if (adminData && typeof adminData === "object") {
-                const mappedAdmin = mapAdminToUser(adminData as Record<string, unknown>);
-                if (mappedAdmin) setUser(mappedAdmin);
             }
 
             setIsLoading(false);
         };
 
         validateSession();
+        return () => { cancelled = true; };
     }, []);
 
     return <AuthContext.Provider value={{ user, setUser, isLoading }}>{children}</AuthContext.Provider>;

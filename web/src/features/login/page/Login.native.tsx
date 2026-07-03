@@ -2,14 +2,16 @@ import { useContext, useEffect, useMemo, useState, useCallback } from "react";
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useNavigate } from "react-router-dom";
-import logo from "../../../assets/favicon.png";
-import KeyboardFormScroll from "../../../components/shared/KeyboardFormScroll.native";
+import appLogo from "../../../assets/app-logo";
+import { APP_BRAND_NAME } from "../../../utils/global";
 import AuthScreenLayout from "../../../components/shared/AuthScreenLayout.native";
 import { PATHS } from "../../../router/paths.contants";
 import { AuthContext, type AuthUser } from "../../../store/auth.context";
@@ -24,7 +26,6 @@ import {
   type CompanyLoginData,
   type VerifiedSessionPayload,
 } from "./service";
-
 const TWOFA_DURATION_MS = 5 * 60 * 1000;
 const RESEND_AVAILABLE_MS = 60 * 1000;
 
@@ -228,93 +229,114 @@ const LoginPage: React.FC = () => {
 
   return (
     <AuthScreenLayout>
-      <KeyboardFormScroll
-        style={{ backgroundColor: colors.bgSubtle }}
-        contentContainerStyle={styles.scroll}
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: colors.bgSubtle }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-      <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-          <Image source={logo} style={styles.logo} resizeMode="contain" />
-          <Text style={[styles.title, { color: colors.primary }]}>Facturación Electrónica</Text>
-          <Text style={[styles.subtitle, { color: colors.textMuted }]}>Apps for the World</Text>
+        <View style={styles.page}>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <Image source={appLogo} style={styles.logo} resizeMode="contain" />
+            <Text style={[styles.title, { color: colors.primary }]}>{APP_BRAND_NAME}</Text>
 
-          {phase === "credentials" ? (
-            <>
-              <PortalTextField
-                icon="mail-outline"
-                label="Correo electrónico"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoComplete="email"
-                placeholder="Correo electrónico"
-              />
-              <PortalPasswordField
-                label="Contraseña"
-                value={password}
-                onChangeText={setPassword}
-                autoComplete="password"
-                placeholder="Contraseña"
-                showPassword={showPassword}
-                onTogglePassword={() => setShowPassword((v) => !v)}
-              />
-              <Pressable style={styles.primaryBtn} onPress={() => void handleCredentials()} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Iniciar sesión</Text>}
-              </Pressable>
-            </>
-          ) : (
-            <>
-              <Text style={styles.hint}>Código enviado a {email}</Text>
-              <Text style={styles.timer}>
-                {remainingSec > 0 ? `Caduca en ${formatMmSs(remainingSec)}` : "El código ha caducado"}
-              </Text>
-              <PortalOtpInput
-                value={twofaCode}
-                onChange={handleTwofaCodeChange}
-                disabled={loading}
-                autoFocus
-                style={{ marginBottom: 8 }}
-              />
-              <PortalOtpPasteHint disabled={loading} />
-              <Pressable style={styles.primaryBtn} onPress={() => void handleTwofa()} disabled={loading}>
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.primaryBtnText}>Verificar e iniciar sesión</Text>
-                )}
-              </Pressable>
-              {!canResend && remainingSec > 0 ? (
-                <Text style={styles.hint}>Reenvío en {formatMmSs(secondsUntilResendUnlock)}</Text>
-              ) : null}
-              <Pressable
-                style={styles.secondaryBtn}
-                onPress={() => void handleResend2fa()}
-                disabled={loading || resendLoading || !canResend}
-              >
-                <Text style={styles.secondaryBtnText}>
-                  {resendLoading ? "Enviando…" : "Reenviar código"}
+            {phase === "credentials" ? (
+              <>
+                <PortalTextField
+                  icon="mail-outline"
+                  label="Correo electrónico"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  placeholder="Correo electrónico"
+                />
+                <PortalPasswordField
+                  label="Contraseña"
+                  value={password}
+                  onChangeText={setPassword}
+                  autoComplete="password"
+                  placeholder="Contraseña"
+                  showPassword={showPassword}
+                  onTogglePassword={() => setShowPassword((v) => !v)}
+                />
+                <Pressable
+                  style={styles.primaryBtn}
+                  onPress={() => void handleCredentials()}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.primaryBtnText}>Iniciar sesión</Text>
+                  )}
+                </Pressable>
+                <View style={styles.footer}>
+                  <Pressable onPress={() => navigate(PATHS.REGISTER)}>
+                    <Text style={styles.footerText}>
+                      ¿No tienes una cuenta? <Text style={styles.footerLink}>Registrarse</Text>
+                    </Text>
+                  </Pressable>
+                  <Pressable onPress={() => navigate(PATHS.FORGOT_PASSWORD)} style={{ marginTop: 8 }}>
+                    <Text style={styles.footerText}>
+                      ¿Olvidaste tu contraseña? <Text style={styles.footerLink}>Recuperar contraseña</Text>
+                    </Text>
+                  </Pressable>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.hint}>Código enviado a {email}</Text>
+                <Text style={styles.timer}>
+                  {remainingSec > 0 ? `Caduca en ${formatMmSs(remainingSec)}` : "El código ha caducado"}
                 </Text>
-              </Pressable>
-              <Pressable
-                style={styles.linkBtn}
-                onPress={() => {
-                  setPhase("credentials");
-                  setTwofaCode("");
-                  setCodeExpiresAt(null);
-                }}
-              >
-                <Text style={styles.linkText}>Volver al inicio de sesión</Text>
-              </Pressable>
-            </>
-          )}
+                <PortalOtpInput
+                  value={twofaCode}
+                  onChange={handleTwofaCodeChange}
+                  disabled={loading}
+                  autoFocus
+                  style={{ marginBottom: 8 }}
+                />
+                <PortalOtpPasteHint disabled={loading} />
+                <Pressable style={styles.primaryBtn} onPress={() => void handleTwofa()} disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.primaryBtnText}>Verificar e iniciar sesión</Text>
+                  )}
+                </Pressable>
+                {!canResend && remainingSec > 0 ? (
+                  <Text style={styles.hint}>Reenvío en {formatMmSs(secondsUntilResendUnlock)}</Text>
+                ) : null}
+                <Pressable
+                  style={styles.secondaryBtn}
+                  onPress={() => void handleResend2fa()}
+                  disabled={loading || resendLoading || !canResend}
+                >
+                  <Text style={styles.secondaryBtnText}>
+                    {resendLoading ? "Enviando…" : "Reenviar código"}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={styles.linkBtn}
+                  onPress={() => {
+                    setPhase("credentials");
+                    setTwofaCode("");
+                    setCodeExpiresAt(null);
+                  }}
+                >
+                  <Text style={styles.linkText}>Volver al inicio de sesión</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
         </View>
-      </KeyboardFormScroll>
+      </KeyboardAvoidingView>
     </AuthScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 1, justifyContent: "center", padding: 24 },
+  page: { flex: 1, justifyContent: "center", padding: 24 },
   card: {
     borderRadius: 16,
     padding: 24,
@@ -325,8 +347,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   logo: { width: 72, height: 72, alignSelf: "center", marginBottom: 12 },
-  title: { fontSize: 20, fontWeight: "700", color: "#002737", textAlign: "center" },
-  subtitle: { fontSize: 14, color: "#64748b", textAlign: "center", marginBottom: 24 },
+  title: { fontSize: 17, fontWeight: "700", color: "#002737", textAlign: "center", marginBottom: 24 },
   label: { fontSize: 14, fontWeight: "600", color: "#334155", marginBottom: 6, marginTop: 8 },
   input: {
     borderWidth: 1,
@@ -355,6 +376,9 @@ const styles = StyleSheet.create({
   linkText: { color: "#64748b" },
   hint: { fontSize: 13, color: "#64748b", marginTop: 8, textAlign: "center" },
   timer: { fontSize: 15, fontWeight: "600", color: "#002737", textAlign: "center", marginVertical: 8 },
+  footer: { marginTop: 20, paddingTop: 16, borderTopWidth: 1, borderTopColor: "#e2e8f0", alignItems: "center" },
+  footerText: { fontSize: 14, color: "#64748b", textAlign: "center" },
+  footerLink: { color: "#0077b6", fontWeight: "600" },
 });
 
 export default LoginPage;

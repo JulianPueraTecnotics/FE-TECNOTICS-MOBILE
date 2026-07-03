@@ -1,7 +1,6 @@
 import { API_ROUTES } from "../../../../utils/global";
-import type { RegisterUploadFile } from "../../../../services/register.service";
 
-export const updateLogoService = async (logo: RegisterUploadFile) => {
+export const updateLogoService = async (logo: File) => {
     if (!logo) {
         throw new Error("Logo is required");
     }

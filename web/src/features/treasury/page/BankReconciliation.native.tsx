@@ -1,8 +1,8 @@
 import * as DocumentPicker from "expo-document-picker";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { DateRangeBar, LedgerField, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
+import { DsModuleScreen } from "../../../components/design-system-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { readSpreadsheetFromUri, type ColumnDef } from "../../accounting/import.utils";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
@@ -37,7 +37,6 @@ const fdate = (d?: string) =>
 
 export default function BankReconciliationNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [recons, setRecons] = useState<Reconciliation[]>([]);
   const [current, setCurrent] = useState<Reconciliation | null>(null);
   const [summary, setSummary] = useState<ReconSummary | null>(null);
@@ -213,18 +212,16 @@ export default function BankReconciliationNative() {
 
   if (current) {
     return (
-      <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.primary }]}>{current.cuenta_nombre || current.cuenta}</Text>
-          <Text style={[styles.sub, { color: colors.textMuted }]}>
-            {fdate(current.desde)} – {fdate(current.hasta)} · {current.estado === "cerrada" ? "Cerrada" : "Borrador"}
-          </Text>
-          <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+      <DsModuleScreen
+        title={current.cuenta_nombre || current.cuenta}
+        subtitle={`${fdate(current.desde)} – ${fdate(current.hasta)} · ${current.estado === "cerrada" ? "Cerrada" : "Borrador"}`}
+        headerActions={
+          <View style={{ flexDirection: "row", gap: 8 }}>
             <LedgerPrimaryBtn label="Volver" variant="secondary" onPress={() => { setCurrent(null); loadList(); }} />
             {current.estado !== "cerrada" ? <LedgerPrimaryBtn label="Cerrar" onPress={close} /> : null}
           </View>
-        </View>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}>
+        }
+      >
           {summary ? (
             <Text style={{ color: colors.textMuted, marginBottom: 12, fontSize: 13 }}>
               Saldo banco: {moneyPlain(current.saldo_banco)} · Libros: {moneyPlain(current.saldo_libros)} · Diferencia:{" "}
@@ -263,23 +260,17 @@ export default function BankReconciliationNative() {
               <LedgerPrimaryBtn label="Contabilizar ajuste" onPress={addAdjustment} />
             </View>
           ) : null}
-        </ScrollView>
-      </View>
+      </DsModuleScreen>
     );
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Conciliación bancaria</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Extracto vs movimientos contables</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={false} onRefresh={loadList} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-        keyboardShouldPersistTaps="handled"
-      >
+    <DsModuleScreen
+      title="Conciliación bancaria"
+      subtitle="Extracto vs movimientos contables"
+      loading={loading}
+      onRefresh={loadList}
+    >
         <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
           <Text style={{ fontWeight: "700", color: colors.primary, marginBottom: 8 }}>Nueva conciliación</Text>
           <DateRangeBar desde={desde} hasta={hasta} onDesde={setDesde} onHasta={setHasta} />
@@ -312,16 +303,11 @@ export default function BankReconciliationNative() {
             </Pressable>
           ))
         )}
-      </ScrollView>
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
   section: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 12, marginBottom: 10 },
 });

@@ -1,15 +1,14 @@
 import "./index.css";
 
-import logo from "../../../assets/brand.png";
-import onlySimbol from "../../../assets/favicon.png";
+import { appLogoSrc } from "../../../assets/app-logo";
+import { APP_BRAND_NAME } from "../../../utils/global";
 
 import { PATHS } from "../../../router/paths.contants";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../../../store/auth.context";
-import { useTheme } from "../../../store/theme.context";
 import UserMenu from "../UserMenu/UserMenu";
-import NavMenu from "../nav/NavMenu";
+import ThemeToggle from "../theme/ThemeToggle";
 
 interface NavbarProps {
     open_sidebar: boolean;
@@ -19,9 +18,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ setOpenSidebar }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const width = window.innerWidth;
     const { user } = useContext(AuthContext);
-    const { theme, toggleTheme } = useTheme();
 
     // Define public paths
     const publicPaths = [PATHS.HOME];
@@ -43,33 +40,40 @@ const Navbar: React.FC<NavbarProps> = ({ setOpenSidebar }) => {
     const showPublicNavbar = !user || (user && isPublicPage);
     const showPrivateNavbar = user && !isPublicPage;
 
+    const isCompanySession = showPrivateNavbar && !isSuperAdmin;
+
+    const brandLink = (
+        <NavLink to={user ? homePath : PATHS.HOME} className="header__brand">
+            <img src={appLogoSrc} alt="logo" className="app-logo" />
+            <span className="header__brand-name">{APP_BRAND_NAME}</span>
+        </NavLink>
+    );
+
+    const accountTools = (
+        <div className="header__account-tools">
+            {showPrivateNavbar && <UserMenu />}
+            <ThemeToggle className="header__theme-toggle" />
+            <button
+                onClick={setOpenSidebar}
+                className="header__menu-button button_sidebar_shared"
+                aria-label="Abrir menú"
+            >
+                <i className="ri-menu-line"></i>
+            </button>
+        </div>
+    );
+
     return (
-        <header>
+        <header className={`app-header${isCompanySession ? " app-header--company" : ""}`}>
+            {isCompanySession ? (
+                <div className="header__container">
+                    <div className="header__column">{brandLink}</div>
+                    <div className="header__right">{accountTools}</div>
+                </div>
+            ) : (
             <div className="header__container">
                 <div className="header__column">
-                    {width > 495 && (
-                        <NavLink
-                            to={PATHS.HOME}
-                            className="header__brand"
-                        >
-                            <img
-                                src={logo}
-                                alt="logo"
-                            />
-                        </NavLink>
-                    )}
-
-                    {width < 495 && (
-                        <NavLink
-                            to={PATHS.HOME}
-                            className="header__brand"
-                        >
-                            <img
-                                src={onlySimbol}
-                                alt="logo"
-                            />
-                        </NavLink>
-                    )}
+                    {brandLink}
                 </div>
 
                 <div className="header__right">
@@ -167,57 +171,28 @@ const Navbar: React.FC<NavbarProps> = ({ setOpenSidebar }) => {
                                         <span>Administradores</span>
                                     </NavLink>
                                 </li>
-                                <div className="header__divider"></div>
-                                <li className="header__menu-item">
-                                    <UserMenu />
-                                </li>
                             </ul>
                         </nav>
                     )}
 
-                    {showPrivateNavbar && !isSuperAdmin && (
-                        <nav className="header__column header__navs header__navs--company">
-                            {/* El menú de empresa vive en el sidebar izquierdo (desktop);
-                                en el header solo se muestra en móvil dentro del drawer. */}
-                            <div className="header__company-menu">
-                                <NavMenu variant="header" />
-                            </div>
-                            <ul className="header__menu">
-                                <div className="header__divider header__company-menu"></div>
-                                <li className="header__menu-item">
-                                    <UserMenu />
-                                </li>
-                            </ul>
-                        </nav>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={toggleTheme}
-                        className="header__theme-toggle"
-                        aria-label={theme === "dark" ? "Usar tema claro" : "Usar tema oscuro"}
-                        title={theme === "dark" ? "Tema claro" : "Tema oscuro"}
-                    >
-                        {theme === "dark" ? (
-                            <i
-                                className="ri-sun-line"
-                                aria-hidden
-                            />
-                        ) : (
-                            <i
-                                className="ri-moon-line"
-                                aria-hidden
-                            />
+                    <div className="header__account-tools">
+                        {showPrivateNavbar && (
+                            <>
+                                <UserMenu />
+                            </>
                         )}
-                    </button>
-                    <button
-                        onClick={setOpenSidebar}
-                        className="header__menu-button button_sidebar_shared"
-                    >
-                        <i className="ri-menu-line"></i>
-                    </button>
+                        <ThemeToggle className="header__theme-toggle" />
+                        <button
+                            onClick={setOpenSidebar}
+                            className="header__menu-button button_sidebar_shared"
+                            aria-label="Abrir menú"
+                        >
+                            <i className="ri-menu-line"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
+            )}
         </header>
     );
 };

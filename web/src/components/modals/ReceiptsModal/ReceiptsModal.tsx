@@ -5,6 +5,7 @@ import type { ReceivableInvoice, ReceiptVoucher } from '../../../types';
 import { PAYMENT_METHOD_LABELS } from '../../../types';
 import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock';
 import { formatCOP, formatDateCO } from '../../../utils/format';
+import { AppModal } from '../../../components/design-system';
 import './ReceiptsModal.css';
 
 interface ReceiptsModalProps {
@@ -76,59 +77,66 @@ const ReceiptsModal: React.FC<ReceiptsModalProps> = ({ isOpen, onClose, invoice 
     const anyBusy = (id: string) => rowBusy?.id === id;
 
     return (
-        <div className="modal-overlay receipts-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="receipts-modal-title">
-            <div className="modal-container receipts-modal">
-                <div className="modal-header">
-                    <h2 id="receipts-modal-title">Comprobantes de ingreso</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Cerrar">
-                        <i className="ri-close-line"></i>
-                    </button>
-                </div>
+        <AppModal
+            title="Comprobantes de ingreso"
+            titleIcon="ri-receipt-line"
+            ariaLabelledBy="receipts-modal-title"
+            onClose={onClose}
+            footer={
+                <button type="button" className="export-cancel" onClick={onClose}>
+                    Cerrar
+                </button>
+            }
+        >
+            <p className="receipts-intro">
+                Factura <strong>{invoice.number}</strong> · {invoice.client_name || 'Cliente'}
+            </p>
 
-                <div className="modal-body">
-                    <p className="receipts-sub">
-                        Factura <strong>{invoice.number}</strong> · {invoice.client_name || 'Cliente'}
-                    </p>
-
-                    {loading ? (
-                        <p className="receipts-empty">Cargando comprobantes...</p>
-                    ) : receipts.length === 0 ? (
-                        <p className="receipts-empty">Esta factura aún no tiene comprobantes de ingreso.</p>
-                    ) : (
-                        <ul className="receipts-list">
-                            {receipts.map((r) => (
-                                <li key={r._id} className="receipt-item">
-                                    <div className="receipt-info">
-                                        <div className="receipt-number">
-                                            <i className="ri-receipt-line" aria-hidden></i> {r.number}
-                                        </div>
-                                        <div className="receipt-meta">
-                                            {formatDateCO(r.issued_at)} · {PAYMENT_METHOD_LABELS[r.method] ?? r.method}
-                                            {r.emailed ? ' · Enviado ✓' : ''}
-                                        </div>
-                                    </div>
-                                    <div className="receipt-amount">{formatCOP(r.amount)}</div>
-                                    <div className="receipt-actions">
-                                        <button className="btn-icon" title="Descargar PDF" onClick={() => handleDownload(r)} disabled={anyBusy(r._id)}>
-                                            <i className={isBusy(r._id, 'download') ? 'ri-loader-4-line rotating' : 'ri-download-line'}></i>
-                                        </button>
-                                        <button className="btn-icon" title="Enviar al cliente" onClick={() => handleSend(r)} disabled={anyBusy(r._id)}>
-                                            <i className={isBusy(r._id, 'send') ? 'ri-loader-4-line rotating' : 'ri-mail-send-line'}></i>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-
-                <div className="modal-footer">
-                    <button type="button" className="btn-secondary" onClick={onClose}>
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-        </div>
+            {loading ? (
+                <p className="receipts-empty">
+                    <i className="ri-loader-4-line rotating" aria-hidden /> Cargando comprobantes…
+                </p>
+            ) : receipts.length === 0 ? (
+                <p className="receipts-empty">Esta factura aún no tiene comprobantes de ingreso.</p>
+            ) : (
+                <ul className="receipts-list">
+                    {receipts.map((r) => (
+                        <li key={r._id} className="receipt-item">
+                            <div className="receipt-info">
+                                <div className="receipt-number">
+                                    <i className="ri-receipt-line" aria-hidden /> {r.number}
+                                </div>
+                                <div className="receipt-meta">
+                                    {formatDateCO(r.issued_at)} · {PAYMENT_METHOD_LABELS[r.method] ?? r.method}
+                                    {r.emailed ? ' · Enviado ✓' : ''}
+                                </div>
+                            </div>
+                            <div className="receipt-amount">{formatCOP(r.amount)}</div>
+                            <div className="receipt-actions">
+                                <button
+                                    type="button"
+                                    className="receipt-btn-icon"
+                                    title="Descargar PDF"
+                                    onClick={() => handleDownload(r)}
+                                    disabled={anyBusy(r._id)}
+                                >
+                                    <i className={isBusy(r._id, 'download') ? 'ri-loader-4-line rotating' : 'ri-download-line'} aria-hidden />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="receipt-btn-icon"
+                                    title="Enviar al cliente"
+                                    onClick={() => handleSend(r)}
+                                    disabled={anyBusy(r._id)}
+                                >
+                                    <i className={isBusy(r._id, 'send') ? 'ri-loader-4-line rotating' : 'ri-mail-send-line'} aria-hidden />
+                                </button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </AppModal>
     );
 };
 

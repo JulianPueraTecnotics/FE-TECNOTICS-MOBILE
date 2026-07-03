@@ -9,7 +9,7 @@ import MobilePrivateDrawer from "./MobilePrivateDrawer.native";
 import MobileBottomNav from "./MobileBottomNav.native";
 import { PUBLIC_HEADER_HEIGHT } from "./publicShell.constants";
 import { getHeaderShadow, SHELL_RADIUS } from "./shellStyles.native";
-import ThemeBrandLogo from "../shared/ThemeBrandLogo.native";
+import HeaderBrand from "../shared/HeaderBrand.native";
 import ThemeSwitch from "../shared/ThemeSwitch.native";
 import { PATHS } from "../../router/paths.contants";
 import { AuthContext } from "../../store/auth.context";
@@ -78,15 +78,17 @@ const MobileShell: React.FC = () => {
           headerShadow,
           {
             paddingTop: insets.top,
+            paddingLeft: Math.max(8, insets.left),
+            paddingRight: Math.max(12, insets.right),
             height: headerTotalHeight,
             backgroundColor: colors.pageBg,
             borderBottomColor: colors.border,
           },
         ]}
       >
-        <Pressable onPress={() => navigate(PATHS.HOME)} accessibilityLabel="Ir al inicio">
-          <ThemeBrandLogo style={styles.logo} />
-        </Pressable>
+        <View style={styles.headerLeft}>
+          <HeaderBrand onPress={() => navigate(PATHS.HOME)} />
+        </View>
 
         <View style={styles.headerRight}>
           <ThemeSwitch />
@@ -127,7 +129,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
     paddingBottom: 0,
     borderBottomWidth: 1,
   },
@@ -137,8 +138,16 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  logo: { width: 150, height: 50 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  headerLeft: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    alignSelf: "stretch",
+    minWidth: 0,
+    marginRight: 8,
+  },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 0 },
   menuBtn: {
     padding: 8,
     minWidth: 44,

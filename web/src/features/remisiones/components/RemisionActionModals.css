@@ -1,0 +1,81 @@
+.remisiones-action-summary {
+    background: var(--card-bg);
+    border: 1px solid rgba(96, 153, 172, 0.22);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(96, 153, 172, 0.06);
+}
+
+.remisiones-action-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+}
+
+.remisiones-action-summary__row span {
+    color: var(--text-muted);
+}
+
+.remisiones-action-summary__row strong {
+    color: var(--primary-text);
+    text-align: right;
+}
+
+.remisiones-action-intro {
+    margin: 0 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.remisiones-action-intro strong {
+    color: var(--primary-text);
+}
+
+.remisiones-action-intro--danger strong {
+    color: #dc3545;
+}
+
+.remisiones-action-hint {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.remisiones-action-submit--danger {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.remisiones-action-submit--danger:hover:not(:disabled) {
+    background: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+.rotating {
+    animation: remisiones-action-spin 0.8s linear infinite;
+}
+
+@keyframes remisiones-action-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 560px) {
+    .remisiones-action-summary__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+    }
+
+    .remisiones-action-summary__row strong {
+        text-align: left;
+    }
+}

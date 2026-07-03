@@ -1,8 +1,4 @@
-import {
-  getItemSync,
-  removeItemSync,
-  setItemSync,
-} from "./storage";
+import { getItemSync, removeItemSync, setItemSync } from "./storage";
 
 const STORAGE_KEY = "register_progress";
 
@@ -21,6 +17,11 @@ export interface RegisterProgress {
   timestamp: number;
 }
 
+const defaultProgress = (): RegisterProgress => ({
+  currentStep: 1,
+  timestamp: Date.now(),
+});
+
 export const saveRegisterProgress = (data: Partial<RegisterProgress>) => {
   const currentProgress = getRegisterProgress();
   const updatedProgress: RegisterProgress = {
@@ -33,19 +34,11 @@ export const saveRegisterProgress = (data: Partial<RegisterProgress>) => {
 
 export const getRegisterProgress = (): RegisterProgress => {
   const stored = getItemSync(STORAGE_KEY);
-  if (!stored) {
-    return {
-      currentStep: 1,
-      timestamp: Date.now(),
-    };
-  }
+  if (!stored) return defaultProgress();
   try {
-    return JSON.parse(stored);
+    return JSON.parse(stored) as RegisterProgress;
   } catch {
-    return {
-      currentStep: 1,
-      timestamp: Date.now(),
-    };
+    return defaultProgress();
   }
 };
 
@@ -56,7 +49,6 @@ export const clearRegisterProgress = () => {
 export const hasRecentProgress = (): boolean => {
   const progress = getRegisterProgress();
   if (!progress.company_id) return false;
-
   const hoursSinceLastUpdate = (Date.now() - progress.timestamp) / (1000 * 60 * 60);
   return hoursSinceLastUpdate < 24;
 };

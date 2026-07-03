@@ -3,6 +3,7 @@ import { getRoles, getPermissionsCatalog, createRole, updateRole, deleteRole, se
 import type { Role, PermissionGroup } from "../accounting.types";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import ConfirmModal from "../../../components/modals/ConfirmModal/ConfirmModal";
+import { FilterField, FieldControl, CheckCard } from "../../../components/design-system";
 
 const Roles: React.FC = () => {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -102,10 +103,6 @@ const Roles: React.FC = () => {
 
             <div className="acc-roles-layout">
                 <div className="acc-roles-list">
-                    <button className="btn-secondary" onClick={startNew}><i className="ri-add-line" /> Nuevo rol</button>
-                    <button className="btn-secondary" onClick={seed} disabled={seeding} title="Crea los roles típicos del software (Administrador, Tesorero, Contador, etc.)">
-                        <i className="ri-magic-line" /> {seeding ? "Creando..." : "Roles por defecto"}
-                    </button>
                     {loading ? (
                         <p className="acc-sub">Cargando...</p>
                     ) : roles.length === 0 ? (
@@ -115,7 +112,7 @@ const Roles: React.FC = () => {
                             {roles.map((r) => (
                                 <li key={r._id} className={editing?._id === r._id ? "active" : ""}>
                                     <button className="acc-rolelist__name" onClick={() => startEdit(r)}>{r.name}<span>{r.permissions.length} permiso(s)</span></button>
-                                    <button className="btn-icon" title="Eliminar" onClick={() => setToDelete(r)}><i className="ri-delete-bin-line" /></button>
+                                    <button className="btn-action" title="Eliminar" onClick={() => setToDelete(r)}><i className="ri-delete-bin-line" /></button>
                                 </li>
                             ))}
                         </ul>
@@ -123,16 +120,35 @@ const Roles: React.FC = () => {
                 </div>
 
                 <div className="acc-roles-editor">
-                    <div className="acc-field"><label>Nombre del rol</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej. Contador" /></div>
+                    <div className="acc-roles-toolbar">
+                        <button type="button" className="btn-secondary" onClick={startNew}>
+                            <i className="ri-add-line" aria-hidden /> Nuevo rol
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={seed}
+                            disabled={seeding}
+                            title="Crea los roles típicos del software (Administrador, Tesorero, Contador, etc.)"
+                        >
+                            <i className="ri-magic-line" aria-hidden /> {seeding ? "Creando..." : "Roles por defecto"}
+                        </button>
+                    </div>
+                    <FilterField label="Nombre del rol" htmlFor="role-name" icon="ri-shield-user-line">
+                        <FieldControl id="role-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej. Contador" />
+                    </FilterField>
                     {groups.map((g) => (
                         <div key={g.module} className="acc-perm-group">
                             <h4>{g.module}</h4>
                             <div className="acc-perm-grid">
                                 {g.permissions.map((p) => (
-                                    <label key={p.code} className="acc-perm">
-                                        <input type="checkbox" checked={perms.has(p.code)} onChange={() => togglePerm(p.code)} />
-                                        {p.label}
-                                    </label>
+                                    <CheckCard
+                                        key={p.code}
+                                        icon="ri-shield-check-line"
+                                        label={p.label}
+                                        checked={perms.has(p.code)}
+                                        onChange={() => togglePerm(p.code)}
+                                    />
                                 ))}
                             </div>
                         </div>

@@ -19,6 +19,8 @@ import type { AuthUserRole } from "../../../store/auth.context";
 export interface MenuItem {
     /** Etiqueta visible */
     label: string;
+    /** Etiqueta corta para la barra superior (header). Si se omite, usa `label`. */
+    shortLabel?: string;
     /** Clase de icono remixicon (ej. "ri-shopping-cart-2-line") */
     icon?: string;
     /** Ruta destino. Ausente en grupos (los grupos solo expanden hijos). */
@@ -42,7 +44,9 @@ export const COMPANY_MENU: MenuItem[] = [
         label: "Ventas",
         icon: "ri-shopping-cart-2-line",
         children: [
-            { label: "Facturas", icon: "ri-file-list-3-line", path: PATHS.DOCUMENTS },
+            { label: "Facturar", icon: "ri-add-circle-line", path: PATHS.DASHBOARD_BILLING },
+            { label: "POS", icon: "ri-store-2-line", path: PATHS.POS },
+            { label: "Histórico de facturas", icon: "ri-file-list-3-line", path: PATHS.DOCUMENTS },
             { label: "Recaudos", icon: "ri-hand-coin-line", path: PATHS.SALES_RECAUDOS },
             { label: "Cotizaciones", icon: "ri-draft-line", path: PATHS.SALES_COTIZACIONES_NUEVA },
             { label: "Remisiones", icon: "ri-truck-line", path: PATHS.SALES_REMISIONES },
@@ -51,7 +55,8 @@ export const COMPANY_MENU: MenuItem[] = [
         ],
     },
     {
-        label: "Compras y gastos",
+        label: "Costos y Gastos",
+        shortLabel: "Costos",
         icon: "ri-shopping-bag-3-line",
         children: [
             { label: "Proveedores", icon: "ri-building-2-line", path: PATHS.PURCHASES_SUPPLIERS },
@@ -62,6 +67,7 @@ export const COMPANY_MENU: MenuItem[] = [
     },
     {
         label: "Productos y servicios",
+        shortLabel: "Productos",
         icon: "ri-box-3-line",
         path: PATHS.PRODUCTS_SERVICES,
     },
@@ -77,13 +83,35 @@ export const COMPANY_MENU: MenuItem[] = [
             { label: "Pagos a proveedores", icon: "ri-secure-payment-line", path: PATHS.TREASURY_PAGOS },
             { label: "Lotes de pago", icon: "ri-stack-line", path: PATHS.TREASURY_LOTES },
             { label: "Conciliación bancaria", icon: "ri-scales-3-line", path: PATHS.TREASURY_CONCILIACION },
+            { label: "Importar extracto", icon: "ri-file-upload-line", path: PATHS.TREASURY_IMPORT_EXTRACTO },
+            { label: "Cartera por cliente", icon: "ri-user-follow-line", path: PATHS.TREASURY_CARTERA },
+            { label: "Saldos por proveedor", icon: "ri-truck-line", path: PATHS.TREASURY_CXP },
+            { label: "Bolsa de pagos", icon: "ri-inbox-archive-line", path: PATHS.TREASURY_BOLSA },
             { label: "Bancos", icon: "ri-bank-card-line", path: PATHS.TREASURY_BANCOS },
         ],
     },
     {
         label: "Nómina",
         icon: "ri-wallet-3-line",
-        path: PATHS.NOMINA_EMPLEADOS,
+        children: [
+            { label: "Empleados", icon: "ri-team-line", path: PATHS.NOMINA_EMPLEADOS + "?sec=empleados" },
+            { label: "Nómina", icon: "ri-money-dollar-circle-line", path: PATHS.NOMINA_EMPLEADOS + "?sec=nomina" },
+            { label: "PILA (aportes)", icon: "ri-shield-cross-line", path: PATHS.NOMINA_EMPLEADOS + "?sec=pila" },
+            { label: "Certificados", icon: "ri-file-text-line", path: PATHS.NOMINA_EMPLEADOS + "?sec=certificados" },
+        ],
+    },
+    {
+        label: "Inventario",
+        icon: "ri-archive-2-line",
+        children: [
+            { label: "Existencias", icon: "ri-stack-line", path: PATHS.INVENTORY + "?sec=existencias" },
+            { label: "Kardex", icon: "ri-file-list-3-line", path: PATHS.INVENTORY + "?sec=kardex" },
+            { label: "Valorizado", icon: "ri-money-dollar-circle-line", path: PATHS.INVENTORY + "?sec=valorizado" },
+            { label: "Bodegas", icon: "ri-building-line", path: PATHS.INVENTORY + "?sec=bodegas" },
+            { label: "Ajustes", icon: "ri-equalizer-line", path: PATHS.INVENTORY + "?sec=ajustes" },
+            { label: "Traslados", icon: "ri-arrow-left-right-line", path: PATHS.INVENTORY + "?sec=traslados" },
+            { label: "Saldos iniciales", icon: "ri-flag-line", path: PATHS.INVENTORY + "?sec=saldos" },
+        ],
     },
     {
         label: "Contabilidad",
@@ -92,21 +120,42 @@ export const COMPANY_MENU: MenuItem[] = [
             { label: "Comprobantes", icon: "ri-file-list-3-line", path: PATHS.ACCOUNTING + "?sec=comprobantes" },
             { label: "Libro diario", icon: "ri-book-open-line", path: PATHS.ACCOUNTING + "?sec=diario" },
             { label: "Mayor y balances", icon: "ri-archive-line", path: PATHS.ACCOUNTING + "?sec=mayor" },
+            { label: "Auxiliar por tercero", icon: "ri-group-line", path: PATHS.ACCOUNTING + "?sec=terceros" },
             { label: "Balance de prueba", icon: "ri-scales-3-line", path: PATHS.ACCOUNTING + "?sec=balance" },
             { label: "Estados financieros", icon: "ri-line-chart-line", path: PATHS.ACCOUNTING + "?sec=estados" },
+            { label: "Notas a los EEFF", icon: "ri-sticky-note-line", path: PATHS.ACCOUNTING + "?sec=notas" },
+            { label: "Presupuesto", icon: "ri-bar-chart-grouped-line", path: PATHS.ACCOUNTING + "?sec=presupuesto" },
+            { label: "Conciliación fiscal", icon: "ri-git-merge-line", path: PATHS.ACCOUNTING + "?sec=fiscal" },
+            { label: "Ajustes contables", icon: "ri-equalizer-line", path: PATHS.ACCOUNTING + "?sec=ajustes" },
             { label: "Saldos iniciales", icon: "ri-flag-line", path: PATHS.ACCOUNTING + "?sec=saldos" },
             { label: "Cierre anual", icon: "ri-lock-2-line", path: PATHS.ACCOUNTING + "?sec=cierre" },
             { label: "Períodos", icon: "ri-calendar-close-line", path: PATHS.ACCOUNTING + "?sec=periodos" },
+            { label: "Salud contable", icon: "ri-shield-check-line", path: PATHS.ACCOUNTING + "?sec=salud" },
             { label: "Activos fijos", icon: "ri-computer-line", path: PATHS.FIXED_ASSETS },
             { label: "DIAN / Exógena", icon: "ri-government-line", path: PATHS.ACCOUNTING + "?sec=dian" },
+            { label: "ReteICA por municipio", icon: "ri-map-pin-2-line", path: PATHS.ACCOUNTING + "?sec=ica" },
         ],
+    },
+    {
+        label: "Conciliación DIAN",
+        shortLabel: "Conc. DIAN",
+        icon: "ri-scales-3-line",
+        children: [
+            { label: "Recibidas (compras)", icon: "ri-inbox-archive-line", path: PATHS.DIAN_RECONCILE },
+            { label: "Emitidas (ventas)", icon: "ri-send-plane-line", path: PATHS.DIAN_RECONCILE_SALES },
+        ],
+    },
+    {
+        label: "Sincronización DIAN",
+        shortLabel: "Sync DIAN",
+        icon: "ri-government-line",
+        path: PATHS.DIAN_SYNC,
     },
     {
         label: "Reportes",
         icon: "ri-bar-chart-box-line",
         children: [
             { label: "Estadísticas", icon: "ri-line-chart-line", path: PATHS.ANALYTICS },
-            { label: "Sincronización DIAN", icon: "ri-government-line", path: PATHS.DIAN_SYNC },
         ],
     },
     // "Usuarios" se movió al menú de configuración de empresa (UserMenu, bajo

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
+import { AppModal, FilterField } from "../../../components/design-system";
 import "./UpdateLogoModal.css";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE_MB = 2;
@@ -23,7 +23,6 @@ const UpdateLogoModal: React.FC<UpdateLogoModalProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    useBodyScrollLock(isOpen);
 
     const resetState = () => {
         setSelectedFile(null);
@@ -102,22 +101,31 @@ const UpdateLogoModal: React.FC<UpdateLogoModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay update-logo-overlay" onClick={handleClose}>
-            <div className="modal-container update-logo-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>Cambiar logo de la empresa</h2>
-                    <button
-                        type="button"
-                        className="modal-close"
-                        onClick={handleClose}
-                        disabled={loading}
-                        aria-label="Cerrar"
-                    >
-                        <i className="ri-close-line" />
+        <AppModal
+            title="Cambiar logo de la empresa"
+            titleIcon="ri-image-edit-line"
+            onClose={handleClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={handleClose} disabled={loading}>
+                        Cancelar
                     </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="update-logo-body">
+                    <button type="submit" form="update-logo-form" className="export-submit" disabled={!selectedFile || loading}>
+                        {loading ? (
+                            <>
+                                <i className="ri-loader-4-line rotating" aria-hidden /> Actualizando…
+                            </>
+                        ) : (
+                            <>
+                                <i className="ri-upload-2-line" aria-hidden /> Reemplazar logo
+                            </>
+                        )}
+                    </button>
+                </>
+            }
+        >
+                <form id="update-logo-form" onSubmit={handleSubmit} className="update-logo-body">
                     <div className="update-logo-previews">
                         <div className="update-logo-preview-box">
                             <span className="update-logo-label">Actual</span>
@@ -131,8 +139,7 @@ const UpdateLogoModal: React.FC<UpdateLogoModalProps> = ({
                                 />
                             </div>
                         </div>
-                        <div className="update-logo-preview-box">
-                            <span className="update-logo-label">Nuevo</span>
+                        <FilterField className="led-form-grid__full" label="Nueva imagen *" htmlFor="update-logo-file" icon="ri-image-add-line">
                             <div
                                 className="update-logo-img-wrap update-logo-dropzone"
                                 onClick={triggerFileInput}
@@ -153,13 +160,14 @@ const UpdateLogoModal: React.FC<UpdateLogoModalProps> = ({
                             </div>
                             <input
                                 ref={inputRef}
+                                id="update-logo-file"
                                 type="file"
                                 accept={ACCEPTED_TYPES.join(",")}
                                 onChange={handleFileChange}
                                 className="update-logo-input-hidden"
                                 aria-hidden
                             />
-                        </div>
+                        </FilterField>
                     </div>
 
                     {error && (
@@ -168,37 +176,8 @@ const UpdateLogoModal: React.FC<UpdateLogoModalProps> = ({
                             {error}
                         </div>
                     )}
-
-                    <div className="modal-footer update-logo-footer">
-                        <button
-                            type="button"
-                            className="btn-secondary"
-                            onClick={handleClose}
-                            disabled={loading}
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            className="btn-primary"
-                            disabled={!selectedFile || loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <i className="ri-loader-4-line rotating" />
-                                    Actualizando...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="ri-upload-2-line" />
-                                    Reemplazar logo
-                                </>
-                            )}
-                        </button>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </AppModal>
     );
 };
 

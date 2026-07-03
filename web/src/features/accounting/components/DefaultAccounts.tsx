@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getAccountingConfig, saveAccountingConfig, bootstrapAccounting, bootstrapTestData } from "../accounting.service";
 import type { AccountingConfig, AccountPair } from "../accounting.types";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { useConfirm, FilterField, FieldControl } from "../../../components/design-system";
 import { downloadRowsXlsx, downloadRowsCsv, readSpreadsheet, type ColumnDef } from "../import.utils";
 
 const FIELDS: { key: keyof AccountingConfig; label: string }[] = [
@@ -30,12 +31,13 @@ const FIELDS: { key: keyof AccountingConfig; label: string }[] = [
 // Plantilla: una fila por cuenta (la clave interna en "cuenta", + niif y colgaap).
 const DA_COLUMNS: ColumnDef[] = [
     { key: "cuenta", header: "cuenta", sample: "cuenta_por_pagar" },
-    { key: "niif", header: "niif", sample: "220505" },
-    { key: "colgaap", header: "colgaap", sample: "233505" },
+    { key: "niif", header: "niif", sample: "22050501" },
+    { key: "colgaap", header: "colgaap", sample: "22050501" },
 ];
 const VALID_KEYS = new Set(FIELDS.map((f) => String(f.key)));
 
 const DefaultAccounts: React.FC = () => {
+    const { confirm } = useConfirm();
     const [config, setConfig] = useState<AccountingConfig>({ marco: "niif" });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -46,7 +48,7 @@ const DefaultAccounts: React.FC = () => {
 
     /** Siembra el PUC base + cuentas por defecto (no pisa lo ya configurado) y recarga. */
     const runBootstrap = async () => {
-        if (!confirm("¿Inicializar la contabilidad con el PUC base colombiano y las cuentas por defecto? No reemplaza las cuentas que ya tengas configuradas.")) return;
+        if (!(await confirm("¿Inicializar la contabilidad con el PUC base colombiano y las cuentas por defecto? No reemplaza las cuentas que ya tengas configuradas."))) return;
         setBootstrapping(true);
         try {
             const res = await bootstrapAccounting();
@@ -62,7 +64,7 @@ const DefaultAccounts: React.FC = () => {
 
     /** Siembra datos mínimos de PRUEBA (UVT, retenciones, cliente/proveedor/ítem demo) para arrancar pruebas. */
     const runSeedTestData = async () => {
-        if (!confirm("¿Sembrar datos de PRUEBA? Crea el PUC base, la UVT del año, conceptos de retención y un cliente/proveedor/ítem demo. Es idempotente: no duplica lo ya existente. Úsalo solo en empresas de prueba.")) return;
+        if (!(await confirm("¿Sembrar datos de PRUEBA? Crea el PUC base, la UVT del año, conceptos de retención y un cliente/proveedor/ítem demo. Es idempotente: no duplica lo ya existente. Úsalo solo en empresas de prueba."))) return;
         setSeeding(true);
         try {
             const res = await bootstrapTestData();
@@ -169,16 +171,18 @@ const DefaultAccounts: React.FC = () => {
                 </div>
             </div>
 
-            <div className="acc-field" style={{ maxWidth: 280 }}>
-                <label>Marco contable</label>
-                <select value={config.marco} onChange={(e) => setConfig((c) => ({ ...c, marco: e.target.value as AccountingConfig["marco"] }))}>
-                    <option value="niif">NIIF</option>
-                    <option value="colgaap">COLGAAP (PCGA)</option>
-                    <option value="ambos">Ambos</option>
-                </select>
+            <div className="led-form-grid" style={{ maxWidth: 320 }}>
+                <FilterField label="Marco contable" htmlFor="da-marco" icon="ri-book-2-line">
+                    <FieldControl id="da-marco" as="select" value={config.marco} onChange={(e) => setConfig((c) => ({ ...c, marco: e.target.value as AccountingConfig["marco"] }))}>
+                        <option value="niif">NIIF</option>
+                        <option value="colgaap">COLGAAP (PCGA)</option>
+                        <option value="ambos">Ambos</option>
+                    </FieldControl>
+                </FilterField>
             </div>
 
-            <table className="acc-table" style={{ marginTop: 16 }}>
+            <div className="purchases-table-container ds-table-container led-editable-table" style={{ marginTop: 16 }}>
+            <table className="purchases-table ds-table acc-table">
                 <thead>
                     <tr><th>Cuenta</th><th>Código NIIF</th><th>Código COLGAAP</th></tr>
                 </thead>
@@ -187,14 +191,19 @@ const DefaultAccounts: React.FC = () => {
                         const pair = (config[f.key] as AccountPair) || {};
                         return (
                             <tr key={String(f.key)}>
-                                <td>{f.label}</td>
-                                <td><input value={pair.niif ?? ""} onChange={(e) => setPair(f.key, "niif", e.target.value)} placeholder="Ej. 220505" /></td>
-                                <td><input value={pair.colgaap ?? ""} onChange={(e) => setPair(f.key, "colgaap", e.target.value)} placeholder="Ej. 233505" /></td>
+                                <td data-label="Cuenta">{f.label}</td>
+                                <td data-label="Código NIIF">
+                                    <FieldControl value={pair.niif ?? ""} onChange={(e) => setPair(f.key, "niif", e.target.value)} placeholder="Ej. 220505" />
+                                </td>
+                                <td data-label="Código COLGAAP">
+                                    <FieldControl value={pair.colgaap ?? ""} onChange={(e) => setPair(f.key, "colgaap", e.target.value)} placeholder="Ej. 233505" />
+                                </td>
                             </tr>
                         );
                     })}
                 </tbody>
             </table>
+            </div>
 
             <div className="acc-actions">
                 <button className="btn-primary" onClick={save} disabled={saving}>{saving ? "Guardando..." : "Guardar cambios"}</button>

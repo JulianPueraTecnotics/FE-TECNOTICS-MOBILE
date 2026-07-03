@@ -5,7 +5,6 @@ import { uploadSignedMandato, getContratoMandatoForSigning } from '../../../serv
 import PDFSignature from '../../../components/PDFSignature/PDFSignatureNew';
 import Step4 from '../components/Step4';
 import { clearRegisterProgress } from '../../../utils/registerStorage';
-import { removeItemSync } from '../../../utils/storage';
 import './Register.css';
 import '../components/Step3.css';
 import '../components/Step4.css';
@@ -63,8 +62,8 @@ const ContinueMandato: React.FC = () => {
   const handleStep4Complete = () => {
     toast.success('¡Registro completado exitosamente!');
     clearRegisterProgress();
-    removeItemSync('signed_contract_mandato');
-    removeItemSync('signed_contract_name');
+    localStorage.removeItem('signed_contract_mandato');
+    localStorage.removeItem('signed_contract_name');
     setTimeout(() => navigate('/dashboard'), 2000);
   };
 

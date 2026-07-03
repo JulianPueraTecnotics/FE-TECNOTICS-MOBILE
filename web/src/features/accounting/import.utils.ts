@@ -10,6 +10,8 @@ export interface ColumnDef {
     key: string;
     /** Encabezado mostrado en la plantilla. */
     header: string;
+    /** Encabezados alternativos aceptados al importar (variaciones de nombre). */
+    aliases?: string[];
     /** Ejemplo en la fila guía. */
     sample?: string;
 }
@@ -99,6 +101,10 @@ export async function readSpreadsheet(file: File, columns: ColumnDef[]): Promise
     for (const c of columns) {
         let idx = rawHeaders.indexOf(norm(c.header));
         if (idx < 0) idx = rawHeaders.indexOf(norm(c.key));
+        // Encabezados alternativos (ej. "ubicación" / "ubicacion", "vida util fiscal").
+        if (idx < 0 && c.aliases) {
+            for (const a of c.aliases) { idx = rawHeaders.indexOf(norm(a)); if (idx >= 0) break; }
+        }
         colIndex[c.key] = idx;
     }
 
@@ -106,39 +112,6 @@ export async function readSpreadsheet(file: File, columns: ColumnDef[]): Promise
     for (let i = 1; i < matrix.length; i++) {
         const cells = matrix[i] as unknown[];
         if (!cells || !cells.some((c) => String(c ?? "").trim() !== "")) continue;
-        const rec: Record<string, string> = {};
-        for (const c of columns) {
-            const idx = colIndex[c.key];
-            rec[c.key] = idx >= 0 ? String(cells[idx] ?? "").trim() : "";
-        }
-        rows.push(rec);
-    }
-    return rows;
-}
-
-/** Igual que readSpreadsheet pero desde una URI local (Expo DocumentPicker). */
-export async function readSpreadsheetFromUri(uri: string, columns: ColumnDef[]): Promise<Record<string, string>[]> {
-    const res = await fetch(uri);
-    const buffer = await res.arrayBuffer();
-    const wb = XLSX.read(buffer, { type: "array" });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    if (!ws) return [];
-    const matrix = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1, blankrows: false, defval: "", raw: false });
-    if (!matrix.length) return [];
-
-    const norm = (s: unknown) => String(s ?? "").normalize("NFD").replace(/\p{Diacritic}/gu, "").trim().toLowerCase();
-    const rawHeaders = (matrix[0] as unknown[]).map((h) => norm(h));
-    const colIndex: Record<string, number> = {};
-    for (const c of columns) {
-        let idx = rawHeaders.indexOf(norm(c.header));
-        if (idx < 0) idx = rawHeaders.indexOf(norm(c.key));
-        colIndex[c.key] = idx;
-    }
-
-    const rows: Record<string, string>[] = [];
-    for (let i = 1; i < matrix.length; i++) {
-        const cells = matrix[i] as unknown[];
-        if (!cells || !cells.some((cell) => String(cell ?? "").trim() !== "")) continue;
         const rec: Record<string, string> = {};
         for (const c of columns) {
             const idx = colIndex[c.key];

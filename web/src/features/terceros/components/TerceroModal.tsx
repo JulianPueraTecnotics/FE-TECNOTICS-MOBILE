@@ -3,6 +3,7 @@ import type { Tercero, TerceroRole } from "../terceros.types";
 import { ROLE_LABELS } from "../terceros.types";
 import { createTercero, updateTercero } from "../terceros.service";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 import "../../purchases/components/PurchaseModals.css";
 
 interface Props {
@@ -76,28 +77,49 @@ const TerceroModal: React.FC<Props> = ({ isOpen, tercero, onClose, onSaved }) =>
     };
 
     return (
-        <div className="pm-overlay" onClick={() => !saving && onClose()} role="presentation">
-            <div className="pm-modal pm-modal--wide" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-                <div className="pm-header">
-                    <h3>{tercero ? "Editar tercero" : "Nuevo tercero"}</h3>
-                    <button className="pm-close" onClick={onClose} disabled={saving}><i className="ri-close-line" /></button>
-                </div>
-                <div className="pm-body">
-                    <div className="pm-grid">
-                        <div className="pm-field pm-col-2"><label>Nombre / Razón social *</label><input value={form.name} onChange={(e) => set("name", e.target.value)} /></div>
-                        <div className="pm-field"><label>NIT / Documento *</label><input value={form.doc_number} onChange={(e) => set("doc_number", e.target.value)} /></div>
-                        <div className="pm-field"><label>DV</label><input value={form.doc_number_dv} onChange={(e) => set("doc_number_dv", e.target.value)} /></div>
-                        <div className="pm-field"><label>Tipo de persona</label>
-                            <select value={form.tipo_persona} onChange={(e) => set("tipo_persona", e.target.value)}>
+        <AppModal
+            wide
+            title={tercero ? "Editar tercero" : "Nuevo tercero"}
+            onClose={onClose}
+            closeDisabled={saving}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={saving}>Cancelar</button>
+                    <button type="button" className="export-submit" onClick={submit} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</button>
+                </>
+            }
+        >
+            <div className="led-form-grid">
+                        <FilterField className="led-form-grid__full" label="Nombre / Razón social *" htmlFor="tercero-name" icon="ri-building-line">
+                            <FieldControl id="tercero-name" value={form.name} onChange={(e) => set("name", e.target.value)} disabled={saving} required />
+                        </FilterField>
+                        <FilterField label="NIT / Documento *" htmlFor="tercero-doc" icon="ri-id-card-line">
+                            <FieldControl id="tercero-doc" value={form.doc_number} onChange={(e) => set("doc_number", e.target.value)} disabled={saving} required />
+                        </FilterField>
+                        <FilterField label="DV" htmlFor="tercero-dv" icon="ri-hashtag">
+                            <FieldControl id="tercero-dv" value={form.doc_number_dv} onChange={(e) => set("doc_number_dv", e.target.value)} disabled={saving} />
+                        </FilterField>
+                        <FilterField label="Tipo de persona" htmlFor="tercero-tipo-persona" icon="ri-user-line">
+                            <FieldControl as="select" id="tercero-tipo-persona" value={form.tipo_persona} onChange={(e) => set("tipo_persona", e.target.value)} disabled={saving}>
                                 <option value="1">Jurídica</option>
                                 <option value="2">Natural</option>
-                            </select>
-                        </div>
-                        <div className="pm-field"><label>Teléfono</label><input value={form.phone} onChange={(e) => set("phone", e.target.value)} /></div>
-                        <div className="pm-field pm-col-2"><label>Correo</label><input value={form.email} onChange={(e) => set("email", e.target.value)} /></div>
-                        <div className="pm-field pm-col-2"><label>Dirección</label><input value={form.address} onChange={(e) => set("address", e.target.value)} /></div>
-                        <div className="pm-field"><label>Código municipio (DIAN)</label><input value={form.codigo_municipio} onChange={(e) => set("codigo_municipio", e.target.value)} placeholder="Ej. 05001" /></div>
-                        <div className="pm-field"><label>Código CIIU</label><input value={form.codigo_ciiu} onChange={(e) => set("codigo_ciiu", e.target.value)} /></div>
+                            </FieldControl>
+                        </FilterField>
+                        <FilterField label="Teléfono" htmlFor="tercero-phone" icon="ri-phone-line">
+                            <FieldControl id="tercero-phone" value={form.phone} onChange={(e) => set("phone", e.target.value)} disabled={saving} />
+                        </FilterField>
+                        <FilterField className="led-form-grid__full" label="Correo" htmlFor="tercero-email" icon="ri-mail-line">
+                            <FieldControl id="tercero-email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} disabled={saving} />
+                        </FilterField>
+                        <FilterField className="led-form-grid__full" label="Dirección" htmlFor="tercero-address" icon="ri-map-pin-line">
+                            <FieldControl id="tercero-address" value={form.address} onChange={(e) => set("address", e.target.value)} disabled={saving} />
+                        </FilterField>
+                        <FilterField label="Código municipio (DIAN)" htmlFor="tercero-municipio" icon="ri-map-2-line">
+                            <FieldControl id="tercero-municipio" value={form.codigo_municipio} onChange={(e) => set("codigo_municipio", e.target.value)} placeholder="Ej. 05001" disabled={saving} />
+                        </FilterField>
+                        <FilterField label="Código CIIU" htmlFor="tercero-ciiu" icon="ri-building-4-line">
+                            <FieldControl id="tercero-ciiu" value={form.codigo_ciiu} onChange={(e) => set("codigo_ciiu", e.target.value)} disabled={saving} />
+                        </FilterField>
                     </div>
 
                     <p className="pm-hint" style={{ marginTop: 16, fontWeight: 600 }}>Roles</p>
@@ -120,24 +142,24 @@ const TerceroModal: React.FC<Props> = ({ isOpen, tercero, onClose, onSaved }) =>
                     {roles.includes("proveedor") && (
                         <>
                             <p className="pm-hint" style={{ marginTop: 16, fontWeight: 600 }}>Datos bancarios (pago a proveedores)</p>
-                            <div className="pm-grid">
-                                <div className="pm-field"><label>Banco</label><input value={form.banco} onChange={(e) => set("banco", e.target.value)} /></div>
-                                <div className="pm-field"><label>Tipo de cuenta</label>
-                                    <select value={form.tipo_cuenta} onChange={(e) => set("tipo_cuenta", e.target.value)}>
-                                        <option value="">—</option><option value="ahorros">Ahorros</option><option value="corriente">Corriente</option>
-                                    </select>
-                                </div>
-                                <div className="pm-field pm-col-2"><label>Número de cuenta</label><input value={form.numero_cuenta} onChange={(e) => set("numero_cuenta", e.target.value)} /></div>
+                            <div className="led-form-grid">
+                                <FilterField label="Banco" htmlFor="tercero-banco" icon="ri-bank-line">
+                                    <FieldControl id="tercero-banco" value={form.banco} onChange={(e) => set("banco", e.target.value)} disabled={saving} />
+                                </FilterField>
+                                <FilterField label="Tipo de cuenta" htmlFor="tercero-tipo-cuenta" icon="ri-wallet-3-line">
+                                    <FieldControl as="select" id="tercero-tipo-cuenta" value={form.tipo_cuenta} onChange={(e) => set("tipo_cuenta", e.target.value)} disabled={saving}>
+                                        <option value="">—</option>
+                                        <option value="ahorros">Ahorros</option>
+                                        <option value="corriente">Corriente</option>
+                                    </FieldControl>
+                                </FilterField>
+                                <FilterField className="led-form-grid__full" label="Número de cuenta" htmlFor="tercero-numero-cuenta" icon="ri-bank-card-line">
+                                    <FieldControl id="tercero-numero-cuenta" value={form.numero_cuenta} onChange={(e) => set("numero_cuenta", e.target.value)} disabled={saving} />
+                                </FilterField>
                             </div>
                         </>
                     )}
-                </div>
-                <div className="pm-actions">
-                    <button className="pm-cancel" onClick={onClose} disabled={saving}>Cancelar</button>
-                    <button className="pm-submit" onClick={submit} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</button>
-                </div>
-            </div>
-        </div>
+        </AppModal>
     );
 };
 

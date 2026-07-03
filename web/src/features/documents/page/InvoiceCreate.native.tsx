@@ -1,6 +1,6 @@
-import BillingNativeScreen from "../../billing/BillingNativeScreen.native";
+import BillingScreenHostNative from "../../billing/BillingScreenHost.native";
 
-/** Crear factura desde Documentos → Nueva (formulario nativo). */
+/** Crear factura desde Documentos → Nueva (SDK nativo, igual que /facturar). */
 export default function InvoiceCreateNative() {
-  return <BillingNativeScreen variant="document" />;
+  return <BillingScreenHostNative />;
 }

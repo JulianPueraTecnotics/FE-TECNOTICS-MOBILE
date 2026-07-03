@@ -1,0 +1,350 @@
+/* Estilos del módulo de inventario. Reutiliza purchases-* / design-system para listas y formularios. */
+
+.inv-section {
+    margin-top: 0.25rem;
+}
+
+.ds-num {
+    text-align: right;
+}
+
+.purchases-table .ds-num {
+    white-space: nowrap;
+}
+
+.inv-section__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.inv-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.85rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.inv-form-grid .ds-filter-field {
+    margin: 0;
+}
+
+.inv-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.inv-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.inv-checkbox-label input {
+    width: auto;
+}
+
+.inv-editable-table .ds-field-input__control,
+.inv-editable-table select.ds-field-input__control {
+    min-width: 0;
+    width: 100%;
+}
+
+.inv-editable-table .ds-field-input {
+    width: 100%;
+}
+
+.inv-results-block {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.inv-results-block__title {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-text);
+}
+
+/* Fila de existencias por debajo del stock mínimo. */
+.inv-row--alert td,
+.inv-row--alert.purchases-list-item,
+.inv-row--alert.purchases-card {
+    background: rgba(255, 159, 67, 0.08);
+}
+
+.inv-row--alert td:first-child,
+.inv-row--alert.purchases-list-item {
+    box-shadow: inset 3px 0 0 var(--accent-teal);
+}
+
+/* Tarjeta destacada con el total valorizado. */
+.inv-total-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 1.1rem 1.4rem;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    background: var(--card-bg);
+}
+
+.inv-total-card__label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.inv-total-card__value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent-teal);
+    margin-top: 0.2rem;
+}
+
+.inv-total-card > i {
+    font-size: 2rem;
+    color: var(--accent-teal);
+    opacity: 0.6;
+}
+
+/* Selector de producto (autocompletar) reutilizado por kardex, ajustes, traslados y saldos. */
+.inv-picker {
+    position: relative;
+}
+
+.inv-picker--embedded {
+    flex: 1;
+    min-width: 0;
+}
+
+.inv-picker--embedded .inv-picker__selected {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--primary-text);
+    font-size: 0.9375rem;
+}
+
+.inv-picker--standalone {
+    width: 100%;
+}
+
+.inv-picker--standalone .ds-field-input {
+    width: 100%;
+}
+
+.inv-picker--standalone .inv-picker__selected {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--primary-text);
+    font-size: 0.9375rem;
+}
+
+.inv-picker__clear {
+    flex-shrink: 0;
+    padding: 0.25rem 0.4rem;
+}
+
+.inv-picker__selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: var(--primary-text);
+    font-size: 0.9375rem;
+}
+
+.inv-picker__list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    max-height: 260px;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.inv-picker__opt {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    border-bottom: 1px solid var(--border-light);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    color: var(--primary-text);
+    font-size: 0.9rem;
+}
+
+.inv-picker__opt:last-child {
+    border-bottom: none;
+}
+
+.inv-picker__opt:hover {
+    background: var(--tertiary-color);
+}
+
+.inv-picker__code {
+    flex-shrink: 0;
+    min-width: 64px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.inv-picker__name {
+    color: var(--primary-text);
+}
+
+.inv-picker__empty {
+    padding: 12px;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .inv-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inv-total-card__value {
+        font-size: 1.35rem;
+    }
+
+    .inv-section__toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inv-section__toolbar .btn-secondary,
+    .inv-section__toolbar .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .inv-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inv-form-actions .btn-primary,
+    .inv-form-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Filas editables (saldos iniciales): label arriba, campo abajo */
+    .inv-editable-table.purchases-table-container {
+        overflow: visible;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .inv-editable-table .purchases-table thead {
+        display: none;
+    }
+
+    .inv-editable-table .purchases-table tbody tr {
+        display: block;
+        margin-bottom: 0.875rem;
+        padding: 1rem 1.125rem;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: var(--card-bg);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .inv-editable-table .purchases-table tbody td {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.4rem;
+        padding: 0.65rem 0;
+        border: none;
+        border-bottom: 1px solid var(--bg-subtle);
+        text-align: left;
+    }
+
+    .inv-editable-table .purchases-table tbody td::before {
+        content: attr(data-label);
+        width: 100%;
+        margin: 0;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        text-align: left;
+    }
+
+    .inv-editable-table .purchases-table tbody td:last-child {
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        border-bottom: none;
+        border-top: 1px solid var(--border-light);
+        padding-top: 0.75rem;
+        margin-top: 0.15rem;
+    }
+
+    .inv-editable-table .purchases-table tbody td:last-child::before {
+        display: none;
+    }
+
+    .inv-editable-table .purchases-table tbody td.ds-num {
+        text-align: left;
+    }
+
+    .inv-editable-table .purchases-table tbody td .inv-picker,
+    .inv-editable-table .purchases-table tbody td .ds-field-input,
+    .inv-editable-table .purchases-table tbody td .ds-field-input__control,
+    .inv-editable-table .purchases-table tbody td input,
+    .inv-editable-table .purchases-table tbody td select {
+        width: 100%;
+        max-width: none;
+    }
+
+    .inv-editable-table .purchases-table tbody td.ds-num .ds-field-input .ds-field-input__control {
+        text-align: left;
+    }
+
+    .inv-editable-table .purchases-table tbody td .btn-action {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem 0.75rem;
+    }
+}

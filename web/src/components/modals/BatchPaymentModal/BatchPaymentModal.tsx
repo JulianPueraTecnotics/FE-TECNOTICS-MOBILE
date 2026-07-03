@@ -4,7 +4,7 @@ import { createBatchPayment } from '../../../services/recaudos.service';
 import type { ReceivableInvoice, CreateBatchPaymentRequest, PaymentMethod } from '../../../types';
 import { PAYMENT_METHOD_LABELS } from '../../../types';
 import { AuthContext } from '../../../store/auth.context';
-import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock';
+import { AppModal, FilterField, FieldControl } from '../../../components/design-system';
 import { formatCOP } from '../../../utils/format';
 import './BatchPaymentModal.css';
 
@@ -47,12 +47,11 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
     const [method, setMethod] = useState<PaymentMethod>('transferencia');
     const [paidAt, setPaidAt] = useState<string>(todayISO());
     const [reference, setReference] = useState('');
-    const [sendReceipt, setSendReceipt] = useState(true);
+    // Por defecto NO se envía comprobante al cliente (envío de correos desactivado temporalmente).
+    const [sendReceipt, setSendReceipt] = useState(false);
     const [retMode, setRetMode] = useState<RetMode>('individual');
     /** Valor total pagado global (modo general/ninguna): el usuario lo digita y se reparte. */
     const [totalPagadoGlobal, setTotalPagadoGlobal] = useState<number>(0);
-
-    useBodyScrollLock(isOpen);
 
     const saldoTotal = useMemo(() => round2(invoices.reduce((s, i) => s + i.balance, 0)), [invoices]);
 
@@ -63,7 +62,7 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
             setMethod('transferencia');
             setPaidAt(todayISO());
             setReference('');
-            setSendReceipt(true);
+            setSendReceipt(false);
             setRetMode('individual');
             setTotalPagadoGlobal(round2(invoices.reduce((s, i) => s + i.balance, 0)));
         }
@@ -90,18 +89,30 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
         setRows(repartirTotal(val));
     };
 
+    // En modo "general" la retención total (saldo total − efectivo digitado) se
+    // reparte PROPORCIONALMENTE a la base de cada factura, no se concentra en la
+    // última. Así cada factura refleja su mismo % de retención y todas quedan saldadas.
+    const baseTotal = useMemo(() => round2(rows.reduce((s, r) => s + (r.invoice.base ?? r.invoice.balance ?? 0), 0)), [rows]);
+    const retencionGlobal = useMemo(
+        () => (retMode === 'general' ? Math.max(0, round2(saldoTotal - round2(totalPagadoGlobal))) : 0),
+        [retMode, saldoTotal, totalPagadoGlobal],
+    );
+
     // Cálculo por fila según el modo de retención.
     const calcRow = (r: Row) => {
         let retencion = 0;
         if (retMode === 'individual' && r.conRetencion) {
             retencion = Math.max(0, round2(r.invoice.balance - (r.amount || 0)));
-        } else if (retMode === 'general') {
-            // En modo general, la retención de la fila = saldo - efectivo aplicado (lo que faltó del reparto).
-            retencion = Math.max(0, round2(r.invoice.balance - (r.amount || 0)));
+        } else if (retMode === 'general' && retencionGlobal > 0 && baseTotal > 0) {
+            // Prorrateo por base: retención de esta factura = retencionGlobal × (base_factura / base_total).
+            const baseFila = r.invoice.base ?? r.invoice.balance ?? 0;
+            retencion = Math.min(r.invoice.balance, round2(retencionGlobal * (baseFila / baseTotal)));
         }
-        const applied = round2((r.amount || 0) + retencion);
+        // El efectivo de la fila en modo general = su saldo − su retención (la factura queda saldada).
+        const amount = retMode === 'general' ? Math.max(0, round2(r.invoice.balance - retencion)) : (r.amount || 0);
+        const applied = round2(amount + retencion);
         const pct = retencion > 0 && (r.invoice.base ?? 0) > 0 ? Math.round((retencion / (r.invoice.base as number)) * 1000) / 10 : 0;
-        return { retencion, applied, pct };
+        return { retencion, amount, applied, pct };
     };
 
     const totals = useMemo(() => {
@@ -109,12 +120,12 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
         let retencion = 0;
         for (const r of rows) {
             const c = calcRow(r);
-            efectivo += r.amount || 0;
+            efectivo += c.amount;        // usa el efectivo calculado (en general descuenta la retención prorrateada)
             retencion += c.retencion;
         }
         return { efectivo: round2(efectivo), retencion: round2(retencion), aplicado: round2(efectivo + retencion) };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [rows, retMode]);
+    }, [rows, retMode, retencionGlobal, baseTotal]);
 
     const usaTotalGlobal = retMode === 'general' || retMode === 'ninguna';
 
@@ -137,7 +148,7 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
             items: rows
                 .map((r) => {
                     const c = calcRow(r);
-                    return { invoice_id: r.invoice._id, amount: round2(r.amount || 0), retencion: c.retencion > 0 ? c.retencion : 0 };
+                    return { invoice_id: r.invoice._id, amount: round2(c.amount), retencion: c.retencion > 0 ? c.retencion : 0 };
                 })
                 .filter((it) => it.amount > 0 || (it.retencion ?? 0) > 0),
             method,
@@ -168,16 +179,31 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
     const clientName = rows[0]?.invoice.client_name;
 
     return (
-        <div className="modal-overlay batch-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="batch-modal-title">
-            <div className="modal-container batch-modal">
-                <div className="modal-header">
-                    <h2 id="batch-modal-title">Recaudar {rows.length} facturas</h2>
-                    <button className="modal-close" onClick={onClose} disabled={loading} aria-label="Cerrar">
-                        <i className="ri-close-line"></i>
+        <AppModal
+            wide
+            title={`Recaudar ${rows.length} facturas`}
+            titleIcon="ri-hand-coin-line"
+            onClose={onClose}
+            closeDisabled={loading}
+            ariaLabelledBy="batch-modal-title"
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
                     </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="modal-body">
+                    <button type="submit" form="batch-payment-form" className="export-submit" disabled={loading}>
+                        {loading ? (
+                            <>
+                                <i className="ri-loader-4-line rotating" aria-hidden /> Registrando…
+                            </>
+                        ) : (
+                            `Registrar pago (${formatCOP(totals.aplicado)})`
+                        )}
+                    </button>
+                </>
+            }
+        >
+            <form id="batch-payment-form" onSubmit={handleSubmit} className="batch-modal-body">
                     {clientName && (
                         <div className="batch-client">
                             <i className="ri-user-3-line"></i> Cliente: <strong>{clientName}</strong>
@@ -203,24 +229,28 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
 
                     {/* Valor total pagado global (modos general / ninguna) */}
                     {usaTotalGlobal && (
-                        <div className="batch-global">
-                            <label htmlFor="batch_total_global">
-                                Valor total pagado
-                                <small> · saldo total {formatCOP(saldoTotal)}</small>
-                            </label>
-                            <input
-                                id="batch_total_global"
-                                type="number"
-                                min="0"
-                                max={saldoTotal}
-                                step="0.01"
-                                value={totalPagadoGlobal}
-                                onChange={(e) => onChangeTotalGlobal(parseFloat(e.target.value) || 0)}
-                                disabled={loading}
-                            />
-                            <button type="button" className="batch-fill-link" onClick={() => onChangeTotalGlobal(saldoTotal)} disabled={loading}>
-                                Pagó el total ({formatCOP(saldoTotal)})
-                            </button>
+                        <div className="led-form-grid">
+                            <div className="led-form-grid__full">
+                                <FilterField
+                                    label={`Valor total pagado · saldo total ${formatCOP(saldoTotal)}`}
+                                    htmlFor="batch_total_global"
+                                    icon="ri-money-dollar-circle-line"
+                                >
+                                    <FieldControl
+                                        id="batch_total_global"
+                                        type="number"
+                                        min="0"
+                                        max={saldoTotal}
+                                        step="0.01"
+                                        value={totalPagadoGlobal}
+                                        onChange={(e) => onChangeTotalGlobal(parseFloat(e.target.value) || 0)}
+                                        disabled={loading}
+                                    />
+                                </FilterField>
+                                <button type="button" className="batch-fill-link" onClick={() => onChangeTotalGlobal(saldoTotal)} disabled={loading}>
+                                    Pagó el total ({formatCOP(saldoTotal)})
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -248,9 +278,10 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
                                             min="0"
                                             max={r.invoice.balance}
                                             step="0.01"
-                                            value={r.amount}
+                                            // En modo "general" el efectivo por fila es el prorrateo (saldo − retención): no editable.
+                                            value={retMode === 'general' ? c.amount : r.amount}
                                             onChange={(e) => updateRow(idx, { amount: parseFloat(e.target.value) || 0 })}
-                                            disabled={loading}
+                                            disabled={loading || retMode === 'general'}
                                         />
                                     </span>
                                     {retMode === 'individual' && (
@@ -280,24 +311,21 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
                     </div>
 
                     {/* Datos del pago */}
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label htmlFor="batch_method">Medio de pago *</label>
-                            <select id="batch_method" value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)} disabled={loading}>
+                    <div className="led-form-grid">
+                        <FilterField label="Medio de pago *" htmlFor="batch_method" icon="ri-bank-card-line">
+                            <FieldControl as="select" id="batch_method" value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)} disabled={loading}>
                                 {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
                                     <option key={value} value={value}>
                                         {label}
                                     </option>
                                 ))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="batch_paid_at">Fecha de pago *</label>
-                            <input id="batch_paid_at" type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} disabled={loading} />
-                        </div>
-                        <div className="form-group full-width">
-                            <label htmlFor="batch_reference">Referencia</label>
-                            <input
+                            </FieldControl>
+                        </FilterField>
+                        <FilterField label="Fecha de pago *" htmlFor="batch_paid_at" icon="ri-calendar-line">
+                            <FieldControl id="batch_paid_at" type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} disabled={loading} />
+                        </FilterField>
+                        <FilterField className="led-form-grid__full" label="Referencia" htmlFor="batch_reference" icon="ri-hashtag">
+                            <FieldControl
                                 id="batch_reference"
                                 type="text"
                                 placeholder="N° de transacción / consignación"
@@ -305,7 +333,7 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
                                 onChange={(e) => setReference(e.target.value)}
                                 disabled={loading}
                             />
-                        </div>
+                        </FilterField>
                     </div>
 
                     {/* Totales del lote */}
@@ -330,24 +358,8 @@ const BatchPaymentModal: React.FC<BatchPaymentModalProps> = ({ isOpen, onClose, 
                         <input type="checkbox" checked={sendReceipt} onChange={(e) => setSendReceipt(e.target.checked)} disabled={loading} />
                         Enviar comprobante de ingreso al cliente por correo
                     </label>
-
-                    <div className="modal-footer">
-                        <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? (
-                                <>
-                                    <i className="ri-loader-4-line rotating"></i> Registrando...
-                                </>
-                            ) : (
-                                `Registrar pago (${formatCOP(totals.aplicado)})`
-                            )}
-                        </button>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </AppModal>
     );
 };
 

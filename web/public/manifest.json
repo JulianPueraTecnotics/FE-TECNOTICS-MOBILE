@@ -1,7 +1,7 @@
 {
-  "name": "Tecnotics Facturación",
-  "short_name": "Tecnotics",
-  "description": "Facturación electrónica DIAN — app móvil Tecnotics",
+  "name": "Tecnotics Contable",
+  "short_name": "Tecnotics Contable",
+  "description": "Software contable y facturación electrónica DIAN — Tecnotics Contable",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

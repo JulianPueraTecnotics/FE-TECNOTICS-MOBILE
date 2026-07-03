@@ -1,6 +1,6 @@
 /* Página de facturación (Dashboard): fondo, texto y contenedor adaptados al tema */
 .dashboard-page {
-    min-height: calc(100dvh - 54px);
+    min-height: calc(100dvh - var(--header-height));
     background: var(--page-bg);
     color: var(--primary-text);
     padding: 0;
@@ -18,4 +18,34 @@
 .dashboard-page [class*="Billing"],
 .dashboard-page iframe {
     color: var(--primary-text);
+}
+
+/*
+ * SDK @tecnotics/fe-billing — alinear botones y acentos al verde azul del portal (#6099AC).
+ * El widget inyecta sus propios estilos con --primary-color: #002737; estos overrides ganan por especificidad.
+ */
+.dashboard-page [data-tecnotics-billing-host] .tecnotics-container,
+.dashboard-page .tecnotics-container {
+    --tecnotics-primary-color: var(--header-accent) !important;
+    --primary-color: var(--header-accent) !important;
+    --secondary-color: #4a8496 !important;
+}
+
+.dashboard-page [data-tecnotics-billing-host] .tecnotics-account-setup-btn,
+.dashboard-page [data-tecnotics-billing-host] .tecnotics-account-setup .tecnotics-btn-primary,
+.dashboard-page .tecnotics-account-setup .tecnotics-btn-primary.tecnotics-account-setup-btn {
+    background: var(--header-accent) !important;
+    background-color: var(--header-accent) !important;
+    background-image: none !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.dashboard-page [data-tecnotics-billing-host] .tecnotics-account-setup-btn:hover,
+.dashboard-page [data-tecnotics-billing-host] .tecnotics-account-setup .tecnotics-btn-primary:hover,
+.dashboard-page .tecnotics-account-setup .tecnotics-btn-primary.tecnotics-account-setup-btn:hover {
+    background: #4a8496 !important;
+    background-color: #4a8496 !important;
+    background-image: none !important;
 }

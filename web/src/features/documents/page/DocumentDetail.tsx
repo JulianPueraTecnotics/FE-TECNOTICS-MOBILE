@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import "./DocumentDetail.css";
+import "../../accounting/page/Configuration.css"; // acc-card para el bloque de adjuntos
+import Attachments from "../../../components/shared/Attachments/Attachments";
 import type { Factura, TipoDocElectronico, DIANCompleteResponse, DIANIndicadorProceso, DIANNovedad, DIANMessage } from "../../../types";
 import { downloadInvoiceById, discardDraftInvoice, getInvoiceById, resendInvoiceEmail, submitDraftInvoice } from "../../../services/invoices.service";
 import { PATHS } from "../../../router/paths.contants";
@@ -25,12 +27,6 @@ function getEmissionTimeMs(factura: Factura): number | null {
 const DocumentDetailPage: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (id === "nueva") {
-            navigate(PATHS.DOCUMENT_CREATE, { replace: true });
-        }
-    }, [id, navigate]);
     const [factura, setFactura] = useState<Factura | null>(null);
     const [loading, setLoading] = useState(true);
     const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -323,7 +319,8 @@ const DocumentDetailPage: React.FC = () => {
             errorToast("No se encontró la referencia DIAN del documento (dianDocKey).");
             return;
         }
-        navigate(PATHS.DASHBOARD, {
+        // El widget de facturación (DASHBOARD_BILLING = /facturar) es el que procesa is_nota.
+        navigate(PATHS.DASHBOARD_BILLING, {
             state: {
                 is_nota: { option, ref },
             },
@@ -802,6 +799,11 @@ const DocumentDetailPage: React.FC = () => {
                         })()}
                 </div>
             </div>
+            {id && (
+                <div className="acc-card" style={{ marginTop: 16 }}>
+                    <Attachments entidad="factura" entidadId={id} titulo="Soportes de la factura" />
+                </div>
+            )}
             <ConfirmModal
                 isOpen={resendEmailModalOpen}
                 onClose={() => {

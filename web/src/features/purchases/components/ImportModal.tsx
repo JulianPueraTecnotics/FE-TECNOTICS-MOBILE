@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import type { PurchaseKind, ImportResponse, ImportResultItem } from "../purchases.types";
-import { importPurchaseFiles } from "../purchases.service";
-import { errorToast } from "../../../components/shared/toast/toasts";
+import { importPurchaseFiles, importPurchaseExcel } from "../purchases.service";
+import { downloadRowsXlsx } from "../../accounting/import.utils";
+import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { AppModal, FilterField } from "../../../components/design-system";
 import "./PurchaseModals.css";
 
 interface Props {
@@ -11,7 +13,11 @@ interface Props {
     onImported: () => void;
 }
 
-const ACCEPTED = ".xml,.zip";
+const ACCEPTED = ".xml,.zip,.xlsx,.xls";
+
+/** Encabezados de la plantilla Excel de importación de compras/gastos (1 fila = 1 factura). */
+const TEMPLATE_HEADERS = ["NIT Proveedor", "Nombre Proveedor", "Prefijo", "Numero", "Fecha", "Subtotal", "Ingresos para terceros", "IVA", "Impuesto al consumo", "Total"];
+const TEMPLATE_EXAMPLE = ["900123456", "Proveedor Demo SAS", "FE", "1234", "2025-01-15", "100000", "0", "19000", "0", "119000"];
 
 const formatCOP = (n?: number) => (n ? n.toLocaleString("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }) : "—");
 
@@ -38,9 +44,17 @@ const ImportModal: React.FC<Props> = ({ isOpen, kind, onClose, onImported }) => 
 
     const addFiles = (list: FileList | null) => {
         if (!list) return;
-        const valid = Array.from(list).filter((f) => /\.(xml|zip)$/i.test(f.name));
-        if (valid.length !== list.length) errorToast("Solo se admiten archivos XML o ZIP");
+        const valid = Array.from(list).filter((f) => /\.(xml|zip|xlsx|xls)$/i.test(f.name));
+        if (valid.length !== list.length) errorToast("Solo se admiten archivos XML, ZIP o la plantilla Excel");
         setFiles((prev) => [...prev, ...valid]);
+    };
+
+    const isExcel = (name: string) => /\.(xlsx|xls)$/i.test(name);
+
+    /** Descarga la plantilla Excel vacía (con un ejemplo) para importar compras/gastos. */
+    const downloadTemplate = () => {
+        downloadRowsXlsx(`plantilla-${kind === "expense" ? "gastos" : "compras"}.xlsx`, TEMPLATE_HEADERS, [TEMPLATE_EXAMPLE], "Plantilla");
+        successToast("Plantilla descargada. Llénala y súbela aquí.");
     };
 
     const removeFile = (idx: number) => setFiles((prev) => prev.filter((_, i) => i !== idx));
@@ -52,6 +66,17 @@ const ImportModal: React.FC<Props> = ({ isOpen, kind, onClose, onImported }) => 
         }
         setImporting(true);
         try {
+            const excelFile = files.find((f) => isExcel(f.name));
+            if (excelFile) {
+                // Importación por plantilla Excel (1 archivo .xlsx).
+                const r = await importPurchaseExcel(kind, excelFile);
+                if (r.imported > 0) onImported();
+                successToast(`${r.imported} importada(s), ${r.duplicates} duplicada(s), ${r.errors} con error.`);
+                const erroresMsg = r.results.filter((x) => x.code === "ERROR").slice(0, 5).map((x) => `Fila ${x.fila}: ${x.message}`);
+                if (erroresMsg.length) errorToast(erroresMsg.join(" · "));
+                close();
+                return;
+            }
             const res = await importPurchaseFiles(kind, files);
             setResult(res);
             if (res.imported > 0) onImported();
@@ -66,28 +91,50 @@ const ImportModal: React.FC<Props> = ({ isOpen, kind, onClose, onImported }) => 
         r.code === "IMPORTED" ? "ok" : r.code === "DUPLICATE" ? "dup" : "err";
 
     return (
-        <div className="pm-overlay" onClick={close} role="presentation">
-            <div className="pm-modal pm-modal--wide" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-                <div className="pm-header">
-                    <h3>Importar {kind === "expense" ? "gastos" : "compras"} (XML / ZIP DIAN)</h3>
-                    <button className="pm-close" onClick={close} disabled={importing} aria-label="Cerrar"><i className="ri-close-line" /></button>
-                </div>
-
-                <div className="pm-body">
-                    {!result ? (
+        <AppModal
+            wide
+            title={`Importar ${kind === "expense" ? "gastos" : "compras"}`}
+            onClose={close}
+            closeDisabled={importing}
+            footer={
+                !result ? (
+                    <>
+                        <button type="button" className="export-cancel" onClick={close} disabled={importing}>Cancelar</button>
+                        <button type="button" className="export-submit" onClick={doImport} disabled={importing || files.length === 0}>
+                            {importing ? "Importando..." : `Importar ${files.length || ""}`.trim()}
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <button type="button" className="export-cancel" onClick={reset}>Importar más</button>
+                        <button type="button" className="export-submit" onClick={close}>Listo</button>
+                    </>
+                )
+            }
+        >
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                <button className="btn-secondary" onClick={downloadTemplate} type="button" title="Descarga la plantilla Excel para importar sin XML">
+                    <i className="ri-file-excel-2-line" /> Descargar plantilla
+                </button>
+            </div>
+            {!result ? (
                         <>
-                            <div
-                                className={`pm-dropzone ${dragging ? "pm-dropzone--active" : ""}`}
-                                onClick={() => inputRef.current?.click()}
-                                onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
-                                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-                                onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
-                                onDrop={(e) => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files); }}
-                            >
-                                <i className="ri-upload-cloud-2-line"></i>
-                                <p>Arrastra y suelta los archivos XML o ZIP aquí</p>
-                                <span>o haz clic para seleccionarlos (puedes importar varios a la vez)</span>
-                                <input ref={inputRef} type="file" accept={ACCEPTED} multiple hidden onChange={(e) => addFiles(e.target.files)} />
+                            <div className="led-form-grid">
+                            <FilterField className="led-form-grid__full" label="Archivos a importar" htmlFor="purchase-import-files" icon="ri-upload-cloud-2-line">
+                                <div
+                                    className={`pm-dropzone ${dragging ? "pm-dropzone--active" : ""}`}
+                                    onClick={() => inputRef.current?.click()}
+                                    onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
+                                    onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                                    onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
+                                    onDrop={(e) => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files); }}
+                                >
+                                    <i className="ri-upload-cloud-2-line"></i>
+                                    <p>Arrastra los XML/ZIP de la DIAN, o la plantilla Excel llena</p>
+                                    <span>Haz clic para seleccionar. Para importar sin XML, descarga la plantilla (arriba), llénala y súbela.</span>
+                                    <input ref={inputRef} id="purchase-import-files" type="file" accept={ACCEPTED} multiple hidden onChange={(e) => addFiles(e.target.files)} />
+                                </div>
+                            </FilterField>
                             </div>
 
                             {files.length > 0 && (
@@ -133,25 +180,7 @@ const ImportModal: React.FC<Props> = ({ isOpen, kind, onClose, onImported }) => 
                             </table>
                         </div>
                     )}
-                </div>
-
-                <div className="pm-actions">
-                    {!result ? (
-                        <>
-                            <button className="pm-cancel" onClick={close} disabled={importing}>Cancelar</button>
-                            <button className="pm-submit" onClick={doImport} disabled={importing || files.length === 0}>
-                                {importing ? "Importando..." : `Importar ${files.length || ""}`.trim()}
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button className="pm-cancel" onClick={reset}>Importar más</button>
-                            <button className="pm-submit" onClick={close}>Listo</button>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
+        </AppModal>
     );
 };
 

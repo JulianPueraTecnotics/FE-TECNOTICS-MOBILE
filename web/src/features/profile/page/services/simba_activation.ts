@@ -41,15 +41,17 @@ export const habilitarPosService = async (
 
 /**
  * Habilitación de Nómina Electrónica ante la DIAN.
- * A diferencia de FE/POS, la nómina NO usa SetTestId: la sonda se arma en el backend con los datos
- * de la empresa (NIT, DV, razón social, token), por lo que no se envía body.
+ * A diferencia de FE/POS, la nómina NO usa SetTestId: el backend arma NIT, DV y razón social con los
+ * datos de la empresa. Se envían el `prefijo` a habilitar y el `token` de habilitación (ingresado en el front).
  */
-export const habilitarNominaService = async (): Promise<SimbaActivationResponse> => {
+export const habilitarNominaService = async (
+    body: { prefijo: string; token: string }
+): Promise<SimbaActivationResponse> => {
     const response = await fetch(API_ROUTES.COMPANY_SIMBA_HABILITAR_NE, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify(body),
     });
 
     const data = await response.json();

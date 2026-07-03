@@ -16,6 +16,7 @@ export const RealtimeEvents = {
     JOURNAL_CHANGED: "journal:changed",
     TERCERO_CHANGED: "tercero:changed",
     ASSET_CHANGED: "asset:changed",
+    BANK_JOB: "bank:job",
 } as const;
 export type RealtimeEvent = (typeof RealtimeEvents)[keyof typeof RealtimeEvents];
 

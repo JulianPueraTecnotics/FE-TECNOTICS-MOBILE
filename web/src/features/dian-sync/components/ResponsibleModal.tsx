@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { updateResponsible, type DianCredential } from "../../../services/dian.service";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
-import "../../../components/modals/nomina-modals.css";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 
 interface ResponsibleModalProps {
     isOpen: boolean;
@@ -18,14 +17,9 @@ const DOC_TYPES = [
     { value: "PA", label: "Pasaporte (PA)" },
 ];
 
-/**
- * Datos de "quien recibe" la factura. Son obligatorios para emitir eventos (acuses) en el portal DIAN.
- */
 const ResponsibleModal: React.FC<ResponsibleModalProps> = ({ isOpen, onClose, onSuccess, credential }) => {
     const [form, setForm] = useState({ responsible_doc_type: "CC", responsible_id: "", responsible_first_name: "", responsible_last_name: "" });
     const [loading, setLoading] = useState(false);
-
-    useBodyScrollLock(isOpen);
 
     useEffect(() => {
         if (isOpen && credential) {
@@ -60,51 +54,43 @@ const ResponsibleModal: React.FC<ResponsibleModalProps> = ({ isOpen, onClose, on
     };
 
     return (
-        <div className="modal-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }} onClick={onClose}>
-            <div className="modal-container" style={{ maxWidth: 580, width: "100%", maxHeight: "90vh", borderRadius: 12 }} onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>Responsable de eventos · NIT {credential.nit}</h2>
-                    <button className="modal-close" onClick={onClose} disabled={loading} aria-label="Cerrar">
-                        <i className="ri-close-line"></i>
+        <AppModal
+            title={`Responsable de eventos · NIT ${credential.nit}`}
+            titleIcon="ri-user-settings-line"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>Cancelar</button>
+                    <button type="submit" form="dian-responsible-form" className="export-submit" disabled={loading}>
+                        {loading ? <><i className="ri-loader-4-line rotating" aria-hidden /> Guardando…</> : "Guardar"}
                     </button>
+                </>
+            }
+        >
+            <form id="dian-responsible-form" onSubmit={handleSubmit}>
+                <div className="info-box" style={{ marginBottom: "1rem" }}>
+                    <i className="ri-user-line" aria-hidden />
+                    <p>Persona que figura como &quot;quien recibe&quot; en los acuses. La DIAN exige estos datos para emitir eventos.</p>
                 </div>
-
-                <form className="modal-body" onSubmit={handleSubmit}>
-                    <div className="info-box">
-                        <i className="ri-user-line"></i>
-                        <p>Persona que figura como "quien recibe" en los acuses. La DIAN exige estos datos para emitir eventos.</p>
-                    </div>
-
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label>Tipo de documento</label>
-                            <select value={form.responsible_doc_type} onChange={(e) => setForm({ ...form, responsible_doc_type: e.target.value })} disabled={loading}>
-                                {DOC_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label>Número de documento *</label>
-                            <input type="text" value={form.responsible_id} onChange={(e) => setForm({ ...form, responsible_id: e.target.value })} disabled={loading} />
-                        </div>
-                        <div className="form-group">
-                            <label>Nombres *</label>
-                            <input type="text" value={form.responsible_first_name} onChange={(e) => setForm({ ...form, responsible_first_name: e.target.value })} disabled={loading} />
-                        </div>
-                        <div className="form-group">
-                            <label>Apellidos *</label>
-                            <input type="text" value={form.responsible_last_name} onChange={(e) => setForm({ ...form, responsible_last_name: e.target.value })} disabled={loading} />
-                        </div>
-                    </div>
-
-                    <div className="modal-footer">
-                        <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Cancelar</button>
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? <><i className="ri-loader-4-line rotating"></i> Guardando...</> : "Guardar"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div className="led-form-grid">
+                    <FilterField label="Tipo de documento" htmlFor="dian-resp-type" icon="ri-id-card-line">
+                        <FieldControl id="dian-resp-type" as="select" value={form.responsible_doc_type} onChange={(e) => setForm({ ...form, responsible_doc_type: e.target.value })} disabled={loading}>
+                            {DOC_TYPES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField label="Número de documento *" htmlFor="dian-resp-id" icon="ri-hashtag">
+                        <FieldControl id="dian-resp-id" type="text" value={form.responsible_id} onChange={(e) => setForm({ ...form, responsible_id: e.target.value })} disabled={loading} />
+                    </FilterField>
+                    <FilterField label="Nombres *" htmlFor="dian-resp-first" icon="ri-user-line">
+                        <FieldControl id="dian-resp-first" type="text" value={form.responsible_first_name} onChange={(e) => setForm({ ...form, responsible_first_name: e.target.value })} disabled={loading} />
+                    </FilterField>
+                    <FilterField label="Apellidos *" htmlFor="dian-resp-last" icon="ri-user-line">
+                        <FieldControl id="dian-resp-last" type="text" value={form.responsible_last_name} onChange={(e) => setForm({ ...form, responsible_last_name: e.target.value })} disabled={loading} />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 

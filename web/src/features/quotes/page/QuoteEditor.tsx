@@ -10,6 +10,7 @@ import { getAllClients } from "../../../services/clients.service";
 import { calcQuoteTotals, formatCOP } from "../quotes.utils";
 import ProductPicker from "../components/ProductPicker";
 import ClientPicker from "../components/ClientPicker";
+import { FieldControl } from "../../../components/design-system";
 import { useFormDraft, isFormDirty } from "../../../hooks/useFormDraft";
 import UnsavedChangesModal from "../../../components/modals/UnsavedChangesModal/UnsavedChangesModal";
 
@@ -372,7 +373,7 @@ const QuoteEditor: React.FC = () => {
 
                 {/* TABLA DE ÍTEMS */}
                 <div className="cot-table-section">
-                    <div className="cot-table-scroll">
+                    <div className="cot-table-scroll led-editable-table">
                         <table className="cot-table">
                             <thead>
                                 <tr>
@@ -396,17 +397,17 @@ const QuoteEditor: React.FC = () => {
                                 {formData.lines.map((line, idx) => (
                                     <tr key={idx}>
                                         <td>{(line.code || "—").toUpperCase()}</td>
-                                        <td className="cot-td-edit">
-                                            <input type="text" value={line.name} placeholder="Detalle" onChange={(e) => updateLine(idx, { name: e.target.value })} disabled={loading} />
+                                        <td className="cot-td-edit cot-td-edit--left">
+                                            <FieldControl type="text" value={line.name} placeholder="Detalle" onChange={(e) => updateLine(idx, { name: e.target.value })} disabled={loading} />
                                         </td>
                                         <td className="cot-td-edit">
-                                            <input type="number" min={0} value={line.quantity} onChange={(e) => updateLine(idx, { quantity: parseFloat(e.target.value) || 0 })} disabled={loading} />
+                                            <FieldControl type="number" min={0} value={line.quantity} onChange={(e) => updateLine(idx, { quantity: parseFloat(e.target.value) || 0 })} disabled={loading} />
                                         </td>
                                         <td className="cot-td-edit">
-                                            <input type="number" min={0} value={line.price} onChange={(e) => updateLine(idx, { price: parseFloat(e.target.value) || 0 })} disabled={loading} />
+                                            <FieldControl type="number" min={0} value={line.price} onChange={(e) => updateLine(idx, { price: parseFloat(e.target.value) || 0 })} disabled={loading} />
                                         </td>
                                         <td className="cot-td-edit">
-                                            <input type="text" value={line.iva} onChange={(e) => updateLine(idx, { iva: sanitizeIva(e.target.value) })} disabled={loading} />
+                                            <FieldControl type="text" value={line.iva} onChange={(e) => updateLine(idx, { iva: sanitizeIva(e.target.value) })} disabled={loading} />
                                         </td>
                                         <td>{formatCOP(line.price * line.quantity)}</td>
                                         <td>

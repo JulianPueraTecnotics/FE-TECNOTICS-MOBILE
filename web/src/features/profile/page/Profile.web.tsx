@@ -20,7 +20,9 @@ import LoadingScreen from "../../../router/LoadingScreen";
 import { TipoDocElectronico } from "../../../types";
 import { clearLogs, getLogs, type LogEntry } from "../../../services/logger.service";
 import SearchableSelect from "../../../components/shared/SearchableSelect/SearchableSelect";
+import { FilterField, FieldControl, CheckCard, CheckCardGrid } from "../../../components/design-system";
 import PagoButton from "../../../components/ui/PagoButton";
+import { PAY_WINDOW_DAYS } from "../../../components/ui/pagoCheckout.shared";
 
 /** Normaliza prefijos legacy sin resolution (el backend puede devolver datos migrados). */
 function normalizeResolution(r: PrefixResolution | undefined): PrefixResolution {
@@ -73,9 +75,6 @@ const SUBSCRIPTION_STATUS_LABELS: Record<string, string> = {
     inactive: "Inactiva",
     expired: "Vencida",
 };
-
-/** Días antes de `end_date` en que se habilita el pago de renovación (debe coincidir con PagoButton). */
-const PAY_WINDOW_DAYS = 5;
 
 function formatCurrencyCOP(value: number | undefined): string {
     return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value ?? 0);
@@ -280,7 +279,10 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
     const [prefixActionLoading, setPrefixActionLoading] = useState<string | null>(null);
     const [savingPrefixes, setSavingPrefixes] = useState(false);
     const [simbaSetTestId, setSimbaSetTestId] = useState("");
+    const [simbaNominaPrefijo, setSimbaNominaPrefijo] = useState("");
     const [simbaActionLoading, setSimbaActionLoading] = useState<"fe" | "pos" | "ne" | null>(null);
+    // Token de nómina Simba: se muestra readOnly desde el perfil (no es estado editable).
+    const simbaNominaToken = profile?.company?.simba_token ?? "";
     const [numberingRangeLoading, setNumberingRangeLoading] = useState(false);
     const [numberingRangePayload, setNumberingRangePayload] = useState<unknown>(null);
     const [deletePrefixModal, setDeletePrefixModal] = useState<{ open: boolean; prefix: string | null }>({
@@ -413,8 +415,9 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
     };
 
     useEffect(() => {
-        if (profile?.company.prefixes) {
-            const drafts = profile.company.prefixes.map(normalizeCompanyPrefix);
+        const prefixes = profile?.company?.prefixes;
+        if (prefixes?.length) {
+            const drafts = prefixes.map(normalizeCompanyPrefix);
             setDraftPrefixes(drafts);
             if (expandedPrefix && !drafts.some((p) => p.prefix === expandedPrefix)) {
                 setExpandedPrefix(null);
@@ -428,7 +431,20 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
             setDraftPrefixes([]);
             setLockedInputs({});
         }
-    }, [profile?.company.prefixes]);
+    }, [profile?.company?.prefixes, expandedPrefix]);
+
+    // Preselecciona el prefijo de nómina (el marcado por defecto, o el primero) para la habilitación Simba.
+    useEffect(() => {
+        const nominaPrefixes = draftPrefixes.filter((p) => p.is_nomina);
+        if (!nominaPrefixes.length) {
+            if (simbaNominaPrefijo) setSimbaNominaPrefijo("");
+            return;
+        }
+        if (!nominaPrefixes.some((p) => p.prefix === simbaNominaPrefijo)) {
+            const preferred = nominaPrefixes.find((p) => p.default) ?? nominaPrefixes[0];
+            setSimbaNominaPrefijo(preferred.prefix);
+        }
+    }, [draftPrefixes, simbaNominaPrefijo]);
 
     useEffect(() => {
         setNewPrefixTipoFactura((prev) => {
@@ -651,14 +667,24 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
 
     const handleSimbaActivation = async (type: "fe" | "pos" | "ne") => {
         const setTestId = simbaSetTestId.trim();
-        // La nómina no usa SetTestId (la sonda se arma con los datos de la empresa en el backend).
+        const nominaPrefijo = simbaNominaPrefijo.trim();
+        const nominaToken = simbaNominaToken.trim();
+        // La nómina no usa SetTestId (NIT, DV y razón social se arman con los datos de la empresa en el backend).
         if (type !== "ne" && !setTestId) {
             errorToast("Debes ingresar el SetTestId");
             return;
         }
+        if (type === "ne" && !nominaPrefijo) {
+            errorToast("Debes seleccionar el prefijo de nómina a habilitar");
+            return;
+        }
+        if (type === "ne" && !nominaToken) {
+            errorToast("Debes ingresar el token de habilitación de nómina");
+            return;
+        }
         setSimbaActionLoading(type);
         try {
-            const response = type === "fe" ? await habilitarFeService({ setTestId }) : type === "pos" ? await habilitarPosService({ setTestId }) : await habilitarNominaService();
+            const response = type === "fe" ? await habilitarFeService({ setTestId }) : type === "pos" ? await habilitarPosService({ setTestId }) : await habilitarNominaService({ prefijo: nominaPrefijo, token: nominaToken });
             if (response.Error) {
                 errorToast(response.Msg || "Simba devolvió un error");
                 return;
@@ -918,31 +944,21 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
 
                                     <div className="profile-info-section">
                                         <h2>Información General</h2>
-                                        <div className="info-grid">
-                                            <div className="info-item">
-                                                <label>Razón Social</label>
-                                                <input
-                                                    type="text"
-                                                    value={profile?.company.razon_social || "N/A"}
-                                                    readOnly
-                                                />
-                                            </div>
-                                            <div className="info-item">
-                                                <label>Tipo de Documento</label>
-                                                <input
-                                                    type="text"
-                                                    value={profile?.company.doc_type.value || "N/A"}
-                                                    readOnly
-                                                />
-                                            </div>
-                                            <div className="info-item">
-                                                <label>Número de Documento</label>
-                                                <input
+                                        <div className="led-form-grid">
+                                            <FilterField label="Razón Social" htmlFor="profile-razon-social" icon="ri-building-line">
+                                                <FieldControl id="profile-razon-social" type="text" value={profile?.company.razon_social || "N/A"} readOnly />
+                                            </FilterField>
+                                            <FilterField label="Tipo de Documento" htmlFor="profile-doc-type" icon="ri-id-card-line">
+                                                <FieldControl id="profile-doc-type" type="text" value={profile?.company.doc_type.value || "N/A"} readOnly />
+                                            </FilterField>
+                                            <FilterField label="Número de Documento" htmlFor="profile-doc-number" icon="ri-hashtag">
+                                                <FieldControl
+                                                    id="profile-doc-number"
                                                     type="text"
                                                     value={`${profile?.company.doc_number || ""}${profile?.company.doc_number_dv ? `-${profile.company.doc_number_dv}` : ""}`}
                                                     readOnly
                                                 />
-                                            </div>
+                                            </FilterField>
                                             <div className="info-item">
                                                 <label>Estado de Cuenta</label>
                                                 <span className="status-badge-active">{profile?.company.active ? "Activa" : "Inactiva"}</span>
@@ -964,35 +980,30 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
 
                                         {subscription ? (
                                             <>
-                                                <div className="info-grid">
-                                                    <div className="info-item">
-                                                        <label>Plan</label>
-                                                        <input type="text" value={subscription.plan?.title || "N/A"} readOnly />
-                                                    </div>
-                                                    <div className="info-item">
-                                                        <label>Fecha de inicio</label>
-                                                        <input type="text" value={formatLongDate(subscription.suscription.start_date)} readOnly />
-                                                    </div>
-                                                    <div className="info-item">
-                                                        <label>Fecha de vencimiento</label>
-                                                        <input type="text" value={formatLongDate(subscription.suscription.end_date)} readOnly />
-                                                    </div>
-                                                    <div className="info-item">
-                                                        <label>Documentos usados</label>
-                                                        <input
+                                                <div className="led-form-grid">
+                                                    <FilterField label="Plan" htmlFor="profile-plan" icon="ri-vip-crown-line">
+                                                        <FieldControl id="profile-plan" type="text" value={subscription.plan?.title || "N/A"} readOnly />
+                                                    </FilterField>
+                                                    <FilterField label="Fecha de inicio" htmlFor="profile-sub-start" icon="ri-calendar-line">
+                                                        <FieldControl id="profile-sub-start" type="text" value={formatLongDate(subscription.suscription.start_date)} readOnly />
+                                                    </FilterField>
+                                                    <FilterField label="Fecha de vencimiento" htmlFor="profile-sub-end" icon="ri-calendar-check-line">
+                                                        <FieldControl id="profile-sub-end" type="text" value={formatLongDate(subscription.suscription.end_date)} readOnly />
+                                                    </FilterField>
+                                                    <FilterField label="Documentos usados" htmlFor="profile-sub-docs" icon="ri-file-list-3-line">
+                                                        <FieldControl
+                                                            id="profile-sub-docs"
                                                             type="text"
                                                             value={`${subscription.suscription.used_documents ?? 0} / ${subscription.suscription.total_documents ?? 0}`}
                                                             readOnly
                                                         />
-                                                    </div>
-                                                    <div className="info-item">
-                                                        <label>Valor del plan</label>
-                                                        <input type="text" value={formatCurrencyCOP(subscription.suscription.total_price)} readOnly />
-                                                    </div>
-                                                    <div className="info-item">
-                                                        <label>Último pago</label>
-                                                        <input type="text" value={formatLongDate(subscription.suscription.last_payment_date)} readOnly />
-                                                    </div>
+                                                    </FilterField>
+                                                    <FilterField label="Valor del plan" htmlFor="profile-sub-price" icon="ri-money-dollar-circle-line">
+                                                        <FieldControl id="profile-sub-price" type="text" value={formatCurrencyCOP(subscription.suscription.total_price)} readOnly />
+                                                    </FilterField>
+                                                    <FilterField label="Último pago" htmlFor="profile-sub-last-pay" icon="ri-bank-card-line">
+                                                        <FieldControl id="profile-sub-last-pay" type="text" value={formatLongDate(subscription.suscription.last_payment_date)} readOnly />
+                                                    </FilterField>
                                                 </div>
 
                                                 <div className="subscription-pay">
@@ -1037,79 +1048,71 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                             <>
                                 <div className="profile-card">
                                     <h2>Información de contacto y banco</h2>
-                                    <div className="info-grid">
-                                        <div className="info-item">
-                                            <label>Email</label>
-                                            <input
-                                                type="email"
-                                                value={profile?.company.email || ""}
-                                                readOnly
-                                                disabled
-                                            />
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Teléfono</label>
-                                            <input
+                                    <div className="led-form-grid">
+                                        <FilterField label="Email" htmlFor="profile-email" icon="ri-mail-line">
+                                            <FieldControl id="profile-email" type="email" value={profile?.company.email || ""} readOnly disabled />
+                                        </FilterField>
+                                        <FilterField label="Teléfono" htmlFor="profile-phone" icon="ri-phone-line">
+                                            <FieldControl
+                                                id="profile-phone"
                                                 type="text"
                                                 inputMode="numeric"
                                                 pattern="[0-9]*"
                                                 value={editedData.phone ?? (profile?.company.phone || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, phone: e.target.value.replace(/\D/g, "") })}
                                             />
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Sitio Web</label>
-                                            <input
+                                        </FilterField>
+                                        <FilterField label="Sitio Web" htmlFor="profile-website" icon="ri-global-line">
+                                            <FieldControl
+                                                id="profile-website"
                                                 type="url"
                                                 value={editedData.website ?? (profile?.company.website || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, website: e.target.value })}
                                             />
-                                        </div>
-                                        <div className="info-item full-width">
-                                            <label>Dirección (Descripción)</label>
-                                            <textarea
+                                        </FilterField>
+                                        <FilterField label="Dirección (Descripción)" htmlFor="profile-address" icon="ri-map-pin-line" className="led-form-grid__full">
+                                            <FieldControl
+                                                id="profile-address"
+                                                as="textarea"
                                                 value={editedData.address_value ?? (profile?.company.address.value || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, address_value: e.target.value })}
                                                 rows={3}
                                             />
-                                        </div>
-                                        <div className="info-item">
-                                            <label>País</label>
-                                            <select
+                                        </FilterField>
+                                        <FilterField label="País" htmlFor="profile-pais" icon="ri-earth-line">
+                                            <FieldControl
+                                                id="profile-pais"
+                                                as="select"
                                                 value={editedData.pais_codigo ?? (profile?.company.address.pais_codigo || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, pais_codigo: e.target.value })}
                                             >
                                                 <option value="">Seleccione un país</option>
                                                 {paises.map((pais) => (
-                                                    <option
-                                                        key={pais.codigo}
-                                                        value={pais.codigo}
-                                                    >
+                                                    <option key={pais.codigo} value={pais.codigo}>
                                                         {pais.descripcion}
                                                     </option>
                                                 ))}
-                                            </select>
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Departamento</label>
-                                            <select
+                                            </FieldControl>
+                                        </FilterField>
+                                        <FilterField label="Departamento" htmlFor="profile-depto" icon="ri-map-2-line">
+                                            <FieldControl
+                                                id="profile-depto"
+                                                as="select"
                                                 value={editedData.departamento_codigo ?? (profile?.company.address.departamento_codigo || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, departamento_codigo: e.target.value, ciudad_codigo: "" })}
                                             >
                                                 <option value="">Seleccione un departamento</option>
                                                 {departamentos.map((depto) => (
-                                                    <option
-                                                        key={depto.codigo}
-                                                        value={depto.codigo}
-                                                    >
+                                                    <option key={depto.codigo} value={depto.codigo}>
                                                         {depto.nombre}
                                                     </option>
                                                 ))}
-                                            </select>
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Ciudad/Municipio</label>
-                                            <select
+                                            </FieldControl>
+                                        </FilterField>
+                                        <FilterField label="Ciudad/Municipio" htmlFor="profile-ciudad" icon="ri-building-2-line">
+                                            <FieldControl
+                                                id="profile-ciudad"
+                                                as="select"
                                                 value={editedData.ciudad_codigo ?? (profile?.company.address.ciudad_codigo || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, ciudad_codigo: e.target.value })}
                                                 disabled={!editedData.departamento_codigo && !profile?.company.address.departamento_codigo}
@@ -1118,54 +1121,53 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                 {municipios
                                                     .filter((mun) => mun.code.startsWith(editedData.departamento_codigo ?? (profile?.company.address.departamento_codigo || "")))
                                                     .map((mun) => (
-                                                        <option
-                                                            key={mun.code}
-                                                            value={mun.code}
-                                                        >
+                                                        <option key={mun.code} value={mun.code}>
                                                             {mun.name}
                                                         </option>
                                                     ))}
-                                            </select>
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Código Postal</label>
-                                            <input
+                                            </FieldControl>
+                                        </FilterField>
+                                        <FilterField label="Código Postal" htmlFor="profile-zip" icon="ri-mail-send-line">
+                                            <FieldControl
+                                                id="profile-zip"
                                                 type="text"
                                                 inputMode="numeric"
                                                 pattern="[0-9]*"
                                                 value={editedData.zip_code ?? (profile?.company.address.zip_code || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, zip_code: e.target.value.replace(/\D/g, "") })}
                                             />
-                                        </div>
+                                        </FilterField>
                                     </div>
                                 </div>
 
                                 <div className="profile-card">
                                     <h2>Información Bancaria</h2>
-                                    <div className="info-grid">
-                                        <div className="info-item">
-                                            <label>Banco</label>
+                                    <div className="led-form-grid">
+                                        <FilterField label="Banco" htmlFor="profile-bank" icon="ri-bank-line">
                                             <SearchableSelect
+                                                embedded
+                                                id="profile-bank"
                                                 options={BANK_OPTIONS}
                                                 value={editedData.bank_account_name ?? (profile?.company.bank_account?.name || "")}
                                                 onChange={(value) => setEditedData({ ...editedData, bank_account_name: value })}
                                                 placeholder="Buscar o seleccionar banco..."
                                                 aria-label="Seleccionar banco"
                                             />
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Número de Cuenta</label>
-                                            <input
+                                        </FilterField>
+                                        <FilterField label="Número de Cuenta" htmlFor="profile-bank-number" icon="ri-hashtag">
+                                            <FieldControl
+                                                id="profile-bank-number"
                                                 type="text"
                                                 inputMode="numeric"
                                                 pattern="[0-9]*"
                                                 value={editedData.bank_account_number ?? (profile?.company.bank_account?.account_number || "")}
                                                 onChange={(e) => setEditedData({ ...editedData, bank_account_number: e.target.value.replace(/\D/g, "") })}
                                             />
-                                        </div>
-                                        <div className="info-item">
-                                            <label>Tipo de Cuenta</label>
-                                            <select
+                                        </FilterField>
+                                        <FilterField label="Tipo de Cuenta" htmlFor="profile-bank-type" icon="ri-wallet-3-line">
+                                            <FieldControl
+                                                id="profile-bank-type"
+                                                as="select"
                                                 value={editedData.bank_account_type ?? (profile?.company.bank_account?.account_type || "")}
                                                 onChange={(e) =>
                                                     setEditedData({
@@ -1177,8 +1179,8 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                 <option value="">Seleccione...</option>
                                                 <option value="ahorro">Ahorro</option>
                                                 <option value="corriente">Corriente</option>
-                                            </select>
-                                        </div>
+                                            </FieldControl>
+                                        </FilterField>
                                     </div>
                                 </div>
                                 <div className="profile-card">
@@ -1193,13 +1195,17 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                             >
                                                 Rellenar con información bancaria
                                             </button>
-                                            <textarea
-                                                className="observations-textarea"
-                                                placeholder="Observaciones adicionales..."
-                                                value={editedData.observations ?? profile?.company.observations ?? ""}
-                                                onChange={(e) => setEditedData({ ...editedData, observations: e.target.value })}
-                                                rows={4}
-                                            />
+                                            <FilterField label="Observaciones para la factura" htmlFor="profile-observations" icon="ri-file-text-line" className="led-form-grid__full">
+                                                <FieldControl
+                                                    id="profile-observations"
+                                                    as="textarea"
+                                                    className="observations-textarea"
+                                                    placeholder="Observaciones adicionales..."
+                                                    value={editedData.observations ?? profile?.company.observations ?? ""}
+                                                    onChange={(e) => setEditedData({ ...editedData, observations: e.target.value })}
+                                                    rows={4}
+                                                />
+                                            </FilterField>
                                         </div>
                                     </div>
                                 </div>
@@ -1219,31 +1225,16 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                         {activeSection === "general" && (
                             <div className="profile-card">
                                 <h2>Representante Legal</h2>
-                                <div className="info-grid">
-                                    <div className="info-item">
-                                        <label>Nombre Completo</label>
-                                        <input
-                                            type="text"
-                                            value={profile?.company.legal_representative.name || ""}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="info-item">
-                                        <label>Tipo de Documento</label>
-                                        <input
-                                            type="text"
-                                            value={profile?.company.legal_representative.doc_type || ""}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="info-item">
-                                        <label>Número de Documento</label>
-                                        <input
-                                            type="text"
-                                            value={profile?.company.legal_representative.doc_number || ""}
-                                            readOnly
-                                        />
-                                    </div>
+                                <div className="led-form-grid">
+                                    <FilterField label="Nombre Completo" htmlFor="profile-legal-name" icon="ri-user-line">
+                                        <FieldControl id="profile-legal-name" type="text" value={profile?.company.legal_representative.name || ""} readOnly />
+                                    </FilterField>
+                                    <FilterField label="Tipo de Documento" htmlFor="profile-legal-doc-type" icon="ri-id-card-line">
+                                        <FieldControl id="profile-legal-doc-type" type="text" value={profile?.company.legal_representative.doc_type || ""} readOnly />
+                                    </FilterField>
+                                    <FilterField label="Número de Documento" htmlFor="profile-legal-doc-number" icon="ri-hashtag">
+                                        <FieldControl id="profile-legal-doc-number" type="text" value={profile?.company.legal_representative.doc_number || ""} readOnly />
+                                    </FilterField>
                                 </div>
                             </div>
                         )}
@@ -1312,14 +1303,17 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                     </div>
 
                                                     <div className="billing-reports-add-email">
-                                                        <input
-                                                            type="email"
-                                                            inputMode="email"
-                                                            placeholder="Ej: contabilidad@empresa.com"
-                                                            value={newReceiveBillsReportsEmail}
-                                                            onChange={(e) => setNewReceiveBillsReportsEmail(e.target.value)}
-                                                            disabled={savingReceiveBillsReports}
-                                                        />
+                                                        <FilterField label="Agregar correo" htmlFor="billing-report-email" icon="ri-mail-add-line">
+                                                            <FieldControl
+                                                                id="billing-report-email"
+                                                                type="email"
+                                                                inputMode="email"
+                                                                placeholder="Ej: contabilidad@empresa.com"
+                                                                value={newReceiveBillsReportsEmail}
+                                                                onChange={(e) => setNewReceiveBillsReportsEmail(e.target.value)}
+                                                                disabled={savingReceiveBillsReports}
+                                                            />
+                                                        </FilterField>
                                                         <button
                                                             type="button"
                                                             className="btn-secondary billing-reports-add-btn"
@@ -1351,46 +1345,47 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                     </div>
 
                                                     {receiveBillsReportsEmailCatalog.length > 0 ? (
-                                                        <div className="billing-reports-checklist">
+                                                        <CheckCardGrid className="billing-reports-checklist">
                                                             {receiveBillsReportsEmailCatalog.map((email) => (
-                                                                <label
+                                                                <CheckCard
                                                                     key={email}
-                                                                    className="billing-reports-check"
-                                                                >
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={receiveBillsReportsSelectedEmails.includes(email)}
-                                                                        onChange={(e) => {
-                                                                            const checked = e.target.checked;
-                                                                            const nextSelected = checked ? Array.from(new Set([...receiveBillsReportsSelectedEmails, email])) : receiveBillsReportsSelectedEmails.filter((x) => x !== email);
-                                                                            setReceiveBillsReportsSelectedEmails(nextSelected);
-                                                                            if (receiveBillsReportsEnabled) {
-                                                                                void handleUpdateReceiveBillsReports(true, receiveBillsReportsPeriod, nextSelected);
-                                                                            }
-                                                                        }}
-                                                                        disabled={savingReceiveBillsReports}
-                                                                    />
-                                                                    <span>{email}</span>
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn-icon-prefix btn-icon-prefix-danger billing-reports-remove"
-                                                                        title="Quitar email"
-                                                                        onClick={() => {
-                                                                            const nextCatalog = receiveBillsReportsEmailCatalog.filter((x) => x !== email);
-                                                                            const nextSelected = receiveBillsReportsSelectedEmails.filter((x) => x !== email);
-                                                                            setReceiveBillsReportsEmailCatalog(nextCatalog);
-                                                                            setReceiveBillsReportsSelectedEmails(nextSelected);
-                                                                            if (receiveBillsReportsEnabled) {
-                                                                                void handleUpdateReceiveBillsReports(true, receiveBillsReportsPeriod, nextSelected);
-                                                                            }
-                                                                        }}
-                                                                        disabled={savingReceiveBillsReports}
-                                                                    >
-                                                                        <i className="ri-close-line"></i>
-                                                                    </button>
-                                                                </label>
+                                                                    icon="ri-mail-line"
+                                                                    label={email}
+                                                                    checked={receiveBillsReportsSelectedEmails.includes(email)}
+                                                                    disabled={savingReceiveBillsReports}
+                                                                    onChange={(checked) => {
+                                                                        const nextSelected = checked
+                                                                            ? Array.from(new Set([...receiveBillsReportsSelectedEmails, email]))
+                                                                            : receiveBillsReportsSelectedEmails.filter((x) => x !== email);
+                                                                        setReceiveBillsReportsSelectedEmails(nextSelected);
+                                                                        if (receiveBillsReportsEnabled) {
+                                                                            void handleUpdateReceiveBillsReports(true, receiveBillsReportsPeriod, nextSelected);
+                                                                        }
+                                                                    }}
+                                                                    trailing={
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn-icon-prefix btn-icon-prefix-danger billing-reports-remove"
+                                                                            title="Quitar email"
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                e.stopPropagation();
+                                                                                const nextCatalog = receiveBillsReportsEmailCatalog.filter((x) => x !== email);
+                                                                                const nextSelected = receiveBillsReportsSelectedEmails.filter((x) => x !== email);
+                                                                                setReceiveBillsReportsEmailCatalog(nextCatalog);
+                                                                                setReceiveBillsReportsSelectedEmails(nextSelected);
+                                                                                if (receiveBillsReportsEnabled) {
+                                                                                    void handleUpdateReceiveBillsReports(true, receiveBillsReportsPeriod, nextSelected);
+                                                                                }
+                                                                            }}
+                                                                            disabled={savingReceiveBillsReports}
+                                                                        >
+                                                                            <i className="ri-close-line" />
+                                                                        </button>
+                                                                    }
+                                                                />
                                                             ))}
-                                                        </div>
+                                                        </CheckCardGrid>
                                                     ) : (
                                                         <p className="billing-reports-empty">No hay correos adicionales configurados.</p>
                                                     )}
@@ -1401,47 +1396,44 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                     disabled={!receiveBillsReportsEnabled || savingReceiveBillsReports}
                                                 >
                                                     <legend className="billing-reports-legend">Frecuencia</legend>
-                                                    <div className="billing-reports-radios">
-                                                        <label className="billing-reports-radio">
-                                                            <input
-                                                                type="radio"
-                                                                name="receive-bills-reports-period"
-                                                                value="daily"
-                                                                checked={receiveBillsReportsPeriod === "daily"}
-                                                                onChange={() => {
-                                                                    setReceiveBillsReportsPeriod("daily");
-                                                                    void handleUpdateReceiveBillsReports(true, "daily");
-                                                                }}
-                                                            />
-                                                            Diario
-                                                        </label>
-                                                        <label className="billing-reports-radio">
-                                                            <input
-                                                                type="radio"
-                                                                name="receive-bills-reports-period"
-                                                                value="weekly"
-                                                                checked={receiveBillsReportsPeriod === "weekly"}
-                                                                onChange={() => {
-                                                                    setReceiveBillsReportsPeriod("weekly");
-                                                                    void handleUpdateReceiveBillsReports(true, "weekly");
-                                                                }}
-                                                            />
-                                                            Semanal
-                                                        </label>
-                                                        <label className="billing-reports-radio">
-                                                            <input
-                                                                type="radio"
-                                                                name="receive-bills-reports-period"
-                                                                value="monthly"
-                                                                checked={receiveBillsReportsPeriod === "monthly"}
-                                                                onChange={() => {
-                                                                    setReceiveBillsReportsPeriod("monthly");
-                                                                    void handleUpdateReceiveBillsReports(true, "monthly");
-                                                                }}
-                                                            />
-                                                            Mensual
-                                                        </label>
-                                                    </div>
+                                                    <CheckCardGrid className="billing-reports-radios">
+                                                        <CheckCard
+                                                            type="radio"
+                                                            name="receive-bills-reports-period"
+                                                            value="daily"
+                                                            icon="ri-sun-line"
+                                                            label="Diario"
+                                                            checked={receiveBillsReportsPeriod === "daily"}
+                                                            onChange={() => {
+                                                                setReceiveBillsReportsPeriod("daily");
+                                                                void handleUpdateReceiveBillsReports(true, "daily");
+                                                            }}
+                                                        />
+                                                        <CheckCard
+                                                            type="radio"
+                                                            name="receive-bills-reports-period"
+                                                            value="weekly"
+                                                            icon="ri-calendar-week-line"
+                                                            label="Semanal"
+                                                            checked={receiveBillsReportsPeriod === "weekly"}
+                                                            onChange={() => {
+                                                                setReceiveBillsReportsPeriod("weekly");
+                                                                void handleUpdateReceiveBillsReports(true, "weekly");
+                                                            }}
+                                                        />
+                                                        <CheckCard
+                                                            type="radio"
+                                                            name="receive-bills-reports-period"
+                                                            value="monthly"
+                                                            icon="ri-calendar-line"
+                                                            label="Mensual"
+                                                            checked={receiveBillsReportsPeriod === "monthly"}
+                                                            onChange={() => {
+                                                                setReceiveBillsReportsPeriod("monthly");
+                                                                void handleUpdateReceiveBillsReports(true, "monthly");
+                                                            }}
+                                                        />
+                                                    </CheckCardGrid>
                                                     <p className="billing-reports-hint">Zona Colombia: diario 7:30am (día anterior), semanal lunes 7:30am (semana anterior lun-dom), mensual día 1 7:30am (mes anterior).</p>
                                                 </fieldset>
                                             </div>
@@ -1529,64 +1521,41 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                 </div>
                                                             </div>
                                                             {expandedPrefix === item.prefix && (
-                                                                <div className="prefix-resolution-grid">
-                                                                    <div className="prefix-field">
-                                                                        <label htmlFor={`prefix-tipo-doc-${item.prefix}`}>Tipo de documento</label>
-                                                                        <select
+                                                                <div className="prefix-resolution-grid led-form-grid">
+                                                                    <FilterField label="Tipo de documento" htmlFor={`prefix-tipo-doc-${item.prefix}`} icon="ri-file-list-3-line">
+                                                                        <FieldControl
                                                                             id={`prefix-tipo-doc-${item.prefix}`}
+                                                                            as="select"
                                                                             value={item.resolution.tipo_doc_electronico ?? TipoDocElectronico.FACTURA}
                                                                             onChange={(e) => updateDraftResolutionSelect(item.prefix, "tipo_doc_electronico", e.target.value)}
                                                                             disabled
                                                                         >
                                                                             {TIPO_DOC_ELECTRONICO_OPTIONS.map((opt) => (
-                                                                                <option
-                                                                                    key={opt.value}
-                                                                                    value={opt.value}
-                                                                                >
-                                                                                    {opt.label}
-                                                                                </option>
+                                                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
                                                                             ))}
-                                                                        </select>
-                                                                    </div>
-                                                                    <div className="prefix-field">
-                                                                        <label htmlFor={`prefix-tipo-factura-${item.prefix}`}>Tipo de factura</label>
-                                                                        <select
+                                                                        </FieldControl>
+                                                                    </FilterField>
+                                                                    <FilterField label="Tipo de factura" htmlFor={`prefix-tipo-factura-${item.prefix}`} icon="ri-bill-line">
+                                                                        <FieldControl
                                                                             id={`prefix-tipo-factura-${item.prefix}`}
+                                                                            as="select"
                                                                             value={item.resolution.tipo_factura ?? "01"}
                                                                             onChange={(e) => updateDraftResolutionSelect(item.prefix, "tipo_factura", e.target.value)}
                                                                             disabled
                                                                         >
                                                                             {getTipoFacturaOptionsForDoc(normalizeTipoDocElectronico(item.resolution.tipo_doc_electronico), item.resolution.tipo_factura).map((opt) => (
-                                                                                <option
-                                                                                    key={opt.value}
-                                                                                    value={opt.value}
-                                                                                >
-                                                                                    {opt.label}
-                                                                                </option>
+                                                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
                                                                             ))}
-                                                                        </select>
-                                                                    </div>
-                                                                    <div className="prefix-field">
-                                                                        <label>Fecha de inicio</label>
-                                                                        <input
-                                                                            type="date"
-                                                                            value={toDateInputValue(item.resolution.start_date)}
-                                                                            readOnly
-                                                                            disabled
-                                                                        />
-                                                                    </div>
-                                                                    <div className="prefix-field">
-                                                                        <label>Fecha de vencimiento</label>
-                                                                        <input
-                                                                            type="date"
-                                                                            value={toDateInputValue(item.resolution.end_date)}
-                                                                            readOnly
-                                                                            disabled
-                                                                        />
-                                                                    </div>
-                                                                    <div className="prefix-field">
-                                                                        <label htmlFor={`prefix-init-${item.prefix}`}>Consecutivo inicial</label>
-                                                                        <input
+                                                                        </FieldControl>
+                                                                    </FilterField>
+                                                                    <FilterField label="Fecha de inicio" htmlFor={`prefix-start-${item.prefix}`} icon="ri-calendar-line">
+                                                                        <FieldControl id={`prefix-start-${item.prefix}`} type="date" value={toDateInputValue(item.resolution.start_date)} readOnly disabled />
+                                                                    </FilterField>
+                                                                    <FilterField label="Fecha de vencimiento" htmlFor={`prefix-end-date-${item.prefix}`} icon="ri-calendar-check-line">
+                                                                        <FieldControl id={`prefix-end-date-${item.prefix}`} type="date" value={toDateInputValue(item.resolution.end_date)} readOnly disabled />
+                                                                    </FilterField>
+                                                                    <FilterField label="Consecutivo inicial" htmlFor={`prefix-init-${item.prefix}`} icon="ri-hashtag">
+                                                                        <FieldControl
                                                                             id={`prefix-init-${item.prefix}`}
                                                                             type="number"
                                                                             min={1}
@@ -1594,10 +1563,9 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                             onChange={(e) => updateDraftResolution(item.prefix, "init", parseInt(e.target.value, 10) || 1)}
                                                                             disabled
                                                                         />
-                                                                    </div>
-                                                                    <div className="prefix-field">
-                                                                        <label htmlFor={`prefix-end-${item.prefix}`}>Consecutivo final</label>
-                                                                        <input
+                                                                    </FilterField>
+                                                                    <FilterField label="Consecutivo final" htmlFor={`prefix-end-${item.prefix}`} icon="ri-hashtag">
+                                                                        <FieldControl
                                                                             id={`prefix-end-${item.prefix}`}
                                                                             type="number"
                                                                             min={1}
@@ -1605,10 +1573,15 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                             onChange={(e) => updateDraftResolution(item.prefix, "end", parseInt(e.target.value, 10) || 1)}
                                                                             disabled
                                                                         />
-                                                                    </div>
-                                                                    <div className="prefix-field prefix-field-locked">
-                                                                        <label htmlFor={`prefix-locked-${item.prefix}`}>Consecutivos omitidos (opcional)</label>
-                                                                        <input
+                                                                    </FilterField>
+                                                                    <FilterField
+                                                                        label="Consecutivos omitidos (opcional)"
+                                                                        htmlFor={`prefix-locked-${item.prefix}`}
+                                                                        icon="ri-forbid-line"
+                                                                        className="led-form-grid__full"
+                                                                        hint={<span className="prefix-field-hint">Números a omitir en el consecutivo, separados por coma.</span>}
+                                                                    >
+                                                                        <FieldControl
                                                                             id={`prefix-locked-${item.prefix}`}
                                                                             type="text"
                                                                             placeholder="Ej: 100, 200"
@@ -1621,8 +1594,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                             }
                                                                             disabled={savingPrefixes}
                                                                         />
-                                                                        <span className="prefix-field-hint">Números a omitir en el consecutivo, separados por coma.</span>
-                                                                    </div>
+                                                                    </FilterField>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -1652,22 +1624,22 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                         ? "Prefijo de nómina: solo necesitas el código y el consecutivo inicial."
                                                         : "Al crear un prefijo debes completar los datos del documento, la resolución y el rango de consecutivos."}
                                                 </p>
-                                                <label className="prefix-nomina-toggle">
-                                                    <input
-                                                        type="checkbox"
+                                                <CheckCardGrid className="prefix-nomina-toggle-wrap">
+                                                    <CheckCard
+                                                        icon="ri-file-user-line"
+                                                        label="Es prefijo de nómina electrónica"
+                                                        description="Solo código y consecutivo inicial"
                                                         checked={newPrefixIsNomina}
-                                                        onChange={(e) => setNewPrefixIsNomina(e.target.checked)}
                                                         disabled={prefixActionLoading !== null}
+                                                        onChange={setNewPrefixIsNomina}
                                                     />
-                                                    Es prefijo de nómina electrónica
-                                                </label>
+                                                </CheckCardGrid>
                                                 <div className="prefix-add-form">
                                                     <div className="prefix-add-group">
                                                         <h4 className="prefix-add-group-title">Datos básicos</h4>
-                                                        <div className="prefix-add-grid">
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-code">Prefijo</label>
-                                                                <input
+                                                        <div className="prefix-add-grid led-form-grid">
+                                                            <FilterField label="Prefijo" htmlFor="new-prefix-code" icon="ri-price-tag-3-line">
+                                                                <FieldControl
                                                                     id="new-prefix-code"
                                                                     type="text"
                                                                     className="prefix-input"
@@ -1677,47 +1649,24 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                     maxLength={newPrefixIsNomina ? 5 : 10}
                                                                     disabled={prefixActionLoading !== null}
                                                                 />
-                                                            </div>
+                                                            </FilterField>
                                                             {!newPrefixIsNomina && (<>
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-tipo-doc">Tipo de documento</label>
-                                                                <select
-                                                                    id="new-prefix-tipo-doc"
-                                                                    value={newPrefixTipoDoc}
-                                                                    onChange={(e) => setNewPrefixTipoDoc(e.target.value as TipoDocElectronicoCode)}
-                                                                    disabled={prefixActionLoading === "add"}
-                                                                >
+                                                            <FilterField label="Tipo de documento" htmlFor="new-prefix-tipo-doc" icon="ri-file-list-3-line">
+                                                                <FieldControl id="new-prefix-tipo-doc" as="select" value={newPrefixTipoDoc} onChange={(e) => setNewPrefixTipoDoc(e.target.value as TipoDocElectronicoCode)} disabled={prefixActionLoading === "add"}>
                                                                     {TIPO_DOC_ELECTRONICO_OPTIONS.map((opt) => (
-                                                                        <option
-                                                                            key={opt.value}
-                                                                            value={opt.value}
-                                                                        >
-                                                                            {opt.label}
-                                                                        </option>
+                                                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
                                                                     ))}
-                                                                </select>
-                                                            </div>
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-tipo-factura">Tipo de factura</label>
-                                                                <select
-                                                                    id="new-prefix-tipo-factura"
-                                                                    value={newPrefixTipoFactura}
-                                                                    onChange={(e) => setNewPrefixTipoFactura(e.target.value as TipoDeFacturaCode)}
-                                                                    disabled={prefixActionLoading === "add"}
-                                                                >
+                                                                </FieldControl>
+                                                            </FilterField>
+                                                            <FilterField label="Tipo de factura" htmlFor="new-prefix-tipo-factura" icon="ri-bill-line">
+                                                                <FieldControl id="new-prefix-tipo-factura" as="select" value={newPrefixTipoFactura} onChange={(e) => setNewPrefixTipoFactura(e.target.value as TipoDeFacturaCode)} disabled={prefixActionLoading === "add"}>
                                                                     {getTipoFacturaOptionsForDoc(newPrefixTipoDoc, newPrefixTipoFactura).map((opt) => (
-                                                                        <option
-                                                                            key={opt.value}
-                                                                            value={opt.value}
-                                                                        >
-                                                                            {opt.label}
-                                                                        </option>
+                                                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
                                                                     ))}
-                                                                </select>
-                                                            </div>
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-resolution-code">Número de resolución</label>
-                                                                <input
+                                                                </FieldControl>
+                                                            </FilterField>
+                                                            <FilterField label="Número de resolución" htmlFor="new-prefix-resolution-code" icon="ri-file-shield-line">
+                                                                <FieldControl
                                                                     id="new-prefix-resolution-code"
                                                                     type="text"
                                                                     placeholder="Ej: RES-2026-001"
@@ -1725,16 +1674,15 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                     onChange={(e) => setNewPrefixResolutionCode(e.target.value)}
                                                                     disabled={prefixActionLoading !== null}
                                                                 />
-                                                            </div>
+                                                            </FilterField>
                                                             </>)}
                                                         </div>
                                                     </div>
                                                     <div className="prefix-add-group">
                                                         <h4 className="prefix-add-group-title">{newPrefixIsNomina ? "Consecutivo inicial" : "Consecutivos y vigencia"}</h4>
-                                                        <div className="prefix-add-grid">
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-init">Consecutivo inicial</label>
-                                                                <input
+                                                        <div className="prefix-add-grid led-form-grid">
+                                                            <FilterField label="Consecutivo inicial" htmlFor="new-prefix-init" icon="ri-hashtag">
+                                                                <FieldControl
                                                                     id="new-prefix-init"
                                                                     type="number"
                                                                     min={1}
@@ -1742,11 +1690,10 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                     onChange={(e) => setNewPrefixInit(e.target.value)}
                                                                     disabled={prefixActionLoading === "add"}
                                                                 />
-                                                            </div>
+                                                            </FilterField>
                                                             {!newPrefixIsNomina && (<>
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-end">Consecutivo final</label>
-                                                                <input
+                                                            <FilterField label="Consecutivo final" htmlFor="new-prefix-end" icon="ri-hashtag">
+                                                                <FieldControl
                                                                     id="new-prefix-end"
                                                                     type="number"
                                                                     min={1}
@@ -1754,30 +1701,27 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                     onChange={(e) => setNewPrefixEnd(e.target.value)}
                                                                     disabled={prefixActionLoading === "add"}
                                                                 />
-                                                            </div>
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-start-date">Fecha de inicio</label>
-                                                                <input
+                                                            </FilterField>
+                                                            <FilterField label="Fecha de inicio" htmlFor="new-prefix-start-date" icon="ri-calendar-line">
+                                                                <FieldControl
                                                                     id="new-prefix-start-date"
                                                                     type="date"
                                                                     value={newPrefixStartDate}
                                                                     onChange={(e) => setNewPrefixStartDate(e.target.value)}
                                                                     disabled={prefixActionLoading !== null}
                                                                 />
-                                                            </div>
-                                                            <div className="prefix-field">
-                                                                <label htmlFor="new-prefix-end-date">Fecha de vencimiento</label>
-                                                                <input
+                                                            </FilterField>
+                                                            <FilterField label="Fecha de vencimiento" htmlFor="new-prefix-end-date" icon="ri-calendar-check-line">
+                                                                <FieldControl
                                                                     id="new-prefix-end-date"
                                                                     type="date"
                                                                     value={newPrefixEndDate}
                                                                     onChange={(e) => setNewPrefixEndDate(e.target.value)}
                                                                     disabled={prefixActionLoading !== null}
                                                                 />
-                                                            </div>
-                                                            <div className="prefix-field prefix-field-locked">
-                                                                <label htmlFor="new-prefix-locked">Consecutivos omitidos (opcional)</label>
-                                                                <input
+                                                            </FilterField>
+                                                            <FilterField label="Consecutivos omitidos (opcional)" htmlFor="new-prefix-locked" icon="ri-forbid-line" className="led-form-grid__full">
+                                                                <FieldControl
                                                                     id="new-prefix-locked"
                                                                     type="text"
                                                                     placeholder="Ej: 100, 200"
@@ -1785,7 +1729,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                                     onChange={(e) => setNewPrefixLocked(sanitizeLockedInput(e.target.value))}
                                                                     disabled={prefixActionLoading !== null}
                                                                 />
-                                                            </div>
+                                                            </FilterField>
                                                             </>)}
                                                         </div>
                                                     </div>
@@ -1875,10 +1819,9 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                             <div className="simba-activation-block">
                                                 <h3 className="prefix-add-title">Habilitación Simba</h3>
                                                 <p className="prefix-add-desc">Usa el identificador de pruebas para habilitar facturación electrónica o POS. La nómina electrónica se habilita con los datos de tu compañía (no requiere identificador).</p>
-                                                <div className="simba-activation-grid">
-                                                    <div className="prefix-field">
-                                                        <label htmlFor="simba-settestid">Identificador de pruebas</label>
-                                                        <input
+                                                <div className="simba-activation-grid led-form-grid">
+                                                    <FilterField label="Identificador de pruebas" htmlFor="simba-settestid" icon="ri-key-2-line">
+                                                        <FieldControl
                                                             id="simba-settestid"
                                                             type="text"
                                                             placeholder="Ej: 50e0845f-a375-4419-ad0b-9b4e13197f86"
@@ -1886,7 +1829,12 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                             onChange={(e) => setSimbaSetTestId(e.target.value)}
                                                             disabled={simbaActionLoading !== null}
                                                         />
-                                                    </div>
+                                                    </FilterField>
+                                                    {simbaNominaToken ? (
+                                                        <FilterField label="Token Simba (nómina)" htmlFor="simba-nomina-token" icon="ri-shield-keyhole-line" className="led-form-grid__full">
+                                                            <FieldControl id="simba-nomina-token" type="text" value={simbaNominaToken} readOnly />
+                                                        </FilterField>
+                                                    ) : null}
                                                     <div className="simba-activation-actions">
                                                         <button
                                                             type="button"
@@ -1910,7 +1858,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                                             type="button"
                                                             className="btn-secondary prefix-add-btn"
                                                             onClick={() => handleSimbaActivation("ne")}
-                                                            disabled={simbaActionLoading !== null}
+                                                            disabled={!simbaNominaPrefijo.trim() || !simbaNominaToken.trim() || simbaActionLoading !== null}
                                                         >
                                                             {simbaActionLoading === "ne" ? <i className="ri-loader-4-line ri-animate-spin"></i> : <i className="ri-wallet-3-line"></i>}
                                                             Habilitar Nómina
@@ -1950,12 +1898,17 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                         {activeSection === "documents" && (
                             <div className="profile-card">
                                 <h2>Documentos</h2>
+                                {!profile?.companyDocuments ? (
+                                    <p className="acc-sub" style={{ marginTop: 8 }}>
+                                        Esta empresa no tiene documentos de cuenta cargados.
+                                    </p>
+                                ) : (
                                 <div className="info-grid">
                                     <div className="info-item">
                                         <label>RUT</label>
                                         <button
                                             className="document-link"
-                                            onClick={() => (selectedDocument === profile?.companyDocuments.rut.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments.rut.url ?? null))}
+                                            onClick={() => (selectedDocument === profile?.companyDocuments?.rut?.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments?.rut?.url ?? null))}
                                         >
                                             <i className="ri-file-pdf-line"></i>
                                             Click para ver
@@ -1965,7 +1918,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                         <label>Cámara de Comercio</label>
                                         <button
                                             className="document-link"
-                                            onClick={() => (selectedDocument === profile?.companyDocuments.camara_comercio.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments.camara_comercio.url ?? null))}
+                                            onClick={() => (selectedDocument === profile?.companyDocuments?.camara_comercio?.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments?.camara_comercio?.url ?? null))}
                                         >
                                             <i className="ri-file-pdf-line"></i>
                                             Click para ver
@@ -1974,7 +1927,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                     <div className="info-item">
                                         <label>Cédula Frontal</label>
                                         <button
-                                            onClick={() => (selectedDocument === profile?.companyDocuments.cedula_front.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments.cedula_front.url ?? null))}
+                                            onClick={() => (selectedDocument === profile?.companyDocuments?.cedula_front?.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments?.cedula_front?.url ?? null))}
                                             className="document-link"
                                         >
                                             <i className="ri-image-line"></i>
@@ -1984,7 +1937,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                     <div className="info-item">
                                         <label>Cédula Posterior</label>
                                         <button
-                                            onClick={() => (selectedDocument === profile?.companyDocuments.cedula_back.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments.cedula_back.url ?? null))}
+                                            onClick={() => (selectedDocument === profile?.companyDocuments?.cedula_back?.url ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments?.cedula_back?.url ?? null))}
                                             className="document-link"
                                         >
                                             <i className="ri-image-line"></i>
@@ -1994,7 +1947,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                     <div className="info-item">
                                         <label>Contrato Mandato</label>
                                         <button
-                                            onClick={() => (selectedDocument === profile?.companyDocuments.contrato_mandato ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments.contrato_mandato ?? null))}
+                                            onClick={() => (selectedDocument === profile?.companyDocuments?.contrato_mandato ? setSelectedDocument(null) : setSelectedDocument(profile?.companyDocuments?.contrato_mandato ?? null))}
                                             className="document-link"
                                         >
                                             <i className="ri-file-pdf-line"></i>
@@ -2002,6 +1955,7 @@ const ProfilePage: React.FC<{ mode?: ProfileMode; embedded?: boolean }> = ({ mod
                                         </button>
                                     </div>
                                 </div>
+                                )}
                                 {selectedDocument && (
                                     <iframe
                                         src={selectedDocument}

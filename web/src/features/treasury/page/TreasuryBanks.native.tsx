@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
 import { LedgerField, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -18,7 +18,6 @@ const empty = {
 
 export default function TreasuryBanksNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [banks, setBanks] = useState<Bank[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -109,21 +108,16 @@ export default function TreasuryBanksNative() {
   const set = (k: keyof typeof empty, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Bancos</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Cuentas desde las que pagas a proveedores</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
+    <>
+      <DsModuleScreen
+        title="Bancos"
+        subtitle="Cuentas desde las que pagas a proveedores"
+        loading={loading}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        headerActions={<DsButton label="Nuevo banco" icon="add" compact onPress={openCreate} />}
       >
-        <LedgerPrimaryBtn label="Nuevo banco" onPress={openCreate} />
-
-        {loading ? (
-          <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Cargando...</Text>
-        ) : banks.length === 0 ? (
+        {banks.length === 0 ? (
           <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Sin bancos configurados.</Text>
         ) : (
           banks.map((b) => (
@@ -140,7 +134,7 @@ export default function TreasuryBanksNative() {
             </View>
           ))
         )}
-      </ScrollView>
+      </DsModuleScreen>
 
       <Modal visible={modalOpen} animationType="slide" onRequestClose={() => setModalOpen(false)}>
         <ScrollView style={{ flex: 1, backgroundColor: colors.pageBg, paddingTop: 48 }} contentContainerStyle={{ padding: 16 }}>
@@ -149,7 +143,7 @@ export default function TreasuryBanksNative() {
           <LedgerField label="Número cuenta *" value={form.numero_cuenta} onChangeText={(v) => set("numero_cuenta", v)} />
           <View style={{ flexDirection: "row", gap: 8, marginVertical: 8 }}>
             {(["corriente", "ahorros"] as const).map((t) => (
-              <Pressable key={t} onPress={() => setForm((f) => ({ ...f, tipo_cuenta: t }))} style={[styles.chip, { borderColor: form.tipo_cuenta === t ? colors.accent : colors.border }]}>
+              <Pressable key={t} onPress={() => setForm((f) => ({ ...f, tipo_cuenta: t }))} style={[styles.chip, { borderColor: form.tipo_cuenta === t ? colors.headerAccent : colors.border }]}>
                 <Text style={{ color: colors.primaryText }}>{t === "corriente" ? "Corriente" : "Ahorros"}</Text>
               </Pressable>
             ))}
@@ -163,15 +157,11 @@ export default function TreasuryBanksNative() {
           </View>
         </ScrollView>
       </Modal>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginTop: 12 },
   chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
 });

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./Admin.css";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { ConfirmModal } from "../../../components/modals";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 import { adminCreatePlan, adminDeletePlan, adminListPlans, adminUpdatePlan, type AdminPlan, type AdminPlanBody } from "../services/admin_companies.service";
 
 const formatCurrencyCOP = (value?: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value ?? 0);
@@ -24,7 +24,6 @@ const PlanModal: React.FC<{ plan: AdminPlan | null; onClose: () => void; onSaved
             : emptyForm,
     );
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     const setField = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -64,56 +63,51 @@ const PlanModal: React.FC<{ plan: AdminPlan | null; onClose: () => void; onSaved
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
-                <h3 className="confirm-title">{plan ? "Editar plan" : "Nuevo plan"}</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-field">
-                        <label htmlFor="pl-title">Título</label>
-                        <input id="pl-title" type="text" value={form.title} onChange={(e) => setField("title", e.target.value)} />
-                    </div>
-                    <div className="admin-field">
-                        <label htmlFor="pl-desc">Descripción</label>
-                        <input id="pl-desc" type="text" value={form.description} onChange={(e) => setField("description", e.target.value)} />
-                    </div>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="pl-price">Precio (COP)</label>
-                            <input id="pl-price" type="text" inputMode="numeric" value={form.price} onChange={(e) => setField("price", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pl-docs">Documentos incluidos</label>
-                            <input id="pl-docs" type="text" inputMode="numeric" value={form.include_documents} onChange={(e) => setField("include_documents", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pl-type">Tipo</label>
-                            <select id="pl-type" className="admin-select" value={form.type} onChange={(e) => setField("type", e.target.value as "1year" | "trial2days")}>
-                                <option value="1year">Anual</option>
-                                <option value="trial2days">Prueba (2 días)</option>
-                            </select>
-                        </div>
-                        <div className="admin-field" style={{ justifyContent: "flex-end" }}>
-                            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
-                                <input type="checkbox" checked={form.is_public} onChange={(e) => setField("is_public", e.target.checked)} />
-                                Público (visible en la web)
-                            </label>
-                        </div>
-                    </div>
-                    <div className="admin-field">
-                        <label htmlFor="pl-features">Características (una por línea)</label>
-                        <textarea id="pl-features" rows={4} value={form.features} onChange={(e) => setField("features", e.target.value)} className="admin-textarea" />
-                    </div>
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : plan ? "Guardar" : "Crear plan"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            wide
+            title={plan ? "Editar plan" : "Nuevo plan"}
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="admin-plan-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : plan ? "Guardar" : "Crear plan"}
+                    </button>
+                </>
+            }
+        >
+            <form id="admin-plan-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField className="led-form-grid__full" label="Título" htmlFor="pl-title" icon="ri-price-tag-3-line">
+                        <FieldControl id="pl-title" type="text" value={form.title} onChange={(e) => setField("title", e.target.value)} />
+                    </FilterField>
+                    <FilterField className="led-form-grid__full" label="Descripción" htmlFor="pl-desc" icon="ri-file-text-line">
+                        <FieldControl id="pl-desc" type="text" value={form.description} onChange={(e) => setField("description", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Precio (COP)" htmlFor="pl-price" icon="ri-money-dollar-circle-line">
+                        <FieldControl id="pl-price" type="text" inputMode="numeric" value={form.price} onChange={(e) => setField("price", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    <FilterField label="Documentos incluidos" htmlFor="pl-docs" icon="ri-file-list-3-line">
+                        <FieldControl id="pl-docs" type="text" inputMode="numeric" value={form.include_documents} onChange={(e) => setField("include_documents", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    <FilterField label="Tipo" htmlFor="pl-type" icon="ri-calendar-line">
+                        <FieldControl as="select" id="pl-type" value={form.type} onChange={(e) => setField("type", e.target.value as "1year" | "trial2days")}>
+                            <option value="1year">Anual</option>
+                            <option value="trial2days">Prueba (2 días)</option>
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField label="Público (visible en la web)" htmlFor="pl-public" icon="ri-eye-line">
+                        <FieldControl id="pl-public" type="checkbox" checked={form.is_public} onChange={(e) => setField("is_public", e.target.checked)} />
+                    </FilterField>
+                    <FilterField className="led-form-grid__full" label="Características (una por línea)" htmlFor="pl-features" icon="ri-list-check">
+                        <FieldControl as="textarea" id="pl-features" rows={4} value={form.features} onChange={(e) => setField("features", e.target.value)} />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 

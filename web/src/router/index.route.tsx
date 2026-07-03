@@ -1,18 +1,20 @@
 import { Platform } from "react-native";
 import { BrowserRouter, MemoryRouter, Routes, Route, useLocation, useNavigationType } from "react-router-dom";
-import { Suspense, useMemo, useEffect } from "react";
+import { Suspense, lazy, useMemo, useEffect } from "react";
 import LoginPage from "../features/login/page/Login";
 import RegisterPage from "../features/register/page/Register";
 import ForgotPasswordPage from "../features/forgot-password/page/ForgotPassword";
 import { PATHS } from "./paths.contants";
 import LoadingScreen from "./LoadingScreen";
+import ErrorBoundary from "./ErrorBoundary";
 import PrivateMiddlewareRoute from "./private_middleware_route";
 import { ToastComponent } from "../components/shared/toast/toasts";
-import MobileShell from "../components/mobile/MobileShell";
+import AppShell from "../components/shared/AppShell";
 import TecAssistant from "../features/tec/components/TecAssistant";
 import {
   HomePage,
   DashboardPage,
+  FacturarPage,
   ProfilePage,
   DocumentsPage,
   InvoiceCreatePage,
@@ -40,16 +42,28 @@ import {
   TreasuryBatchesPage,
   TreasuryBanksPage,
   BankReconciliationPage,
+  ConciliacionBancariaPage,
+  BankConciliationAssistPage,
+  TreasuryCarteraPage,
+  TreasuryCxpPage,
+  TreasuryBolsaPage,
+  TreasuryImportExtractoPage,
   AccountingPage,
   FixedAssetsPage,
+  InventoryPage,
   AdminCompaniesPage,
   AdminCompanyDetailPage,
   AdminAdminsPage,
   AdminPlansPage,
+  AdminContadoresPage,
+  ReconcilePage,
+  ReconcileSalesPage,
+  ContadorLoginPage,
 } from "./platformPages";
-import { lazy } from "react";
+import ContinueMandatoNative from "../features/register/page/ContinueMandato.native";
 
-const ContinueMandatoPage = lazy(() => import("../features/register/page/ContinueMandato"));
+const ContinueMandatoWeb = lazy(() => import("../features/register/page/ContinueMandato.web"));
+const ContinueMandatoPage = Platform.OS === "web" ? ContinueMandatoWeb : ContinueMandatoNative;
 
 /** BrowserRouter en web; MemoryRouter en Expo Go (iOS/Android). */
 const AppRouterProvider = Platform.OS === "web" ? BrowserRouter : MemoryRouter;
@@ -116,17 +130,28 @@ const PrivateRouteSwitch: React.FC = () => {
   const pathname = location.pathname;
 
   const element = useMemo(() => {
-    const protectedWrap = (el: React.ReactNode) => <PrivateMiddlewareRoute>{el}</PrivateMiddlewareRoute>;
+    const protectedWrap = (el: React.ReactNode) => (
+      <PrivateMiddlewareRoute>
+        <ErrorBoundary>{el}</ErrorBoundary>
+      </PrivateMiddlewareRoute>
+    );
     const companyOnlyWrap = (el: React.ReactNode) => (
-      <PrivateMiddlewareRoute companyOnly>{el}</PrivateMiddlewareRoute>
+      <PrivateMiddlewareRoute companyOnly>
+        <ErrorBoundary>{el}</ErrorBoundary>
+      </PrivateMiddlewareRoute>
     );
     const adminWrap = (el: React.ReactNode) => (
-      <PrivateMiddlewareRoute adminOnly>{el}</PrivateMiddlewareRoute>
+      <PrivateMiddlewareRoute adminOnly>
+        <ErrorBoundary>{el}</ErrorBoundary>
+      </PrivateMiddlewareRoute>
     );
 
     switch (pathname) {
       case PATHS.DASHBOARD:
         return protectedWrap(<DashboardPage />);
+      case PATHS.DASHBOARD_BILLING:
+      case PATHS.POS:
+        return protectedWrap(<FacturarPage />);
       case PATHS.DOCUMENTS:
         return protectedWrap(<DocumentsPage />);
       case PATHS.DOCUMENT_CREATE:
@@ -147,6 +172,10 @@ const PrivateRouteSwitch: React.FC = () => {
         return protectedWrap(<NominaEmpleadosPage />);
       case PATHS.DIAN_SYNC:
         return protectedWrap(<DianSyncPage />);
+      case PATHS.DIAN_RECONCILE:
+        return protectedWrap(<ReconcilePage />);
+      case PATHS.DIAN_RECONCILE_SALES:
+        return protectedWrap(<ReconcileSalesPage />);
       case PATHS.MY_PROFILE:
         return protectedWrap(<ProfilePage mode="profile" />);
       case PATHS.CONFIGURATION:
@@ -179,17 +208,33 @@ const PrivateRouteSwitch: React.FC = () => {
       case PATHS.TREASURY_BANCOS:
         return protectedWrap(<TreasuryBanksPage />);
       case PATHS.TREASURY_CONCILIACION:
+        return protectedWrap(<ConciliacionBancariaPage />);
+      case PATHS.TREASURY_CONCILIAR_BANCO:
+        return protectedWrap(<BankConciliationAssistPage />);
+      case PATHS.TREASURY_RECON_LEGACY:
         return protectedWrap(<BankReconciliationPage />);
+      case PATHS.TREASURY_IMPORT_EXTRACTO:
+        return protectedWrap(<TreasuryImportExtractoPage />);
+      case PATHS.TREASURY_CARTERA:
+        return protectedWrap(<TreasuryCarteraPage />);
+      case PATHS.TREASURY_CXP:
+        return protectedWrap(<TreasuryCxpPage />);
+      case PATHS.TREASURY_BOLSA:
+        return protectedWrap(<TreasuryBolsaPage />);
       case PATHS.ACCOUNTING:
         return protectedWrap(<AccountingPage />);
       case PATHS.FIXED_ASSETS:
         return protectedWrap(<FixedAssetsPage />);
+      case PATHS.INVENTORY:
+        return protectedWrap(<InventoryPage />);
       case PATHS.ADMIN_HOME:
         return adminWrap(<AdminCompaniesPage />);
       case PATHS.ADMIN_ADMINS:
         return adminWrap(<AdminAdminsPage />);
       case PATHS.ADMIN_PLANS:
         return adminWrap(<AdminPlansPage />);
+      case PATHS.ADMIN_CONTADORES:
+        return adminWrap(<AdminContadoresPage />);
       default:
         return null;
     }
@@ -203,7 +248,7 @@ const AppRouter = () => {
     <AppRouterProvider>
       <Suspense fallback={<LoadingScreen />}>
         <ScrollManager />
-        <MobileShell />
+        <AppShell />
         <ToastComponent />
         <Routes>
           <Route
@@ -216,6 +261,7 @@ const AppRouter = () => {
           />
           <Route path={PATHS.HOME} element={<HomePage />} />
           <Route path={PATHS.LOGIN} element={<LoginPage />} />
+          <Route path={PATHS.CONTADOR_LOGIN} element={<ContadorLoginPage />} />
           <Route path={PATHS.REGISTER} element={<RegisterPage />} />
           <Route path={PATHS.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
           <Route path={PATHS.CONTINUE_MANDATO} element={<ContinueMandatoPage />} />

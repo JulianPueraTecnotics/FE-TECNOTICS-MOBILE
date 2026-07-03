@@ -38,8 +38,8 @@ const ProjectionChart: React.FC<{ data: ProjectionReport; accent?: string }> = (
     const guides = [0, 0.5, 1].map((f) => min + f * span);
 
     return (
-        <div style={{ width: "100%", overflowX: "auto" }}>
-            <svg viewBox={`0 0 ${W} ${H + 20}`} style={{ width: "100%", minWidth: 520, height: 260 }} role="img" aria-label="Proyección con banda de confianza">
+        <div className="pa-projection-chart">
+            <svg viewBox={`0 0 ${W} ${H + 20}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Proyección con banda de confianza">
                 {/* guías Y */}
                 {guides.map((g, i) => (
                     <g key={i}>

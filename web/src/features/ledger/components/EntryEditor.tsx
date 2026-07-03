@@ -4,6 +4,8 @@ import type { CoaAccount } from "../../accounting/accounting.types";
 import { createEntry, updateEntry, getEntry } from "../ledger.service";
 import { JOURNAL_TYPE_LABELS, type JournalType, type ManualLineInput } from "../ledger.types";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import Attachments from "../../../components/shared/Attachments/Attachments";
+import { FilterField, FieldControl } from "../../../components/design-system";
 
 interface Props {
     entryId?: string | null; // si viene, edita
@@ -114,16 +116,21 @@ const EntryEditor: React.FC<Props> = ({ entryId, onClose, onSaved }) => {
                 <button className="btn-secondary" onClick={onClose}><i className="ri-arrow-left-line" /> Volver</button>
             </div>
 
-            <div className="led-editor__meta">
-                <div className="acc-field"><label>Tipo</label>
-                    <select value={tipo} onChange={(e) => setTipo(e.target.value as JournalType)}>
+            <div className="led-form-grid">
+                <FilterField label="Tipo" htmlFor="led-entry-tipo" icon="ri-file-list-3-line">
+                    <FieldControl id="led-entry-tipo" as="select" value={tipo} onChange={(e) => setTipo(e.target.value as JournalType)}>
                         {TYPES.map((t) => <option key={t} value={t}>{JOURNAL_TYPE_LABELS[t]} ({t})</option>)}
-                    </select>
-                </div>
-                <div className="acc-field"><label>Fecha</label><input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
-                <div className="acc-field" style={{ flex: 1 }}><label>Descripción</label><input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Concepto del comprobante" /></div>
+                    </FieldControl>
+                </FilterField>
+                <FilterField label="Fecha" htmlFor="led-entry-fecha" icon="ri-calendar-line">
+                    <FieldControl id="led-entry-fecha" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+                </FilterField>
+                <FilterField label="Descripción" htmlFor="led-entry-desc" icon="ri-file-text-line" className="led-form-grid__full">
+                    <FieldControl id="led-entry-desc" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Concepto del comprobante" />
+                </FilterField>
             </div>
 
+            <div className="led-editable-table">
             <table className="led-grid">
                 <thead>
                     <tr><th style={{ width: "16%" }}>Cuenta</th><th>Nombre</th><th style={{ width: "18%" }}>Descripción</th><th style={{ width: "14%" }}>Débito</th><th style={{ width: "14%" }}>Crédito</th><th style={{ width: 40 }}></th></tr>
@@ -132,25 +139,26 @@ const EntryEditor: React.FC<Props> = ({ entryId, onClose, onSaved }) => {
                     {lines.map((l) => (
                         <tr key={l._k}>
                             <td>
-                                <input list="led-coa" value={l.cuenta} onChange={(e) => setLine(l._k, { cuenta: e.target.value })} placeholder="Código" />
+                                <FieldControl list="led-coa" value={l.cuenta} onChange={(e) => setLine(l._k, { cuenta: e.target.value })} placeholder="Código" />
                             </td>
                             <td className="led-grid__name">{accName(l.cuenta) || "—"}</td>
-                            <td><input value={l.descripcion ?? ""} onChange={(e) => setLine(l._k, { descripcion: e.target.value })} /></td>
-                            <td><input type="number" min={0} value={l.debito || ""} onChange={(e) => setLine(l._k, { debito: Number(e.target.value) || 0, credito: 0 })} /></td>
-                            <td><input type="number" min={0} value={l.credito || ""} onChange={(e) => setLine(l._k, { credito: Number(e.target.value) || 0, debito: 0 })} /></td>
-                            <td><button className="btn-icon" title="Quitar" onClick={() => removeLine(l._k)} disabled={lines.length <= 2}><i className="ri-close-line" /></button></td>
+                            <td><FieldControl value={l.descripcion ?? ""} onChange={(e) => setLine(l._k, { descripcion: e.target.value })} /></td>
+                            <td className="ds-num"><FieldControl type="number" min={0} value={l.debito || ""} onChange={(e) => setLine(l._k, { debito: Number(e.target.value) || 0, credito: 0 })} /></td>
+                            <td className="ds-num"><FieldControl type="number" min={0} value={l.credito || ""} onChange={(e) => setLine(l._k, { credito: Number(e.target.value) || 0, debito: 0 })} /></td>
+                            <td><button className="btn-action" title="Quitar" onClick={() => removeLine(l._k)} disabled={lines.length <= 2}><i className="ri-close-line" /></button></td>
                         </tr>
                     ))}
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colSpan={3}><button className="btn-secondary" onClick={addLine}><i className="ri-add-line" /> Agregar línea</button></td>
-                        <td className="led-total">{money(totals.d)}</td>
-                        <td className="led-total">{money(totals.c)}</td>
+                        <td className="led-total ds-num">{money(totals.d)}</td>
+                        <td className="led-total ds-num">{money(totals.c)}</td>
                         <td></td>
                     </tr>
                 </tfoot>
             </table>
+            </div>
 
             <datalist id="led-coa">
                 {accounts.map((a) => <option key={a._id} value={a.codigo}>{a.codigo} — {a.nombre}</option>)}
@@ -169,6 +177,11 @@ const EntryEditor: React.FC<Props> = ({ entryId, onClose, onSaved }) => {
                     <button className="btn-primary" onClick={save} disabled={saving || !balanced}>{saving ? "Guardando..." : "Guardar borrador"}</button>
                 </div>
             </div>
+            {entryId && (
+                <div style={{ marginTop: 16, borderTop: "1px solid var(--border-light)", paddingTop: 12 }}>
+                    <Attachments entidad="asiento" entidadId={entryId} titulo="Soportes del comprobante" />
+                </div>
+            )}
         </div>
     );
 };

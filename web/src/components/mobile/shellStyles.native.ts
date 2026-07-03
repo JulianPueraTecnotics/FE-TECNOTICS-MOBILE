@@ -36,7 +36,18 @@ export function getDrawerShadow() {
 }
 
 export const SHELL_RADIUS = {
-  button: 10,
-  menuItem: 12,
+  button: 8,
+  menuItem: 8,
+  input: 8,
+  card: 12,
+  container: 12,
   social: 12,
+} as const;
+
+/** Espaciado alineado con design-system web (ds-page, ds-container). */
+export const DS_SPACE = {
+  page: 16,
+  container: 16,
+  section: 12,
+  gap: 8,
 } as const;

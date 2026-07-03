@@ -21,7 +21,7 @@ export default function KeyboardFormScroll({
         keyboardShouldPersistTaps={keyboardShouldPersistTaps}
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={false}
+        nestedScrollEnabled
         contentContainerStyle={[{ flexGrow: 1, paddingBottom: 48 }, contentContainerStyle]}
       >
         {children}

@@ -10,6 +10,8 @@ export interface NativeThemeColors {
   bgSubtle: string;
   textMuted: string;
   border: string;
+  headerAccent: string;
+  headerAccentHover: string;
   heroOverlay: string;
   statusBarStyle: "light" | "dark";
 }
@@ -26,6 +28,8 @@ export const nativeThemeColors: Record<"light" | "dark", NativeThemeColors> = {
     bgSubtle: "#f7fafc",
     textMuted: "#4a5568",
     border: "#d1d5db",
+    headerAccent: "#6099ac",
+    headerAccentHover: "#4a8496",
     heroOverlay: "rgba(0, 39, 55, 0.5)",
     statusBarStyle: "dark",
   },
@@ -40,6 +44,8 @@ export const nativeThemeColors: Record<"light" | "dark", NativeThemeColors> = {
     bgSubtle: "#161b22",
     textMuted: "#8b949e",
     border: "#30363d",
+    headerAccent: "#6099ac",
+    headerAccentHover: "#4a8496",
     heroOverlay: "rgba(13, 17, 23, 0.72)",
     statusBarStyle: "light",
   },

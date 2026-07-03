@@ -1,14 +1,18 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
-import logo from "../../../assets/brand.png";
+import { appLogoSrc } from "../../../assets/app-logo";
+import { APP_BRAND_NAME } from "../../../utils/global";
 
 import "./index.css";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../../../store/auth.context";
-import { useTheme } from "../../../store/theme.context";
 import { PATHS } from "../../../router/paths.contants";
 import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
 import NavMenu from "../nav/NavMenu";
+import ThemeToggle from "../theme/ThemeToggle";
+import { logoutService } from "../../../services/auth.service";
+import { clearSessionHint } from "../../../store/auth.service";
 
 interface SidebarProps {
     is_open: boolean;
@@ -18,8 +22,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ is_open, open_sidebar }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
-    const { theme, toggleTheme } = useTheme();
+    const { user, setUser } = useContext(AuthContext);
     useBodyScrollLock(is_open);
 
     // Define public paths
@@ -42,19 +45,34 @@ const Sidebar: React.FC<SidebarProps> = ({ is_open, open_sidebar }) => {
     const showPublicNavbar = !user || (user && isPublicPage);
     const showPrivateNavbar = user && !isPublicPage;
 
-    // El sidebar de empresa (menú lateral fijo en desktop) solo aplica para sesión de empresa/subusuario.
-    // Marcamos <html> para que el body reserve el espacio del sidebar (padding-left) solo en ese caso.
-    const isAppSidebar = Boolean(showPrivateNavbar && !isSuperAdmin);
+    const isCompanySession = showPrivateNavbar && !isSuperAdmin;
+
     useEffect(() => {
         const root = document.documentElement;
-        if (isAppSidebar) root.classList.add("has-app-sidebar");
+        if (isCompanySession) root.classList.add("has-app-sidebar");
         else root.classList.remove("has-app-sidebar");
         return () => root.classList.remove("has-app-sidebar");
-    }, [isAppSidebar]);
+    }, [isCompanySession]);
 
     const handleNavClick = () => {
-        if (window.innerWidth <= 495 && is_open) {
+        if (window.innerWidth < 768 && is_open) {
             open_sidebar();
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await logoutService();
+            if (response?.success) {
+                toast.success("Sesión cerrada exitosamente");
+            }
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        } finally {
+            clearSessionHint();
+            setUser(null);
+            navigate(PATHS.LOGIN);
+            handleNavClick();
         }
     };
 
@@ -63,21 +81,11 @@ const Sidebar: React.FC<SidebarProps> = ({ is_open, open_sidebar }) => {
             <div className="siderbar__container">
                 <div className="sidebar__header">
                     <div className="sidebar__brand">
-                        <img src={logo} alt="logo" />
+                        <img src={appLogoSrc} alt="logo" className="app-logo" />
+                        <span className="sidebar__brand-name">{APP_BRAND_NAME}</span>
                     </div>
                     <div className="sidebar__header-actions">
-                        <button
-                            type="button"
-                            onClick={toggleTheme}
-                            className="sidebar__theme-toggle"
-                            aria-label={theme === "dark" ? "Usar tema claro" : "Usar tema oscuro"}
-                        >
-                            {theme === "dark" ? (
-                                <i className="ri-sun-line" aria-hidden />
-                            ) : (
-                                <i className="ri-moon-line" aria-hidden />
-                            )}
-                        </button>
+                        <ThemeToggle className="sidebar__theme-toggle" />
                         <button onClick={open_sidebar} className="sidebar__menu-button button_sidebar_shared">
                             <i className="ri-menu-line"></i>
                         </button>
@@ -190,13 +198,39 @@ const Sidebar: React.FC<SidebarProps> = ({ is_open, open_sidebar }) => {
                                     <span>Administradores</span>
                                 </NavLink>
                             </li>
+                            <li className="sidebar__menu-item">
+                                <NavLink
+                                    to={PATHS.ADMIN_CONTADORES}
+                                    className="sidebar__menu-link"
+                                    onClick={handleNavClick}
+                                >
+                                    <i className="ri-user-star-line"></i>
+                                    <span>Contadores</span>
+                                </NavLink>
+                            </li>
                         </ul>
                     </nav>
                 )}
 
                 {showPrivateNavbar && !isSuperAdmin && (
-                    <nav className="sidebar__column sidebar__navs">
+                    <nav className="sidebar__column sidebar__navs sidebar__navs--company">
+                        <div className="sidebar__company">
+                            <span className="sidebar__company-label">Empresa</span>
+                            <p className="sidebar__company-name" title={user?.razon_social}>
+                                {user?.razon_social || "—"}
+                            </p>
+                        </div>
                         <NavMenu variant="sidebar" onNavigate={handleNavClick} />
+                        <div className="sidebar__footer">
+                            <button
+                                type="button"
+                                className="sidebar__menu-link sidebar__logout"
+                                onClick={handleLogout}
+                            >
+                                <i className="ri-logout-box-line" aria-hidden />
+                                <span>Cerrar sesión</span>
+                            </button>
+                        </div>
                     </nav>
                 )}
             </div>

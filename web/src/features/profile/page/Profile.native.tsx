@@ -10,9 +10,8 @@ import {
   Text,
   View,
 } from "react-native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsModuleScreen } from "../../../components/design-system-native";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import {
@@ -35,6 +34,11 @@ import {
   type ProfileSection,
 } from "./profile.native.shared";
 import BillingPrefixesNative from "../components/BillingPrefixes.native";
+import ProfileDocumentsNative from "../components/ProfileDocuments.native";
+import ProfileEventsNative from "../components/ProfileEvents.native";
+import ProfileContactBankNative from "../components/ProfileContactBank.native";
+import ProfileBillingExtrasNative from "../components/ProfileBillingExtras.native";
+import PagoButton from "../../../components/ui/PagoButton";
 
 type Props = {
   mode?: "profile" | "configuration";
@@ -113,7 +117,6 @@ export default function ProfileNative({
   initialSection,
 }: Props) {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const sections = PROFILE_MODE_SECTIONS[mode];
   const [activeSection, setActiveSection] = useState<ProfileSection>(
     initialSection && sections.includes(initialSection) ? initialSection : sections[0]
@@ -185,73 +188,11 @@ export default function ProfileNative({
     }
   };
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  const renderConfigSection = (title: string, description: string) => (
-    <ProfileCard title={title}>
-      <Text style={[styles.portalText, { color: colors.textMuted }]}>{description}</Text>
-      <Text style={[styles.portalText, { color: colors.textMuted, marginBottom: 0 }]}>
-        Gestiona esta sección desde la app — misma API que el portal.
-      </Text>
-    </ProfileCard>
-  );
-
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      {!embedded ? (
-        <View style={[styles.pageHeader, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.pageTitle, { color: colors.primary }]}>
-            {mode === "configuration" ? "Configuración" : "Mi Perfil"}
-          </Text>
-          <Text style={[styles.pageSubtitle, { color: colors.textMuted }]}>
-            {mode === "configuration"
-              ? "Configuración de facturación, documentos y eventos"
-              : "Información de tu cuenta empresarial"}
-          </Text>
-        </View>
-      ) : null}
-
-      {!embedded ? (
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={[styles.tabsScroll, { borderBottomColor: colors.border }]}
-        contentContainerStyle={styles.tabsContent}
-      >
-        {sections.map((section) => {
-          const active = activeSection === section;
-          return (
-            <Pressable
-              key={section}
-              onPress={() => setActiveSection(section)}
-              style={[
-                styles.tab,
-                active
-                  ? { backgroundColor: colors.bgSubtle, borderColor: colors.accent }
-                  : { borderColor: "transparent" },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: active ? colors.primary : colors.textMuted },
-                  active ? styles.tabTextActive : null,
-                ]}
-              >
-                {PROFILE_SECTION_LABELS[section]}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-      ) : null}
-
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.paddingBottom }]}
-        showsVerticalScrollIndicator={false}
-      >
+  const sectionContent = (
+    <ScrollView
+      contentContainerStyle={[styles.content, embedded ? styles.embeddedContent : null]}
+      showsVerticalScrollIndicator={false}
+    >
         {activeSection === "general" && (
           <>
             <ProfileCard>
@@ -260,20 +201,20 @@ export default function ProfileNative({
                   {profile?.company.logo.url ? (
                     <Image source={{ uri: profile.company.logo.url }} style={styles.logoImage} />
                   ) : (
-                    <Ionicons name="business-outline" size={40} color={colors.accent} />
+                    <Ionicons name="business-outline" size={40} color={colors.headerAccent} />
                   )}
                 </View>
                 <Pressable
-                  style={[styles.logoBtn, { borderColor: colors.accent }]}
+                  style={[styles.logoBtn, { borderColor: colors.headerAccent }]}
                   onPress={() => void pickLogo()}
                   disabled={uploadingLogo}
                 >
                   {uploadingLogo ? (
-                    <ActivityIndicator color={colors.accent} />
+                    <ActivityIndicator color={colors.headerAccent} />
                   ) : (
                     <>
-                      <Ionicons name="cloud-upload-outline" size={18} color={colors.accent} />
-                      <Text style={[styles.logoBtnText, { color: colors.accent }]}>Cambiar foto</Text>
+                      <Ionicons name="cloud-upload-outline" size={18} color={colors.headerAccent} />
+                      <Text style={[styles.logoBtnText, { color: colors.headerAccent }]}>Cambiar foto</Text>
                     </>
                   )}
                 </Pressable>
@@ -338,17 +279,10 @@ export default function ProfileNative({
                       <Text style={[styles.payNote, { color: colors.textMuted }]}>{note}</Text>
                     );
                   })()}
-                  <Pressable
-                    style={[styles.payBtn, { backgroundColor: colors.accent, opacity: 0.85 }]}
-                    onPress={() =>
-                      successToast(
-                        "Renovación de suscripción disponible próximamente en la app móvil."
-                      )
-                    }
-                  >
-                    <Ionicons name="card-outline" size={18} color="#fff" />
-                    <Text style={styles.payBtnText}>Pagar / Renovar suscripción</Text>
-                  </Pressable>
+                  <PagoButton
+                    current_subscription={subscription.suscription}
+                    company_name={profile?.company.razon_social ?? ""}
+                  />
                 </>
               ) : (
                 <Text style={[styles.portalText, { color: colors.textMuted }]}>
@@ -374,67 +308,93 @@ export default function ProfileNative({
           </>
         )}
 
-        {activeSection === "contact-bank" && (
-          <>
-            <ProfileCard title="Información de contacto y banco">
-              <ReadOnlyField label="Email" value={profile?.company.email ?? "N/A"} />
-              <ReadOnlyField label="Teléfono" value={profile?.company.phone ?? "N/A"} />
-              <ReadOnlyField label="Sitio Web" value={profile?.company.website ?? "N/A"} />
-              <ReadOnlyField label="Dirección" value={profile?.company.address.value ?? "N/A"} />
-              <ReadOnlyField label="País" value={profile?.company.address.pais_codigo ?? "N/A"} />
-              <ReadOnlyField
-                label="Departamento"
-                value={profile?.company.address.departamento_codigo ?? "N/A"}
-              />
-              <ReadOnlyField label="Ciudad" value={profile?.company.address.ciudad_codigo ?? "N/A"} />
-              <ReadOnlyField label="Código Postal" value={profile?.company.address.zip_code ?? "N/A"} />
-            </ProfileCard>
-            <ProfileCard title="Datos bancarios">
-              <ReadOnlyField label="Banco" value={profile?.company.bank_account?.name ?? "N/A"} />
-              <ReadOnlyField
-                label="Número de cuenta"
-                value={profile?.company.bank_account?.account_number ?? "N/A"}
-              />
-              <ReadOnlyField
-                label="Tipo de cuenta"
-                value={profile?.company.bank_account?.account_type ?? "N/A"}
-              />
-            </ProfileCard>
-            <ProfileCard title="Observaciones">
-              <ReadOnlyField label="Observaciones" value={profile?.company.observations ?? "—"} />
-            </ProfileCard>
-          </>
-        )}
-
-        {activeSection === "billing-config" ? (
-          <BillingPrefixesNative embedded />
+        {activeSection === "contact-bank" ? (
+          <ProfileCard title="Información de contacto y banco">
+            <ProfileContactBankNative profile={profile} onSaved={() => void loadData()} />
+          </ProfileCard>
         ) : null}
 
-        {activeSection === "documents" &&
-          renderConfigSection(
-            "Documentos de cuenta",
-            "RUT, Cámara de Comercio, cédulas del representante legal y contrato de mandato."
-          )}
+        {activeSection === "billing-config" ? (
+          <>
+            <BillingPrefixesNative embedded onPrefixesChanged={() => void loadData()} />
+            <ProfileBillingExtrasNative onChanged={() => void loadData()} />
+          </>
+        ) : null}
 
-        {activeSection === "events" &&
-          renderConfigSection(
-            "Consola de eventos",
-            "Historial de eventos DIAN y trazabilidad de documentos electrónicos."
-          )}
+        {activeSection === "documents" ? (
+          <ProfileCard title="Documentos">
+            <ProfileDocumentsNative profile={profile} />
+          </ProfileCard>
+        ) : null}
+
+        {activeSection === "events" ? (
+          <ProfileCard title="Consola de eventos">
+            <ProfileEventsNative />
+          </ProfileCard>
+        ) : null}
       </ScrollView>
-    </View>
+  );
+
+  if (embedded) {
+    if (loading) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator color={colors.headerAccent} />
+        </View>
+      );
+    }
+    return sectionContent;
+  }
+
+  return (
+    <DsModuleScreen
+      title={mode === "configuration" ? "Configuración" : "Mi Perfil"}
+      subtitle={
+        mode === "configuration"
+          ? "Configuración de facturación, documentos y eventos"
+          : "Información de tu cuenta empresarial"
+      }
+      loading={loading}
+      noScroll
+    >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={[styles.tabsScroll, { borderBottomColor: colors.border }]}
+        contentContainerStyle={styles.tabsContent}
+      >
+        {sections.map((section) => {
+          const active = activeSection === section;
+          return (
+            <Pressable
+              key={section}
+              onPress={() => setActiveSection(section)}
+              style={[
+                styles.tab,
+                active
+                  ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent }
+                  : { borderColor: colors.border, borderWidth: 1 },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: active ? "#fff" : colors.textMuted },
+                  active ? styles.tabTextActive : null,
+                ]}
+              >
+                {PROFILE_SECTION_LABELS[section]}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+      <View style={{ flex: 1 }}>{sectionContent}</View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  pageHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  pageTitle: { fontSize: 22, fontWeight: "700", marginBottom: 4 },
-  pageSubtitle: { fontSize: 14, lineHeight: 20 },
   tabsScroll: { maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
   tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
   tab: {
@@ -447,8 +407,9 @@ const styles = StyleSheet.create({
   tabText: { fontSize: 13, fontWeight: "500" },
   tabTextActive: { fontWeight: "700" },
   content: { padding: 16, gap: 14 },
+  embeddedContent: { paddingHorizontal: 0, paddingTop: 8 },
   card: {
-    borderRadius: SHELL_RADIUS.menuItem,
+    borderRadius: SHELL_RADIUS.card,
     borderWidth: 1,
     padding: 16,
     marginBottom: 14,
@@ -514,15 +475,6 @@ const styles = StyleSheet.create({
   subExpired: { backgroundColor: "#fee2e2" },
   subBadgeText: { fontSize: 12, fontWeight: "700", color: "#92400e" },
   payNote: { fontSize: 13, lineHeight: 19, marginTop: 4, marginBottom: 12 },
-  payBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 13,
-    borderRadius: SHELL_RADIUS.button,
-  },
-  payBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
   portalText: { fontSize: 14, lineHeight: 21, marginBottom: 14 },
   portalBtn: {
     flexDirection: "row",

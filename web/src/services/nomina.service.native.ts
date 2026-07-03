@@ -7,3 +7,10 @@ export const downloadForm220Native = (anio: number, empleadoId: string, nombre: 
     `form220-${nombre.replace(/[^a-z0-9]+/gi, "_")}-${anio}.pdf`,
     "application/pdf"
   );
+
+export const downloadPilaNative = (periodo: string) =>
+  downloadFromUrl(
+    API_ROUTES.NOMINA_PILA_DOWNLOAD(periodo),
+    `pila-${periodo}.txt`,
+    "text/plain"
+  );

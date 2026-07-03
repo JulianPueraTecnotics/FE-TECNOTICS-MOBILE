@@ -4,7 +4,7 @@
     padding: 2rem;
     max-width: 1600px;
     margin: 0 auto;
-    min-height: calc(100dvh - 54px);
+    min-height: calc(100dvh - var(--header-height));
 }
 
 .dian-container {
@@ -196,7 +196,56 @@
     color: #dc3545;
 }
 
-/* Tabs */
+/* Tabs (design system) */
+.led-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1rem;
+    border-bottom: 1px solid var(--border-light);
+    flex-wrap: wrap;
+}
+
+.led-tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    background: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.led-tabs button:hover {
+    color: var(--accent-teal);
+}
+
+.led-tabs button.active {
+    color: var(--accent-teal);
+    border-bottom-color: var(--accent-teal);
+}
+
+.led-tabs--ds {
+    margin-bottom: 1rem;
+}
+
+.dian-section__head-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.dian-cred-card__actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Tabs (legacy — kept for modals) */
 .dian-tabs {
     display: flex;
     gap: 0.5rem;
@@ -383,6 +432,44 @@
 .dian-status-running { background: rgba(90, 159, 180, 0.15); color: var(--accent-teal); }
 .dian-status-completed { background: rgba(5, 150, 105, 0.12); color: #059669; }
 .dian-status-failed { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
+.dian-status-cancelled { background: rgba(120, 120, 120, 0.15); color: #6b7280; }
+
+/* Barra de progreso en vivo de la descarga de PDFs. */
+.dian-progress-bar {
+    width: 100%;
+    max-width: 140px;
+    height: 6px;
+    background: var(--border-light, #e4e7eb);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 3px;
+}
+.dian-progress-bar__fill {
+    height: 100%;
+    background: var(--accent-teal, #5a9fb4);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+/* Botón prominente "Reanudar descarga" (cuando el job se suspendió y faltan PDFs). */
+.btn-resume {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #059669;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+}
+.btn-resume:hover:not(:disabled) { background: #047857; }
+.btn-resume:disabled { opacity: 0.6; cursor: default; }
+.btn-resume i { font-size: 1rem; }
 
 .dian-event-emitted { background: rgba(5, 150, 105, 0.12); color: #059669; }
 .dian-event-failed { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
@@ -453,6 +540,15 @@
     .dian-card .btn-primary {
         width: 100%;
         justify-content: center;
+    }
+
+    .dian-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .dian-filters select,
+    .dian-filters input {
+        width: 100%;
     }
 
     .dian-tab {

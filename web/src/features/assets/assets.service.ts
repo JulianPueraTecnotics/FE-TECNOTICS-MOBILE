@@ -21,10 +21,17 @@ export interface FixedAsset {
     nombre: string;
     descripcion?: string;
     categoria?: string;
+    usuario?: string;
+    ubicacion?: string;
+    tasa_depreciacion_anual?: number;
     fecha_adquisicion: string;
     costo: number;
     valor_residual: number;
     vida_util_meses: number;
+    metodo_depreciacion?: "linea_recta" | "saldos_decrecientes" | "unidades_producidas";
+    factor_decreciente?: number;
+    unidades_vida_util?: number;
+    unidades_producidas_acum?: number;
     cuenta_activo: string;
     cuenta_depreciacion_acumulada: string;
     cuenta_gasto_depreciacion: string;

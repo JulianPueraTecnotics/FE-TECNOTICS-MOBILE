@@ -185,7 +185,7 @@
 .cot-change-client-btn {
     width: 28px;
     height: 28px;
-    background: var(--primary-color);
+    background: var(--header-accent);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -198,7 +198,7 @@
 }
 
 .cot-change-client-btn:hover:not(:disabled) {
-    background: var(--secondary-color);
+    background: var(--accent-teal-hover);
 }
 
 .cot-client-list {
@@ -437,7 +437,7 @@
 .cot-add-item-btn {
     height: 36px;
     padding: 0 14px;
-    background: var(--primary-color);
+    background: var(--header-accent);
     color: #fff;
     border: none;
     font-weight: 600;
@@ -450,27 +450,33 @@
 }
 
 .cot-add-item-btn:hover:not(:disabled) {
-    background: var(--secondary-color);
+    background: var(--accent-teal-hover);
 }
 
 .cot-td-edit {
     padding: 0 !important;
 }
 
-.cot-td-edit input {
+.cot-td-edit .ds-field-input__control {
     width: 100%;
     height: 36px;
     border: none;
+    border-radius: 0;
     padding: 0 8px;
     text-align: center;
     background: var(--bg-subtle);
     font-size: 0.88rem;
-    outline: none;
-    color: var(--primary-text);
+    box-shadow: none;
 }
 
-.cot-td-edit input:focus {
-    background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg));
+.cot-td-edit .ds-field-input__control:focus {
+    background: color-mix(in srgb, var(--header-accent) 10%, var(--card-bg));
+    border: none;
+    box-shadow: none;
+}
+
+.cot-td-edit--left .ds-field-input__control {
+    text-align: left;
 }
 
 .cot-row-actions {
@@ -739,7 +745,7 @@
     gap: 5px;
     padding: 7px 13px;
     border: none;
-    background: var(--primary-color);
+    background: var(--header-accent);
     color: #fff;
     font-size: 0.85rem;
     font-weight: 600;
@@ -753,7 +759,7 @@
 }
 
 .cot-btn-primary:hover:not(:disabled) {
-    background: var(--secondary-color);
+    background: var(--accent-teal-hover);
 }
 
 .cot-btn-primary:disabled {

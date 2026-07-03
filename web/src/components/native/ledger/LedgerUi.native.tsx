@@ -100,12 +100,12 @@ export function LedgerChip({
       style={[
         styles.chip,
         {
-          borderColor: active ? colors.accent : colors.border,
-          backgroundColor: active ? colors.bgSubtle : colors.cardBg,
+          borderColor: active ? colors.headerAccent : colors.border,
+          backgroundColor: active ? colors.headerAccent : colors.cardBg,
         },
       ]}
     >
-      <Text style={[styles.chipText, { color: active ? colors.primary : colors.textMuted }]}>{label}</Text>
+      <Text style={[styles.chipText, { color: active ? "#fff" : colors.textMuted }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -171,7 +171,7 @@ export function LedgerPrimaryBtn({
 }) {
   const colors = useThemeColors();
   const bg =
-    variant === "danger" ? "#dc2626" : variant === "secondary" ? colors.bgSubtle : colors.accent;
+    variant === "danger" ? "#dc2626" : variant === "secondary" ? colors.cardBg : colors.headerAccent;
   const fg = variant === "secondary" ? colors.primaryText : "#fff";
   return (
     <Pressable

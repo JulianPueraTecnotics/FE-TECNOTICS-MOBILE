@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env.local") });
+require("dotenv").config({ path: path.join(__dirname, ".env"), override: true });
 
 /**
  * Variables de entorno al estilo EnkodeKids (dotenv + extra).

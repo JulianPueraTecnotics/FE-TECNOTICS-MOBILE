@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSearchParams } from "react-router-dom";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
+import { DsModuleScreen } from "../../../components/design-system-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { ACCOUNTING_NAV, isAccountingSection, type AccountingSection } from "../accounting.nav";
@@ -16,6 +16,15 @@ import {
   PeriodosSectionNative,
   SaldosSectionNative,
 } from "./ledgerSections.native";
+import {
+  AdjustmentsSectionNative,
+  BudgetSectionNative,
+  FiscalSectionNative,
+  IcaSectionNative,
+  IntegritySectionNative,
+  NotesSectionNative,
+  ThirdPartySectionNative,
+} from "./ledgerExtendedSections.native";
 
 function SectionBody({ section }: { section: AccountingSection }) {
   switch (section) {
@@ -25,18 +34,32 @@ function SectionBody({ section }: { section: AccountingSection }) {
       return <DiarioSectionNative />;
     case "mayor":
       return <MayorSectionNative />;
+    case "terceros":
+      return <ThirdPartySectionNative />;
     case "balance":
       return <BalanceSectionNative />;
     case "estados":
       return <EstadosSectionNative />;
+    case "notas":
+      return <NotesSectionNative />;
+    case "presupuesto":
+      return <BudgetSectionNative />;
+    case "fiscal":
+      return <FiscalSectionNative />;
+    case "ajustes":
+      return <AdjustmentsSectionNative />;
     case "saldos":
       return <SaldosSectionNative />;
     case "cierre":
       return <CierreSectionNative />;
     case "periodos":
       return <PeriodosSectionNative />;
+    case "salud":
+      return <IntegritySectionNative />;
     case "dian":
       return <DianExogenaSectionNative />;
+    case "ica":
+      return <IcaSectionNative />;
     default:
       return null;
   }
@@ -44,7 +67,6 @@ function SectionBody({ section }: { section: AccountingSection }) {
 
 export default function AccountingNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [searchParams, setSearchParams] = useSearchParams();
   const initial = searchParams.get("sec");
   const [section, setSection] = useState<AccountingSection>(
@@ -63,14 +85,11 @@ export default function AccountingNative() {
   const groups = [...new Set(ACCOUNTING_NAV.map((n) => n.group))];
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Contabilidad</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Comprobantes, libros, estados financieros y DIAN
-        </Text>
-      </View>
-
+    <DsModuleScreen
+      title="Contabilidad"
+      subtitle="Comprobantes, libros, estados financieros y DIAN"
+      noScroll
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -86,14 +105,14 @@ export default function AccountingNative() {
               style={[
                 styles.tab,
                 active
-                  ? { backgroundColor: colors.bgSubtle, borderColor: colors.accent }
+                  ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent }
                   : { borderColor: "transparent" },
               ]}
             >
               <Text
                 style={[
                   styles.tabText,
-                  { color: active ? colors.primary : colors.textMuted },
+                  { color: active ? "#fff" : colors.textMuted },
                   active ? styles.tabTextActive : null,
                 ]}
               >
@@ -105,7 +124,8 @@ export default function AccountingNative() {
       </ScrollView>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.paddingBottom }]}
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
         <Text style={[styles.groupHint, { color: colors.textMuted }]}>
@@ -113,31 +133,22 @@ export default function AccountingNative() {
         </Text>
         <SectionBody section={section} />
       </ScrollView>
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  title: { fontSize: 20, fontWeight: "700" },
-  subtitle: { fontSize: 13, marginTop: 4 },
-  tabsScroll: { maxHeight: 48, borderBottomWidth: StyleSheet.hairlineWidth },
-  tabsContent: { paddingHorizontal: 12, alignItems: "center", gap: 6 },
+  tabsScroll: { maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
+  tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
   tab: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: SHELL_RADIUS.button,
     borderWidth: 1,
-    marginVertical: 6,
+    marginRight: 8,
   },
   tabText: { fontSize: 13, fontWeight: "500" },
   tabTextActive: { fontWeight: "700" },
-  content: { paddingTop: 10, paddingHorizontal: 16 },
-  groupHint: { fontSize: 11, fontWeight: "600", textTransform: "uppercase", marginBottom: 8, letterSpacing: 0.5 },
+  content: { padding: 16, paddingBottom: 32 },
+  groupHint: { fontSize: 12, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 },
 });

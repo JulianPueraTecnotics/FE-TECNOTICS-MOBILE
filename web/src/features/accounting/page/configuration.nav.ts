@@ -8,7 +8,9 @@ export type ConfigurationSection =
   | "centros"
   | "puc"
   | "impuestos"
-  | "roles";
+  | "perfil_tributario"
+  | "roles"
+  | "auditoria";
 
 export interface ConfigurationNavItem {
   key: ConfigurationSection;
@@ -24,11 +26,13 @@ export const CONFIGURATION_NAV: ConfigurationNavItem[] = [
   { key: "eventos", label: "Consola de eventos", icon: "ri-terminal-box-line", group: "Empresa" },
   { key: "usuarios", label: "Usuarios", icon: "ri-team-line", group: "Seguridad" },
   { key: "roles", label: "Roles y permisos", icon: "ri-shield-keyhole-line", group: "Seguridad" },
+  { key: "auditoria", label: "Pista de auditoría", icon: "ri-history-line", group: "Seguridad" },
   { key: "cuentas", label: "Cuentas por defecto", icon: "ri-bank-line", group: "Contabilidad" },
   { key: "consecutivos", label: "Consecutivos", icon: "ri-list-ordered", group: "Contabilidad" },
   { key: "centros", label: "Centros de costo", icon: "ri-price-tag-3-line", group: "Contabilidad" },
   { key: "puc", label: "Plan de cuentas (PUC)", icon: "ri-book-2-line", group: "Contabilidad" },
   { key: "impuestos", label: "Impuestos y retenciones", icon: "ri-percent-line", group: "Contabilidad" },
+  { key: "perfil_tributario", label: "Perfil tributario (DIAN)", icon: "ri-government-line", group: "Contabilidad" },
 ];
 
 export const CONFIGURATION_PROFILE_TAB: Partial<Record<ConfigurationSection, string>> = {

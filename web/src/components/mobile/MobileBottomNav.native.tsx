@@ -45,16 +45,23 @@ function BottomTab({ label, icon, active, onPress }: TabProps) {
   const colors = useThemeColors();
   return (
     <Pressable style={styles.tab} onPress={onPress} accessibilityRole="button">
-      <Ionicons name={icon} size={22} color={active ? colors.accent : colors.textMuted} />
-      <Text
+      <View
         style={[
-          styles.tabLabel,
-          { color: active ? colors.accent : colors.textMuted },
-          active ? styles.tabLabelActive : null,
+          styles.tabInner,
+          active ? { backgroundColor: colors.headerAccent } : null,
         ]}
       >
-        {label}
-      </Text>
+        <Ionicons name={icon} size={22} color={active ? "#fff" : colors.textMuted} />
+        <Text
+          style={[
+            styles.tabLabel,
+            { color: active ? "#fff" : colors.textMuted },
+            active ? styles.tabLabelActive : null,
+          ]}
+        >
+          {label}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -168,8 +175,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
     minHeight: 44,
+  },
+  tabInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    minWidth: 52,
   },
   tabLabel: { fontSize: 10, fontWeight: "500" },
   tabLabelActive: { fontWeight: "700" },

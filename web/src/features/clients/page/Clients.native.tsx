@@ -3,20 +3,16 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import ClientFormModalNative from "../../../components/native/forms/ClientFormModal.native";
+import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import LoadingScreen from "../../../router/LoadingScreen";
 import { deleteClient, getAllClients, searchClients } from "../../../services/clients.service";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
 import type { IExternUser } from "../../../types";
@@ -34,7 +30,6 @@ function formatAddress(address: IExternUser["address"]): string {
 
 export default function ClientsNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [clients, setClients] = useState<IExternUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
@@ -103,53 +98,41 @@ export default function ClientsNative() {
     }
   };
 
-  if (loading) return <LoadingScreen />;
-
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Clientes</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Gestiona tu base de clientes</Text>
-      </View>
-
-      <View style={[styles.toolbar, { borderBottomColor: colors.border }]}>
-        <View style={[styles.searchBox, { backgroundColor: colors.bgSubtle, borderColor: colors.border }]}>
-          <Ionicons name="search-outline" size={18} color={colors.textMuted} />
-          <TextInput
-            style={[styles.searchInput, { color: colors.primaryText }]}
-            placeholder="Buscar cliente..."
-            placeholderTextColor={colors.textMuted}
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-          />
-        </View>
-        <Pressable
-          style={[styles.createBtn, { backgroundColor: colors.accent }]}
-          onPress={() => {
-            setSelectedClient(null);
-            setModalOpen(true);
-          }}
-        >
-          <Ionicons name="add" size={22} color="#fff" />
-        </Pressable>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              setRefreshKey((k) => k + 1);
-            }}
-            tintColor={colors.accent}
-          />
+    <>
+      <DsModuleScreen
+        title="Clientes"
+        subtitle="Gestiona tu base de clientes"
+        loading={loading && clients.length === 0}
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          setRefreshKey((k) => k + 1);
+        }}
+        toolbar={
+          <>
+            <DsSearchField
+              value={searchTerm}
+              onChangeText={setSearchTerm}
+              placeholder="Buscar cliente..."
+              style={{ flex: 1 }}
+            />
+            <DsButton
+              label=""
+              icon="add"
+              compact
+              onPress={() => {
+                setSelectedClient(null);
+                setModalOpen(true);
+              }}
+              style={{ minWidth: 44, paddingHorizontal: 0 }}
+            />
+          </>
         }
       >
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={setPage} />
 
-        {clients.length === 0 ? (
+        {clients.length === 0 && !loading ? (
           <Text style={[styles.empty, { color: colors.textMuted }]}>No hay clientes para mostrar</Text>
         ) : (
           clients.map((client) => (
@@ -177,8 +160,8 @@ export default function ClientsNative() {
                     setModalOpen(true);
                   }}
                 >
-                  <Ionicons name="create-outline" size={16} color={colors.accent} />
-                  <Text style={[styles.actionText, { color: colors.accent }]}>Editar</Text>
+                  <Ionicons name="create-outline" size={16} color={colors.headerAccent} />
+                  <Text style={[styles.actionText, { color: colors.headerAccent }]}>Editar</Text>
                 </Pressable>
                 <Pressable
                   style={[styles.actionBtn, { borderColor: colors.border, opacity: deletingId === client._id ? 0.6 : 1 }]}
@@ -198,7 +181,7 @@ export default function ClientsNative() {
         )}
 
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={setPage} />
-      </ScrollView>
+      </DsModuleScreen>
 
       <ClientFormModalNative
         visible={modalOpen}
@@ -209,44 +192,15 @@ export default function ClientsNative() {
         }}
         onSuccess={() => setRefreshKey((k) => k + 1)}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 22, fontWeight: "700" },
-  subtitle: { fontSize: 14, marginTop: 4 },
-  toolbar: {
-    flexDirection: "row",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    alignItems: "center",
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: SHELL_RADIUS.button,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  searchInput: { flex: 1, fontSize: 14 },
-  createBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: SHELL_RADIUS.button,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   empty: { textAlign: "center", marginTop: 32, fontSize: 15 },
   card: {
     borderWidth: 1,
-    borderRadius: SHELL_RADIUS.menuItem,
+    borderRadius: SHELL_RADIUS.card,
     padding: 14,
     marginBottom: 12,
     gap: 4,

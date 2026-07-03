@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import TerceroModalNative from "../../../components/native/terceros/TerceroModal.native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
+import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -16,7 +16,6 @@ const ROLES: (TerceroRole | "")[] = ["", "cliente", "proveedor", "empleado"];
 
 export default function TercerosNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [rows, setRows] = useState<Tercero[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -117,24 +116,14 @@ export default function TercerosNative() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Terceros</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Maestro unificado de clientes, proveedores y empleados</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-        keyboardShouldPersistTaps="handled"
+    <>
+      <DsModuleScreen
+        title="Terceros"
+        subtitle="Maestro unificado de clientes, proveedores y empleados"
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        toolbar={<DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar nombre, NIT, email..." />}
       >
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Buscar nombre, NIT, email..."
-          placeholderTextColor={colors.textMuted}
-          style={[styles.search, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-        />
         <LedgerChipRow>
           {ROLES.map((r) => (
             <LedgerChip
@@ -146,7 +135,7 @@ export default function TercerosNative() {
           ))}
         </LedgerChipRow>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginVertical: 10 }}>
-          <LedgerPrimaryBtn label="Nuevo" onPress={() => { setEdit(null); setModalOpen(true); }} />
+          <DsButton label="Nuevo" icon="add" compact onPress={() => { setEdit(null); setModalOpen(true); }} />
           <LedgerPrimaryBtn label="Importar" variant="secondary" onPress={onMigrate} loading={busy} />
           <LedgerPrimaryBtn label="Vincular" variant="secondary" onPress={onBackfill} disabled={busy} />
         </View>
@@ -175,7 +164,7 @@ export default function TercerosNative() {
           ))
         )}
         <NativePagination page={page} totalPages={totalPages} loading={loading} onChange={setPage} />
-      </ScrollView>
+      </DsModuleScreen>
 
       <TerceroModalNative
         visible={modalOpen}
@@ -183,15 +172,10 @@ export default function TercerosNative() {
         onClose={() => setModalOpen(false)}
         onSaved={() => { setModalOpen(false); load(); }}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
-  search: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, marginBottom: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10 },
 });

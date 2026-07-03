@@ -3,9 +3,10 @@ import "../../purchases/page/Purchases.css";
 import "../../purchases/components/PurchaseModals.css";
 import "../../accounting/page/Configuration.css";
 import "../../ledger/page/Accounting.css";
-import { getReconciliations, getReconciliation, buildReconciliation, getReconSummary, toggleMatch, postAdjustment, closeReconciliation, type Reconciliation, type ReconSummary } from "../reconciliation.service";
+import { getReconciliations, getReconciliation, buildReconciliation, getReconSummary, toggleMatch, postAdjustment, closeReconciliation, importStatementPdf, postStatements, type Reconciliation, type ReconSummary } from "../reconciliation.service";
 import { downloadRowsXlsx, downloadRowsCsv, readSpreadsheet, type ColumnDef } from "../../accounting/import.utils";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { ListPageShell, ListPageContainer, useConfirm } from "../../../components/design-system";
 
 const money = (n: number) => (n || 0).toLocaleString("es-CO", { minimumFractionDigits: 0 });
 const fdate = (d?: string) => (d ? new Date(d).toLocaleDateString("es-CO", { year: "numeric", month: "2-digit", day: "2-digit" }) : "—");
@@ -20,6 +21,7 @@ const COLS: ColumnDef[] = [
 ];
 
 const BankReconciliationPage: React.FC = () => {
+    const { confirm } = useConfirm();
     const [recons, setRecons] = useState<Reconciliation[]>([]);
     const [current, setCurrent] = useState<Reconciliation | null>(null);
     const [summary, setSummary] = useState<ReconSummary | null>(null);
@@ -32,6 +34,14 @@ const BankReconciliationPage: React.FC = () => {
     const [saldoBanco, setSaldoBanco] = useState("");
     const [statement, setStatement] = useState<{ fecha?: string; descripcion: string; referencia?: string; valor: number }[]>([]);
     const fileRef = useRef<HTMLInputElement>(null);
+    // Importación desde el PDF del banco (con cruce de clientes en PAGO INTERBANC).
+    const pdfRef = useRef<HTMLInputElement>(null);
+    const [pdfResult, setPdfResult] = useState<import("../reconciliation.service").BankStatementPdfResult | null>(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const [groupView, setGroupView] = useState(false);
+    // Registrar en el libro banco (asientos): acepta varios archivos.
+    const postRef = useRef<HTMLInputElement>(null);
+    const [posting, setPosting] = useState(false);
 
     // Ajuste
     const [adjDesc, setAdjDesc] = useState("");
@@ -86,6 +96,40 @@ const BankReconciliationPage: React.FC = () => {
         }
     };
 
+    /** Importa el extracto desde el PDF del banco: parsea, cruza clientes y carga el statement. */
+    const onImportPdf = async (file: File | null) => {
+        if (!file) return;
+        setPdfLoading(true);
+        try {
+            const res = await importStatementPdf(file);
+            setPdfResult(res);
+            // Carga los movimientos como statement para crear la conciliación.
+            setStatement(res.movimientos.map((m) => ({ fecha: m.fecha, descripcion: m.descripcion, referencia: m.referencia1, valor: m.valor })));
+            if (res.saldo_actual != null) setSaldoBanco(String(res.saldo_actual));
+            successToast(`${res.movimientos.length} movimientos del extracto · ${res.pagos_cliente} pago(s) de cliente identificados`);
+        } catch (e) {
+            errorToast(e instanceof Error ? e.message : "Error al leer el PDF del extracto");
+        } finally {
+            setPdfLoading(false);
+            if (pdfRef.current) pdfRef.current.value = "";
+        }
+    };
+
+    /** Registra en el libro banco los movimientos de uno o varios extractos (asientos). */
+    const onPostStatements = async (files: FileList | null) => {
+        if (!files || !files.length) return;
+        setPosting(true);
+        try {
+            const res = await postStatements(Array.from(files));
+            successToast(res.message);
+        } catch (e) {
+            errorToast(e instanceof Error ? e.message : "No se pudieron registrar los movimientos");
+        } finally {
+            setPosting(false);
+            if (postRef.current) postRef.current.value = "";
+        }
+    };
+
     const create = async () => {
         if (!statement.length) { errorToast("Importa el extracto primero"); return; }
         setCreating(true);
@@ -128,7 +172,7 @@ const BankReconciliationPage: React.FC = () => {
 
     const close = async () => {
         if (!current) return;
-        if (!confirm("¿Cerrar esta conciliación?")) return;
+        if (!(await confirm("¿Cerrar esta conciliación?"))) return;
         try {
             await closeReconciliation(current._id);
             successToast("Conciliación cerrada");
@@ -149,8 +193,8 @@ const BankReconciliationPage: React.FC = () => {
     if (current) {
         const pendientesLibros = current.books.filter((b) => b.estado === "pendiente");
         return (
-            <main className="purchases-page">
-                <div className="purchases-container">
+            <ListPageShell className="purchases-page">
+                <ListPageContainer className="purchases-container">
                     <div className="purchases-header">
                         <div className="header-content">
                             <h1>Conciliación — {current.cuenta_nombre || current.cuenta}</h1>
@@ -233,15 +277,15 @@ const BankReconciliationPage: React.FC = () => {
                             <div className="acc-actions"><button className="btn-primary" onClick={addAdjustment}>Contabilizar ajuste</button></div>
                         </div>
                     )}
-                </div>
-            </main>
+                </ListPageContainer>
+            </ListPageShell>
         );
     }
 
     // ── Vista LISTA + CREAR ──
     return (
-        <main className="purchases-page">
-            <div className="purchases-container">
+        <ListPageShell className="purchases-page">
+            <ListPageContainer className="purchases-container">
                 <div className="purchases-header">
                     <div className="header-content">
                         <h1>Conciliación bancaria</h1>
@@ -255,8 +299,16 @@ const BankReconciliationPage: React.FC = () => {
                         <div className="acc-head-actions">
                             <button className="btn-secondary" onClick={() => downloadTemplate("xlsx")}><i className="ri-file-excel-2-line" /> Plantilla Excel</button>
                             <button className="btn-secondary" onClick={() => downloadTemplate("csv")}><i className="ri-file-text-line" /> Plantilla CSV</button>
-                            <button className="btn-primary" onClick={() => fileRef.current?.click()}><i className="ri-upload-2-line" /> Importar extracto</button>
+                            <button className="btn-secondary" onClick={() => fileRef.current?.click()}><i className="ri-file-excel-2-line" /> Plantilla simple</button>
+                            <button className="btn-primary" onClick={() => pdfRef.current?.click()} disabled={pdfLoading}>
+                                <i className={pdfLoading ? "ri-loader-4-line rotating" : "ri-bank-line"} /> {pdfLoading ? "Leyendo extracto…" : "Importar extracto del banco (PDF o Excel)"}
+                            </button>
+                            <button className="btn-secondary" onClick={() => postRef.current?.click()} disabled={posting} title="Registra los movimientos del banco en la contabilidad (libro banco). Acepta varios archivos.">
+                                <i className={posting ? "ri-loader-4-line rotating" : "ri-book-2-line"} /> {posting ? "Registrando…" : "Registrar en el libro banco"}
+                            </button>
                             <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden onChange={(e) => onImport(e.target.files?.[0] ?? null)} />
+                            <input ref={pdfRef} type="file" accept="application/pdf,.pdf,.xlsx,.xls" hidden onChange={(e) => onImportPdf(e.target.files?.[0] ?? null)} />
+                            <input ref={postRef} type="file" accept="application/pdf,.pdf,.xlsx,.xls" multiple hidden onChange={(e) => onPostStatements(e.target.files)} />
                         </div>
                     </div>
                     <div className="acc-grid acc-grid-3" style={{ alignItems: "end" }}>
@@ -267,6 +319,87 @@ const BankReconciliationPage: React.FC = () => {
                     {statement.length > 0 && <p className="acc-sub" style={{ marginTop: 10 }}>{statement.length} movimientos del extracto listos para conciliar.</p>}
                     <div className="acc-actions"><button className="btn-primary" onClick={create} disabled={creating || !statement.length}>{creating ? "Creando..." : "Crear y conciliar"}</button></div>
                 </div>
+
+                {/* Resultado del PDF: pagos de clientes identificados + resumen agrupado. */}
+                {pdfResult && (
+                    <div className="acc-card" style={{ marginTop: 16 }}>
+                        <div className="acc-card-head">
+                            <div>
+                                <h2><i className="ri-bank-line" /> Extracto leído del PDF {pdfResult.cuenta ? `· cuenta ${pdfResult.cuenta}` : ""}</h2>
+                                <p className="acc-sub">{pdfResult.movimientos.length} movimientos · Abonos {money(pdfResult.total_abonos)} · Cargos {money(pdfResult.total_cargos)} · {pdfResult.pagos_cliente} pago(s) de cliente</p>
+                            </div>
+                            <button className={`btn-secondary ${groupView ? "is-active" : ""}`} onClick={() => setGroupView((g) => !g)}>
+                                <i className="ri-group-line" /> {groupView ? "Ver movimientos" : "Agrupar iguales"}
+                            </button>
+                        </div>
+
+                        {/* Pagos de clientes (PAGO INTERBANC) con su cruce y facturas pendientes. */}
+                        {pdfResult.movimientos.some((m) => m.es_pago_cliente) && (
+                            <>
+                                <h3 style={{ marginTop: 8 }}>Pagos de clientes identificados</h3>
+                                <table className="acc-table">
+                                    <thead><tr><th>Fecha</th><th>Referencia</th><th>Cliente</th><th style={{ textAlign: "right" }}>Valor</th><th>Facturas pendientes</th></tr></thead>
+                                    <tbody>
+                                        {pdfResult.movimientos.filter((m) => m.es_pago_cliente).map((m, i) => (
+                                            <tr key={`pc-${i}`}>
+                                                <td>{fdate(m.fecha)}</td>
+                                                <td>{m.referencia1 || "—"}</td>
+                                                <td>{m.cliente_match
+                                                    ? <span><strong>{m.cliente_match.nombre}</strong><br /><span className="acc-sub">NIT {m.cliente_match.doc_number}</span></span>
+                                                    : <span className="dian-subtle" style={{ color: "var(--tertiary-color)" }}>Sin cliente (ref no coincide)</span>}</td>
+                                                <td style={{ textAlign: "right", color: "var(--accent-teal)", fontWeight: 600 }}>{money(m.valor)}</td>
+                                                <td>{m.facturas_pendientes?.length
+                                                    ? <span title={m.facturas_pendientes.map((f) => `${f.numero}: ${money(f.saldo)}`).join("\n")}>{m.facturas_pendientes.length} con saldo · {money(m.facturas_pendientes.reduce((s, f) => s + f.saldo, 0))}</span>
+                                                    : (m.cliente_match ? "Sin saldo pendiente" : "—")}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </>
+                        )}
+
+                        {/* Todos los movimientos o el resumen agrupado. */}
+                        <h3 style={{ marginTop: 14 }}>{groupView ? "Resumen por concepto" : "Movimientos"}</h3>
+                        <div style={{ maxHeight: 320, overflowY: "auto" }}>
+                            {groupView ? (
+                                <table className="acc-table">
+                                    <thead><tr><th>Concepto</th><th style={{ textAlign: "right" }}>Cantidad</th><th style={{ textAlign: "right" }}>Total</th></tr></thead>
+                                    <tbody>
+                                        {pdfResult.agrupados.map((g, i) => (
+                                            <tr key={`g-${i}`}><td>{g.descripcion}</td><td style={{ textAlign: "right" }}>{g.cantidad}</td>
+                                                <td style={{ textAlign: "right", color: g.total < 0 ? "var(--tertiary-color)" : undefined }}>{money(g.total)}</td></tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <table className="acc-table">
+                                    <thead><tr><th>Fecha</th><th>Descripción</th><th style={{ textAlign: "right" }}>Valor</th><th>¿Corresponde a?</th></tr></thead>
+                                    <tbody>
+                                        {pdfResult.movimientos.map((m, i) => (
+                                            <tr key={`m-${i}`}>
+                                                <td>{fdate(m.fecha)}</td>
+                                                <td>{m.descripcion}{m.es_pago_cliente && <span className="status-badge status-paid" style={{ marginLeft: 6, fontSize: ".7rem" }}>pago cliente</span>}</td>
+                                                <td style={{ textAlign: "right", color: m.valor < 0 ? "var(--tertiary-color)" : undefined }}>{money(m.valor)}</td>
+                                                <td>
+                                                    {/* Cruce por referencia (cliente) o por valor exacto (factura/compra). */}
+                                                    {m.cliente_match
+                                                        ? <span title={`Cliente identificado por la referencia ${m.referencia1}`}><i className="ri-user-line" /> {m.cliente_match.nombre}{m.facturas_pendientes?.length ? ` · ${m.facturas_pendientes.length} fact. pendiente(s)` : ""}</span>
+                                                        : m.coincidencias_valor?.length
+                                                            ? m.coincidencias_valor.map((c) => (
+                                                                <span key={c.id} title={`Valor exacto: ${c.tercero}`} className="status-badge" style={{ marginRight: 4, background: "rgba(31,157,143,.12)", color: "var(--accent-teal)" }}>
+                                                                    {c.tipo === "factura" ? "FV" : "Compra"} {c.numero} · {c.tercero.slice(0, 18)}
+                                                                </span>
+                                                            ))
+                                                            : <span className="dian-subtle">—</span>}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 <div className="acc-card" style={{ marginTop: 16 }}>
                     <h2>Conciliaciones</h2>
@@ -292,8 +425,8 @@ const BankReconciliationPage: React.FC = () => {
                         </table>
                     )}
                 </div>
-            </div>
-        </main>
+            </ListPageContainer>
+        </ListPageShell>
     );
 };
 

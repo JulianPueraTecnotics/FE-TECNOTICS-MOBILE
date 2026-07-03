@@ -6,6 +6,7 @@ import departamentos from '../../../utils/departamentos.json';
 import municipios from '../../../utils/municipios.json';
 import paises from '../../../utils/paises.json';
 import './Step1.css';
+import { FilterField, FieldControl } from '../../../components/design-system';
 
 interface Step1Props {
   onComplete: (companyId: string, email: string, razonSocial: string) => void;
@@ -226,10 +227,14 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
         {/* Información de la Empresa */}
         <div className="form-section">
           <h3>Información de la Empresa</h3>
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="razon_social">Razón Social *</label>
-              <input
+          <div className="led-form-grid">
+            <FilterField
+              label="Razón Social *"
+              htmlFor="razon_social"
+              icon="ri-building-line"
+              hint={errors.razon_social ? <span className="error-text">{errors.razon_social}</span> : undefined}
+            >
+              <FieldControl
                 type="text"
                 id="razon_social"
                 name="razon_social"
@@ -237,45 +242,44 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 required
                 placeholder="Ej: TECNOTICS SAS"
-                className={errors.razon_social ? 'input-error' : ''}
+                className={errors.razon_social ? "input-error" : ""}
               />
-              {errors.razon_social && <span className="error-text">{errors.razon_social}</span>}
-            </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="doc_type">Tipo de Documento *</label>
-              <select
-                id="doc_type"
-                name="doc_type"
-                value={formData.doc_type}
-                onChange={handleInputChange}
-                required
-              >
+            <FilterField label="Tipo de Documento *" htmlFor="doc_type" icon="ri-id-card-line">
+              <FieldControl id="doc_type" name="doc_type" as="select" value={formData.doc_type} onChange={handleInputChange} required>
                 <option value="Nit">NIT</option>
                 <option value="Cc">Cédula de Ciudadanía</option>
                 <option value="Ce">Cédula de Extranjería</option>
                 <option value="Pasaporte">Pasaporte</option>
-              </select>
-            </div>
+              </FieldControl>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="doc_number">Número de Documento * (sin digito de verificación)</label>
-              <input
+            <FilterField
+              label="Número de Documento * (sin digito de verificación)"
+              htmlFor="doc_number"
+              icon="ri-hashtag"
+              hint={errors.doc_number ? <span className="error-text">{errors.doc_number}</span> : undefined}
+            >
+              <FieldControl
                 type="text"
                 id="doc_number"
                 name="doc_number"
                 value={formData.doc_number}
                 onChange={handleInputChange}
                 required
-                placeholder={formData.doc_type === 'Nit' ? '900123456' : '1234567890'}
-                className={errors.doc_number ? 'input-error' : ''}
+                placeholder={formData.doc_type === "Nit" ? "900123456" : "1234567890"}
+                className={errors.doc_number ? "input-error" : ""}
               />
-              {errors.doc_number && <span className="error-text">{errors.doc_number}</span>}
-            </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="email">Correo Electrónico *</label>
-              <input
+            <FilterField
+              label="Correo Electrónico *"
+              htmlFor="email"
+              icon="ri-mail-line"
+              hint={errors.email ? <span className="error-text">{errors.email}</span> : undefined}
+            >
+              <FieldControl
                 type="email"
                 id="email"
                 name="email"
@@ -283,38 +287,46 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 required
                 placeholder="admin@empresa.com"
-                className={errors.email ? 'input-error' : ''}
+                className={errors.email ? "input-error" : ""}
               />
-              {errors.email && <span className="error-text">{errors.email}</span>}
-            </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="password">Contraseña *</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                minLength={8}
-                placeholder="Mínimo 8 caracteres"
-                className={errors.password ? 'input-error' : ''}
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-              >
-                <i className={showPassword ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
-              </button>
-              {errors.password && <span className="error-text">{errors.password}</span>}
-            </div>
+            <FilterField
+              label="Contraseña *"
+              htmlFor="password"
+              icon="ri-lock-line"
+              hint={errors.password ? <span className="error-text">{errors.password}</span> : undefined}
+            >
+              <div className="step1-password-wrap">
+                <FieldControl
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  minLength={8}
+                  placeholder="Mínimo 8 caracteres"
+                  className={errors.password ? "input-error" : ""}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  <i className={showPassword ? "ri-eye-off-line" : "ri-eye-line"}></i>
+                </button>
+              </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="phone">Teléfono *</label>
-              <input
+            <FilterField
+              label="Teléfono *"
+              htmlFor="phone"
+              icon="ri-phone-line"
+              hint={errors.phone ? <span className="error-text">{errors.phone}</span> : undefined}
+            >
+              <FieldControl
                 type="tel"
                 id="phone"
                 name="phone"
@@ -322,14 +334,12 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 required
                 placeholder="3001234567"
-                className={errors.phone ? 'input-error' : ''}
+                className={errors.phone ? "input-error" : ""}
               />
-              {errors.phone && <span className="error-text">{errors.phone}</span>}
-            </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="website">Sitio Web</label>
-              <input
+            <FilterField label="Sitio Web" htmlFor="website" icon="ri-global-line">
+              <FieldControl
                 type="url"
                 id="website"
                 name="website"
@@ -337,11 +347,16 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 placeholder="https://www.empresa.com"
               />
-            </div>
+            </FilterField>
 
-            <div className="form-group full-width">
-              <label htmlFor="address">Dirección *</label>
-              <input
+            <FilterField
+              label="Dirección *"
+              htmlFor="address"
+              icon="ri-map-pin-line"
+              className="led-form-grid__full"
+              hint={errors.address ? <span className="error-text">{errors.address}</span> : undefined}
+            >
+              <FieldControl
                 type="text"
                 id="address"
                 name="address"
@@ -349,41 +364,40 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 required
                 placeholder="Calle 123 #45-67"
-                className={errors.address ? 'input-error' : ''}
+                className={errors.address ? "input-error" : ""}
               />
-              {errors.address && <span className="error-text">{errors.address}</span>}
-            </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="pais_codigo">País *</label>
-              <select
-                id="pais_codigo"
-                name="pais_codigo"
-                value={formData.pais_codigo}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-              >
+            <FilterField
+              label="País *"
+              htmlFor="pais_codigo"
+              icon="ri-earth-line"
+              hint={errors.pais_codigo ? <span className="error-text">{errors.pais_codigo}</span> : undefined}
+            >
+              <FieldControl id="pais_codigo" name="pais_codigo" as="select" value={formData.pais_codigo} onChange={handleInputChange} required disabled={loading}>
                 <option value="">Seleccione un país</option>
                 {paises.map((pais) => (
                   <option key={pais.codigo} value={pais.codigo}>
                     {pais.descripcion}
                   </option>
                 ))}
-              </select>
-              {errors.pais_codigo && <span className="error-text">{errors.pais_codigo}</span>}
-            </div>
+              </FieldControl>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="departamento_codigo">Departamento *</label>
-              <select
+            <FilterField
+              label="Departamento *"
+              htmlFor="departamento_codigo"
+              icon="ri-map-2-line"
+              hint={errors.departamento_codigo ? <span className="error-text">{errors.departamento_codigo}</span> : undefined}
+            >
+              <FieldControl
                 id="departamento_codigo"
                 name="departamento_codigo"
+                as="select"
                 value={formData.departamento_codigo}
                 onChange={(e) => {
                   handleInputChange(e);
-                  // Reset ciudad cuando cambia departamento
-                  setFormData(prev => ({ ...prev, ciudad_codigo: '' }));
+                  setFormData((prev) => ({ ...prev, ciudad_codigo: "" }));
                 }}
                 required
                 disabled={loading}
@@ -394,55 +408,62 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                     {depto.nombre}
                   </option>
                 ))}
-              </select>
-              {errors.departamento_codigo && <span className="error-text">{errors.departamento_codigo}</span>}
-            </div>
+              </FieldControl>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="ciudad_codigo">Ciudad/Municipio *</label>
-              <select
+            <FilterField
+              label="Ciudad/Municipio *"
+              htmlFor="ciudad_codigo"
+              icon="ri-building-2-line"
+              hint={errors.ciudad_codigo ? <span className="error-text">{errors.ciudad_codigo}</span> : undefined}
+            >
+              <FieldControl
                 id="ciudad_codigo"
                 name="ciudad_codigo"
+                as="select"
                 value={formData.ciudad_codigo}
                 onChange={handleInputChange}
                 required
                 disabled={loading || !formData.departamento_codigo}
-                className={errors.ciudad_codigo ? 'input-error' : ''}
+                className={errors.ciudad_codigo ? "input-error" : ""}
               >
                 <option value="">Seleccione una ciudad</option>
                 {municipios
-                  .filter(mun => mun.code.startsWith(formData.departamento_codigo))
+                  .filter((mun) => mun.code.startsWith(formData.departamento_codigo))
                   .map((mun) => (
                     <option key={mun.code} value={mun.code}>
                       {mun.name}
                     </option>
                   ))}
-              </select>
-              {errors.ciudad_codigo && <span className="error-text">{errors.ciudad_codigo}</span>}
-            </div>
+              </FieldControl>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="zip_code">Código Postal</label>
-              <input
+            <FilterField label="Código Postal" htmlFor="zip_code" icon="ri-mail-send-line">
+              <FieldControl
                 type="text"
                 id="zip_code"
                 name="zip_code"
-                value={formData.zip_code || ''}
+                value={formData.zip_code || ""}
                 onChange={handleInputChange}
                 placeholder="Ej: 110111"
                 disabled={loading}
               />
-            </div>
+            </FilterField>
           </div>
         </div>
 
         {/* Representante Legal */}
         <div className="form-section">
           <h3>Representante Legal</h3>
-          <div className="form-grid">
-            <div className="form-group full-width">
-              <label htmlFor="legal_representative_name">Nombre Completo *</label>
-              <input
+          <div className="led-form-grid">
+            <FilterField
+              label="Nombre Completo *"
+              htmlFor="legal_representative_name"
+              icon="ri-user-line"
+              className="led-form-grid__full"
+              hint={errors.legal_representative_name ? <span className="error-text">{errors.legal_representative_name}</span> : undefined}
+            >
+              <FieldControl
                 type="text"
                 id="legal_representative_name"
                 name="legal_representative_name"
@@ -450,16 +471,15 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 required
                 placeholder="Juan Pérez"
-                className={errors.legal_representative_name ? 'input-error' : ''}
+                className={errors.legal_representative_name ? "input-error" : ""}
               />
-              {errors.legal_representative_name && <span className="error-text">{errors.legal_representative_name}</span>}
-            </div>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="legal_representative_doc_type">Tipo de Documento *</label>
-              <select
+            <FilterField label="Tipo de Documento *" htmlFor="legal_representative_doc_type" icon="ri-id-card-line">
+              <FieldControl
                 id="legal_representative_doc_type"
                 name="legal_representative_doc_type"
+                as="select"
                 value={formData.legal_representative.doc_type}
                 onChange={handleInputChange}
                 required
@@ -468,12 +488,16 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 <option value="Ce">Cédula de Extranjería</option>
                 <option value="Pasaporte">Pasaporte</option>
                 <option value="Ti">Tarjeta de Identidad</option>
-              </select>
-            </div>
+              </FieldControl>
+            </FilterField>
 
-            <div className="form-group">
-              <label htmlFor="legal_representative_doc_number">Número de Documento *</label>
-              <input
+            <FilterField
+              label="Número de Documento *"
+              htmlFor="legal_representative_doc_number"
+              icon="ri-hashtag"
+              hint={errors.legal_representative_doc_number ? <span className="error-text">{errors.legal_representative_doc_number}</span> : undefined}
+            >
+              <FieldControl
                 type="text"
                 id="legal_representative_doc_number"
                 name="legal_representative_doc_number"
@@ -481,10 +505,9 @@ const Step1: React.FC<Step1Props> = ({ onComplete, onBackToLogin }) => {
                 onChange={handleInputChange}
                 required
                 placeholder="1234567890"
-                className={errors.legal_representative_doc_number ? 'input-error' : ''}
+                className={errors.legal_representative_doc_number ? "input-error" : ""}
               />
-              {errors.legal_representative_doc_number && <span className="error-text">{errors.legal_representative_doc_number}</span>}
-            </div>
+            </FilterField>
           </div>
         </div>
 

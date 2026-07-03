@@ -4,19 +4,15 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import SupplierModalNative from "../../../components/native/purchases/SupplierModal.native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
 import {
@@ -31,7 +27,6 @@ const PAGE_SIZE = 20;
 
 export default function SuppliersNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
@@ -115,50 +110,31 @@ export default function SuppliersNative() {
     setRefreshKey((k) => k + 1);
   };
 
-  if (loading) return <LoadingScreen />;
-
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Proveedores</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Gestiona la agenda de proveedores de compras y gastos
-        </Text>
-      </View>
-
-      <View style={[styles.toolbar, { borderBottomColor: colors.border }]}>
-        <View style={[styles.searchBox, { backgroundColor: colors.bgSubtle, borderColor: colors.border }]}>
-          <Ionicons name="search-outline" size={18} color={colors.textMuted} />
-          <TextInput
-            style={[styles.searchInput, { color: colors.primaryText }]}
-            placeholder="Buscar proveedor, NIT..."
-            placeholderTextColor={colors.textMuted}
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
-        <Pressable
-          style={[styles.createBtn, { backgroundColor: colors.accent }]}
-          onPress={() => {
-            setEditing(null);
-            setModalOpen(true);
-          }}
-        >
-          <Ionicons name="add" size={22} color="#fff" />
-        </Pressable>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              setRefreshKey((k) => k + 1);
-            }}
-            tintColor={colors.accent}
-          />
+    <>
+      <DsModuleScreen
+        title="Proveedores"
+        subtitle="Gestiona la agenda de proveedores de compras y gastos"
+        loading={loading}
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          setRefreshKey((k) => k + 1);
+        }}
+        toolbar={
+          <>
+            <DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar proveedor, NIT..." />
+            <DsButton
+              label=""
+              icon="add"
+              compact
+              onPress={() => {
+                setEditing(null);
+                setModalOpen(true);
+              }}
+              style={{ minWidth: 44, paddingHorizontal: 0 }}
+            />
+          </>
         }
       >
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={setPage} />
@@ -197,7 +173,7 @@ export default function SuppliersNative() {
                     setModalOpen(true);
                   }}
                 >
-                  <Ionicons name="create-outline" size={18} color={colors.accent} />
+                  <Ionicons name="create-outline" size={18} color={colors.headerAccent} />
                 </Pressable>
                 <Pressable
                   style={[styles.iconBtn, { borderColor: colors.border }]}
@@ -214,7 +190,7 @@ export default function SuppliersNative() {
             </View>
           ))
         )}
-      </ScrollView>
+      </DsModuleScreen>
 
       <SupplierModalNative
         visible={modalOpen}
@@ -225,42 +201,13 @@ export default function SuppliersNative() {
         }}
         onSave={handleSave}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 22, fontWeight: "700" },
-  subtitle: { fontSize: 13, marginTop: 2 },
-  toolbar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  searchInput: { flex: 1, fontSize: 14 },
-  createBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: SHELL_RADIUS.button,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   empty: { textAlign: "center", paddingVertical: 32, fontSize: 14 },
-  card: { borderWidth: 1, borderRadius: SHELL_RADIUS.menuItem, padding: 14, marginBottom: 10, gap: 10 },
+  card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10, gap: 10 },
   cardTop: { flexDirection: "row", gap: 10 },
   cardTitle: { fontSize: 15, fontWeight: "700" },
   cardMeta: { fontSize: 12, marginTop: 2 },

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { createSubUser, updateSubUser, patchSubUserAvatar } from "../../../services/sub-users.service";
 import type { CreateSubUserRequest, ISubUser, UpdateSubUserRequest } from "../../../types";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppDrawer, FilterField, FieldControl } from "../../../components/design-system";
 import { useFormDraft, isFormDirty } from "../../../hooks/useFormDraft";
 import UnsavedChangesModal from "../UnsavedChangesModal/UnsavedChangesModal";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
@@ -61,8 +61,6 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
     const draftEnabled = !isEditMode;
     const { loadDraft, saveDraft, clearDraft } = useFormDraft<CreateSubUserRequest>(SUBUSER_DRAFT_KEY, draftEnabled);
     const [showUnsaved, setShowUnsaved] = useState(false);
-
-    useBodyScrollLock(isOpen);
 
     const revokeBlob = () => {
         if (blobUrlRef.current) {
@@ -267,25 +265,38 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
 
     return (
         <>
-        <div
-            className="modal-overlay client-modal-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="subuser-modal-title"
-        >
-            <div className="modal-container client-modal-drawer-panel">
-                <div className="modal-header">
-                    <h2 id="subuser-modal-title">{isEditMode ? "Editar usuario" : "Nuevo usuario"}</h2>
-                    <button className="modal-close" onClick={requestClose} disabled={loading || avatarUploading}>
-                        <i className="ri-close-line"></i>
+        <AppDrawer
+            wide
+            title={isEditMode ? "Editar usuario" : "Nuevo usuario"}
+            titleIcon={isEditMode ? "ri-edit-line" : "ri-user-add-line"}
+            onClose={requestClose}
+            closeDisabled={loading || avatarUploading}
+            ariaLabelledBy="subuser-modal-title"
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={requestClose} disabled={loading || avatarUploading}>
+                        Cancelar
                     </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="modal-body" noValidate>
-                    <div className="form-row-doc">
-                        <div className="form-group">
-                            <label htmlFor="sub_doc_type">Tipo de documento *</label>
-                            <select
+                    <button type="submit" form="subuser-form" className="export-submit" disabled={submitDisabled}>
+                        {loading ? (
+                            <>
+                                <i className="ri-loader-4-line rotating" aria-hidden />
+                                {isEditMode ? "Guardando…" : "Creando…"}
+                            </>
+                        ) : isEditMode ? (
+                            "Guardar"
+                        ) : (
+                            "Crear usuario"
+                        )}
+                    </button>
+                </>
+            }
+        >
+                <form id="subuser-form" onSubmit={handleSubmit} noValidate>
+                    <div className="led-form-grid">
+                        <FilterField label="Tipo de documento *" htmlFor="sub_doc_type" icon="ri-id-card-line">
+                            <FieldControl
+                                as="select"
                                 id="sub_doc_type"
                                 name="doc_type"
                                 value={formData.doc_type}
@@ -305,11 +316,10 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                                 <option value="DiExtranjero">Documento identidad extranjero</option>
                                 <option value="Pep">PEP</option>
                                 <option value="NitExtranjero">NIT extranjero</option>
-                            </select>
-                        </div>
-                        <div className="form-group form-group-doc-number">
-                            <label htmlFor="sub_doc_number">Número de documento *</label>
-                            <input
+                            </FieldControl>
+                        </FilterField>
+                        <FilterField label="Número de documento *" htmlFor="sub_doc_number" icon="ri-fingerprint-line">
+                            <FieldControl
                                 type="text"
                                 id="sub_doc_number"
                                 name="doc_number"
@@ -321,16 +331,12 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                                 placeholder={formData.doc_type === "Nit" ? "900123456-7" : "1234567890"}
                                 disabled={loading || isEditMode}
                                 autoComplete="off"
-                                inputMode={formData.doc_type === "Nit" ? "numeric" : "numeric"}
+                                inputMode="numeric"
                                 pattern={formData.doc_type === "Nit" ? "\\d{9,10}(-\\d)?" : "\\d+"}
                             />
-                        </div>
-                    </div>
-
-                    <div className="form-grid form-grid-after-tipo-persona">
-                        <div className="form-group">
-                            <label htmlFor="sub_name">Nombre *</label>
-                            <input
+                        </FilterField>
+                        <FilterField label="Nombre *" htmlFor="sub_name" icon="ri-user-line">
+                            <FieldControl
                                 type="text"
                                 id="sub_name"
                                 name="name"
@@ -339,10 +345,9 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                                 required
                                 disabled={loading}
                             />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="sub_last_name">Apellido *</label>
-                            <input
+                        </FilterField>
+                        <FilterField label="Apellido *" htmlFor="sub_last_name" icon="ri-user-line">
+                            <FieldControl
                                 type="text"
                                 id="sub_last_name"
                                 name="last_name"
@@ -351,10 +356,9 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                                 required
                                 disabled={loading}
                             />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="sub_email">Correo electrónico *</label>
-                            <input
+                        </FilterField>
+                        <FilterField label="Correo electrónico *" htmlFor="sub_email" icon="ri-mail-line">
+                            <FieldControl
                                 type="email"
                                 id="sub_email"
                                 name="email"
@@ -368,10 +372,9 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                                 spellCheck={false}
                                 className={isEditMode ? "subuser-input-readonly" : undefined}
                             />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="sub_phone">Teléfono *</label>
-                            <input
+                        </FilterField>
+                        <FilterField label="Teléfono *" htmlFor="sub_phone" icon="ri-phone-line">
+                            <FieldControl
                                 type="tel"
                                 id="sub_phone"
                                 name="phone"
@@ -385,7 +388,7 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                                 autoComplete="tel-national"
                                 pattern="[0-9]*"
                             />
-                        </div>
+                        </FilterField>
                     </div>
 
                     {isEditMode && (
@@ -430,26 +433,8 @@ const SubUserModal: React.FC<SubUserModalProps> = ({ isOpen, onClose, onSuccess,
                         </div>
                     )}
 
-                    <div className="modal-footer">
-                        <button type="button" className="btn-secondary" onClick={requestClose} disabled={loading || avatarUploading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="btn-primary" disabled={submitDisabled}>
-                            {loading ? (
-                                <>
-                                    <i className="ri-loader-4-line rotating"></i>
-                                    {isEditMode ? "Guardando…" : "Creando…"}
-                                </>
-                            ) : isEditMode ? (
-                                "Guardar"
-                            ) : (
-                                "Crear usuario"
-                            )}
-                        </button>
-                    </div>
                 </form>
-            </div>
-        </div>
+        </AppDrawer>
         <UnsavedChangesModal
             isOpen={showUnsaved}
             onSaveDraft={handleSaveDraft}

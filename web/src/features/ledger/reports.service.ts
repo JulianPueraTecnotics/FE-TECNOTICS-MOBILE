@@ -14,6 +14,29 @@ const qs = (params: Record<string, string | undefined>) => {
     return p.toString();
 };
 
+// ── Salud contable (documentos sin asiento) ──
+export interface IntegrityDoc {
+    numero: string;
+    fecha?: string;
+    total?: number;
+    tercero?: string;
+}
+export interface IntegrityCheck {
+    key: string;
+    label: string;
+    /** Total de documentos evaluados (null cuando no aplica). */
+    total_docs: number | null;
+    sin_asiento: number;
+    ejemplos: IntegrityDoc[];
+}
+export interface IntegrityResponse {
+    ok: boolean;
+    problemas: number;
+    checks: IntegrityCheck[];
+    generado: string;
+}
+export const getIntegrity = async (): Promise<IntegrityResponse> => parse(await get(API_ROUTES.LEDGER_INTEGRITY));
+
 export interface TrialBalanceRow {
     cuenta: string;
     nombre: string;

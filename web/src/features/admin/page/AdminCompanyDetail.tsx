@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./Admin.css";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { ConfirmModal } from "../../../components/modals";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 import { PATHS } from "../../../router/paths.contants";
 import PaginatedTable from "../components/PaginatedTable";
 import {
@@ -104,7 +104,6 @@ const ResetPasswordModal: React.FC<{ target: ResetTarget; onClose: () => void; o
     const [password, setPassword] = useState("");
     const [show, setShow] = useState(false);
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -122,16 +121,38 @@ const ResetPasswordModal: React.FC<{ target: ResetTarget; onClose: () => void; o
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()}>
-                <h3 className="confirm-title">Restablecer contraseña</h3>
-                <p className="confirm-message">
-                    Define una nueva contraseña para <strong>{target.label}</strong>. Se cerrará su sesión activa.
-                </p>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-field">
-                        <label htmlFor="admin-reset-pwd">Nueva contraseña</label>
-                        <input
+        <AppModal
+            title="Restablecer contraseña"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="reset-password-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : "Restablecer"}
+                    </button>
+                </>
+            }
+        >
+            <p className="confirm-message">
+                Define una nueva contraseña para <strong>{target.label}</strong>. Se cerrará su sesión activa.
+            </p>
+            <form id="reset-password-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField
+                        className="led-form-grid__full"
+                        label="Nueva contraseña"
+                        htmlFor="admin-reset-pwd"
+                        icon="ri-lock-password-line"
+                        hint={
+                            <button type="button" className="admin-btn-secondary" onClick={() => setShow((v) => !v)} style={{ alignSelf: "flex-start", marginTop: 4 }}>
+                                {show ? "Ocultar" : "Mostrar"} contraseña
+                            </button>
+                        }
+                    >
+                        <FieldControl
                             id="admin-reset-pwd"
                             type={show ? "text" : "password"}
                             value={password}
@@ -139,21 +160,10 @@ const ResetPasswordModal: React.FC<{ target: ResetTarget; onClose: () => void; o
                             placeholder="Mínimo 8 caracteres"
                             autoComplete="new-password"
                         />
-                        <button type="button" className="admin-btn-secondary" onClick={() => setShow((v) => !v)} style={{ alignSelf: "flex-start" }}>
-                            {show ? "Ocultar" : "Mostrar"} contraseña
-                        </button>
-                    </div>
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : "Restablecer"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 
@@ -170,7 +180,6 @@ const EditCompanyModal: React.FC<{ company: CompanyInterface; onClose: () => voi
         observations: company.observations ?? "",
     });
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     const setField = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -206,79 +215,70 @@ const EditCompanyModal: React.FC<{ company: CompanyInterface; onClose: () => voi
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
-                <h3 className="confirm-title">Editar empresa</h3>
-                <p className="confirm-message">{company.razon_social}</p>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="ec-email">Correo</label>
-                            <input id="ec-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="ec-phone">Teléfono</label>
-                            <input
-                                id="ec-phone"
-                                type="text"
-                                inputMode="numeric"
-                                value={form.phone}
-                                onChange={(e) => setField("phone", e.target.value.replace(/[^\d]/g, ""))}
-                                placeholder="Solo números"
-                            />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="ec-website">Sitio web</label>
-                            <input id="ec-website" type="text" value={form.website} onChange={(e) => setField("website", e.target.value)} placeholder="https://…" />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="ec-address">Dirección</label>
-                            <input id="ec-address" type="text" value={form.address} onChange={(e) => setField("address", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="ec-bank-name">Banco</label>
-                            <input id="ec-bank-name" type="text" value={form.bank_name} onChange={(e) => setField("bank_name", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="ec-bank-number">N° de cuenta</label>
-                            <input
-                                id="ec-bank-number"
-                                type="text"
-                                inputMode="numeric"
-                                value={form.bank_account_number}
-                                onChange={(e) => setField("bank_account_number", e.target.value.replace(/[^\d]/g, ""))}
-                                placeholder="Solo números"
-                            />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="ec-bank-type">Tipo de cuenta</label>
-                            <select
-                                id="ec-bank-type"
-                                value={form.bank_account_type}
-                                onChange={(e) => setField("bank_account_type", e.target.value)}
-                                style={{ padding: "0.6rem 0.75rem", border: "1px solid var(--border-light)", borderRadius: 8, background: "var(--card-bg)", color: "var(--primary-text, #1f2937)" }}
-                            >
-                                <option value="">—</option>
-                                <option value="ahorro">Ahorro</option>
-                                <option value="corriente">Corriente</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="admin-field">
-                        <label htmlFor="ec-observations">Observaciones</label>
-                        <input id="ec-observations" type="text" value={form.observations} onChange={(e) => setField("observations", e.target.value)} />
-                    </div>
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : "Guardar cambios"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            wide
+            title="Editar empresa"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="edit-company-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : "Guardar cambios"}
+                    </button>
+                </>
+            }
+        >
+            <p className="confirm-message">{company.razon_social}</p>
+            <form id="edit-company-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField label="Correo" htmlFor="ec-email" icon="ri-mail-line">
+                        <FieldControl id="ec-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Teléfono" htmlFor="ec-phone" icon="ri-phone-line">
+                        <FieldControl
+                            id="ec-phone"
+                            type="text"
+                            inputMode="numeric"
+                            value={form.phone}
+                            onChange={(e) => setField("phone", e.target.value.replace(/[^\d]/g, ""))}
+                            placeholder="Solo números"
+                        />
+                    </FilterField>
+                    <FilterField label="Sitio web" htmlFor="ec-website" icon="ri-global-line">
+                        <FieldControl id="ec-website" type="text" value={form.website} onChange={(e) => setField("website", e.target.value)} placeholder="https://…" />
+                    </FilterField>
+                    <FilterField label="Dirección" htmlFor="ec-address" icon="ri-map-pin-line">
+                        <FieldControl id="ec-address" type="text" value={form.address} onChange={(e) => setField("address", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Banco" htmlFor="ec-bank-name" icon="ri-bank-line">
+                        <FieldControl id="ec-bank-name" type="text" value={form.bank_name} onChange={(e) => setField("bank_name", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="N° de cuenta" htmlFor="ec-bank-number" icon="ri-bank-card-line">
+                        <FieldControl
+                            id="ec-bank-number"
+                            type="text"
+                            inputMode="numeric"
+                            value={form.bank_account_number}
+                            onChange={(e) => setField("bank_account_number", e.target.value.replace(/[^\d]/g, ""))}
+                            placeholder="Solo números"
+                        />
+                    </FilterField>
+                    <FilterField label="Tipo de cuenta" htmlFor="ec-bank-type" icon="ri-wallet-3-line">
+                        <FieldControl as="select" id="ec-bank-type" value={form.bank_account_type} onChange={(e) => setField("bank_account_type", e.target.value)}>
+                            <option value="">—</option>
+                            <option value="ahorro">Ahorro</option>
+                            <option value="corriente">Corriente</option>
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField className="led-form-grid__full" label="Observaciones" htmlFor="ec-observations" icon="ri-sticky-note-line">
+                        <FieldControl id="ec-observations" type="text" value={form.observations} onChange={(e) => setField("observations", e.target.value)} />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 
@@ -297,7 +297,6 @@ const PrefixModal: React.FC<{ editPrefix?: CompanyPrefix | null; onClose: () => 
         tipo_factura: r?.tipo_factura ?? "01",
     });
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     const setField = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -329,68 +328,64 @@ const PrefixModal: React.FC<{ editPrefix?: CompanyPrefix | null; onClose: () => 
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
-                <h3 className="confirm-title">{isEdit ? "Editar prefijo" : "Agregar prefijo"}</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="pf-prefix">Prefijo</label>
-                            <input id="pf-prefix" type="text" value={form.prefix} onChange={(e) => setField("prefix", e.target.value.toUpperCase())} placeholder="Ej: FE" disabled={isEdit} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-res">N° de resolución</label>
-                            <input id="pf-res" type="text" value={form.resolution} onChange={(e) => setField("resolution", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-init">Desde (init)</label>
-                            <input id="pf-init" type="text" inputMode="numeric" value={form.init} onChange={(e) => setField("init", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-end">Hasta (end)</label>
-                            <input id="pf-end" type="text" inputMode="numeric" value={form.end} onChange={(e) => setField("end", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-start">Vigencia desde</label>
-                            <input id="pf-start" type="date" value={form.start_date} onChange={(e) => setField("start_date", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-enddate">Vigencia hasta {isEdit ? "(no editable)" : ""}</label>
-                            <input id="pf-enddate" type="date" value={form.end_date} onChange={(e) => setField("end_date", e.target.value)} disabled={isEdit} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-tipodoc">Tipo de documento {isEdit ? "(no editable)" : ""}</label>
-                            <select id="pf-tipodoc" className="admin-select" value={form.tipo_doc_electronico} onChange={(e) => setField("tipo_doc_electronico", e.target.value)} disabled={isEdit}>
-                                {TIPO_DOC_OPTIONS.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                        {o.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="pf-tipofac">Tipo de factura</label>
-                            <select id="pf-tipofac" className="admin-select" value={form.tipo_factura} onChange={(e) => setField("tipo_factura", e.target.value)}>
-                                {TIPO_FACTURA_OPTIONS.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                        {o.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                    {isEdit ? <p className="admin-prefix-meta">La vigencia (fin) y el tipo de documento no se pueden cambiar una vez creado el prefijo.</p> : null}
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : isEdit ? "Guardar prefijo" : "Agregar prefijo"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            wide
+            title={isEdit ? "Editar prefijo" : "Agregar prefijo"}
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="prefix-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : isEdit ? "Guardar prefijo" : "Agregar prefijo"}
+                    </button>
+                </>
+            }
+        >
+            <form id="prefix-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField label="Prefijo" htmlFor="pf-prefix" icon="ri-hashtag">
+                        <FieldControl id="pf-prefix" type="text" value={form.prefix} onChange={(e) => setField("prefix", e.target.value.toUpperCase())} placeholder="Ej: FE" disabled={isEdit} />
+                    </FilterField>
+                    <FilterField label="N° de resolución" htmlFor="pf-res" icon="ri-file-text-line">
+                        <FieldControl id="pf-res" type="text" value={form.resolution} onChange={(e) => setField("resolution", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Desde (init)" htmlFor="pf-init" icon="ri-arrow-right-line">
+                        <FieldControl id="pf-init" type="text" inputMode="numeric" value={form.init} onChange={(e) => setField("init", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    <FilterField label="Hasta (end)" htmlFor="pf-end" icon="ri-arrow-left-line">
+                        <FieldControl id="pf-end" type="text" inputMode="numeric" value={form.end} onChange={(e) => setField("end", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    <FilterField label="Vigencia desde" htmlFor="pf-start" icon="ri-calendar-line">
+                        <FieldControl id="pf-start" type="date" value={form.start_date} onChange={(e) => setField("start_date", e.target.value)} />
+                    </FilterField>
+                    <FilterField label={`Vigencia hasta${isEdit ? " (no editable)" : ""}`} htmlFor="pf-enddate" icon="ri-calendar-check-line">
+                        <FieldControl id="pf-enddate" type="date" value={form.end_date} onChange={(e) => setField("end_date", e.target.value)} disabled={isEdit} />
+                    </FilterField>
+                    <FilterField label={`Tipo de documento${isEdit ? " (no editable)" : ""}`} htmlFor="pf-tipodoc" icon="ri-file-list-3-line">
+                        <FieldControl as="select" id="pf-tipodoc" value={form.tipo_doc_electronico} onChange={(e) => setField("tipo_doc_electronico", e.target.value)} disabled={isEdit}>
+                            {TIPO_DOC_OPTIONS.map((o) => (
+                                <option key={o.value} value={o.value}>
+                                    {o.label}
+                                </option>
+                            ))}
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField label="Tipo de factura" htmlFor="pf-tipofac" icon="ri-bill-line">
+                        <FieldControl as="select" id="pf-tipofac" value={form.tipo_factura} onChange={(e) => setField("tipo_factura", e.target.value)}>
+                            {TIPO_FACTURA_OPTIONS.map((o) => (
+                                <option key={o.value} value={o.value}>
+                                    {o.label}
+                                </option>
+                            ))}
+                        </FieldControl>
+                    </FilterField>
+                </div>
+                {isEdit ? <p className="admin-prefix-meta">La vigencia (fin) y el tipo de documento no se pueden cambiar una vez creado el prefijo.</p> : null}
+            </form>
+        </AppModal>
     );
 };
 
@@ -404,7 +399,6 @@ const ClientModal: React.FC<{ companyId: string; client: AdminClient; onClose: (
         doc_number: client.doc_number ?? "",
     });
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
     const setField = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
     const submit = async (e: React.FormEvent) => {
@@ -431,49 +425,48 @@ const ClientModal: React.FC<{ companyId: string; client: AdminClient; onClose: (
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
-                <h3 className="confirm-title">Editar cliente</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="cl-name">Nombre</label>
-                            <input id="cl-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="cl-email">Correo</label>
-                            <input id="cl-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="cl-phone">Teléfono</label>
-                            <input id="cl-phone" type="text" inputMode="numeric" value={form.phone} onChange={(e) => setField("phone", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="cl-doctype">Tipo de documento</label>
-                            <select id="cl-doctype" className="admin-select" value={form.doc_type} onChange={(e) => setField("doc_type", e.target.value)}>
-                                {DOC_TYPE_OPTIONS.map((o) => (
-                                    <option key={o.value} value={o.value}>
-                                        {o.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="cl-docnum">N° de documento</label>
-                            <input id="cl-docnum" type="text" value={form.doc_number} onChange={(e) => setField("doc_number", e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : "Guardar"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            wide
+            title="Editar cliente"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="client-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : "Guardar"}
+                    </button>
+                </>
+            }
+        >
+            <form id="client-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField label="Nombre" htmlFor="cl-name" icon="ri-user-line">
+                        <FieldControl id="cl-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Correo" htmlFor="cl-email" icon="ri-mail-line">
+                        <FieldControl id="cl-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Teléfono" htmlFor="cl-phone" icon="ri-phone-line">
+                        <FieldControl id="cl-phone" type="text" inputMode="numeric" value={form.phone} onChange={(e) => setField("phone", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    <FilterField label="Tipo de documento" htmlFor="cl-doctype" icon="ri-id-card-line">
+                        <FieldControl as="select" id="cl-doctype" value={form.doc_type} onChange={(e) => setField("doc_type", e.target.value)}>
+                            {DOC_TYPE_OPTIONS.map((o) => (
+                                <option key={o.value} value={o.value}>
+                                    {o.label}
+                                </option>
+                            ))}
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField label="N° de documento" htmlFor="cl-docnum" icon="ri-hashtag">
+                        <FieldControl id="cl-docnum" type="text" value={form.doc_number} onChange={(e) => setField("doc_number", e.target.value)} />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 
@@ -487,7 +480,6 @@ const ItemModal: React.FC<{ companyId: string; item: AdminItem; onClose: () => v
         kind: (item.kind as "product" | "service") ?? "product",
     });
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
     const setField = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
     const submit = async (e: React.FormEvent) => {
@@ -515,46 +507,45 @@ const ItemModal: React.FC<{ companyId: string; item: AdminItem; onClose: () => v
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
-                <h3 className="confirm-title">Editar item</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="it-name">Nombre</label>
-                            <input id="it-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="it-code">Código</label>
-                            <input id="it-code" type="text" value={form.code} onChange={(e) => setField("code", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="it-price">Precio (COP)</label>
-                            <input id="it-price" type="text" inputMode="numeric" value={form.price} onChange={(e) => setField("price", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="it-kind">Tipo</label>
-                            <select id="it-kind" className="admin-select" value={form.kind} onChange={(e) => setField("kind", e.target.value)}>
-                                <option value="product">Producto</option>
-                                <option value="service">Servicio</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="admin-field">
-                        <label htmlFor="it-desc">Descripción</label>
-                        <input id="it-desc" type="text" value={form.description} onChange={(e) => setField("description", e.target.value)} />
-                    </div>
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : "Guardar"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            wide
+            title="Editar item"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="item-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : "Guardar"}
+                    </button>
+                </>
+            }
+        >
+            <form id="item-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField label="Nombre" htmlFor="it-name" icon="ri-price-tag-3-line">
+                        <FieldControl id="it-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Código" htmlFor="it-code" icon="ri-barcode-line">
+                        <FieldControl id="it-code" type="text" value={form.code} onChange={(e) => setField("code", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Precio (COP)" htmlFor="it-price" icon="ri-money-dollar-circle-line">
+                        <FieldControl id="it-price" type="text" inputMode="numeric" value={form.price} onChange={(e) => setField("price", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    <FilterField label="Tipo" htmlFor="it-kind" icon="ri-stack-line">
+                        <FieldControl as="select" id="it-kind" value={form.kind} onChange={(e) => setField("kind", e.target.value)}>
+                            <option value="product">Producto</option>
+                            <option value="service">Servicio</option>
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField className="led-form-grid__full" label="Descripción" htmlFor="it-desc" icon="ri-file-text-line">
+                        <FieldControl id="it-desc" type="text" value={form.description} onChange={(e) => setField("description", e.target.value)} />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 
@@ -587,7 +578,6 @@ const SubscriptionModal: React.FC<{ companyId: string; subscription: CompanySubs
         status: (sub?.status ?? "active") as "active" | "inactive" | "expired",
     });
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     useEffect(() => {
         adminListPlans()
@@ -631,71 +621,69 @@ const SubscriptionModal: React.FC<{ companyId: string; subscription: CompanySubs
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
-                <h3 className="confirm-title">{isEdit ? "Editar suscripción" : "Crear suscripción"}</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-field">
-                        <label htmlFor="sub-plan">Plan</label>
-                        <select id="sub-plan" className="admin-select" value={form.plan_id} onChange={(e) => setField("plan_id", e.target.value)}>
+        <AppModal
+            wide
+            title={isEdit ? "Editar suscripción" : "Crear suscripción"}
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="subscription-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : isEdit ? "Guardar" : "Crear"}
+                    </button>
+                </>
+            }
+        >
+            <form id="subscription-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField className="led-form-grid__full" label="Plan" htmlFor="sub-plan" icon="ri-vip-crown-line">
+                        <FieldControl as="select" id="sub-plan" value={form.plan_id} onChange={(e) => setField("plan_id", e.target.value)}>
                             <option value="">{isEdit ? "(mantener)" : "Selecciona un plan…"}</option>
                             {plans.map((p) => (
                                 <option key={p._id} value={p._id}>
                                     {p.title} — {p.include_documents} docs
                                 </option>
                             ))}
-                        </select>
-                    </div>
+                        </FieldControl>
+                    </FilterField>
 
                     {isEdit ? (
                         <>
-                            <div className="admin-form-grid">
-                                <div className="admin-field">
-                                    <label htmlFor="sub-start">Inicio</label>
-                                    <input id="sub-start" type="date" value={form.start_date} onChange={(e) => setField("start_date", e.target.value)} />
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="sub-end">Vencimiento</label>
-                                    <input id="sub-end" type="date" value={form.end_date} onChange={(e) => setField("end_date", e.target.value)} />
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="sub-base">Documentos base</label>
-                                    <input id="sub-base" type="text" inputMode="numeric" value={form.base_documents} onChange={(e) => setField("base_documents", e.target.value.replace(/[^\d]/g, ""))} />
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="sub-extra">Documentos extra</label>
-                                    <input id="sub-extra" type="text" inputMode="numeric" value={form.extra_documents} onChange={(e) => setField("extra_documents", e.target.value.replace(/[^\d]/g, ""))} />
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="sub-price">Valor (COP)</label>
-                                    <input id="sub-price" type="text" inputMode="numeric" value={form.total_price} onChange={(e) => setField("total_price", e.target.value.replace(/[^\d]/g, ""))} />
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="sub-status">Estado</label>
-                                    <select id="sub-status" className="admin-select" value={form.status} onChange={(e) => setField("status", e.target.value)}>
-                                        <option value="active">Activa</option>
-                                        <option value="inactive">Inactiva</option>
-                                        <option value="expired">Vencida</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <p className="admin-prefix-meta">Los documentos totales se recalculan como base + extra.</p>
+                            <FilterField label="Inicio" htmlFor="sub-start" icon="ri-calendar-line">
+                                <FieldControl id="sub-start" type="date" value={form.start_date} onChange={(e) => setField("start_date", e.target.value)} />
+                            </FilterField>
+                            <FilterField label="Vencimiento" htmlFor="sub-end" icon="ri-calendar-check-line">
+                                <FieldControl id="sub-end" type="date" value={form.end_date} onChange={(e) => setField("end_date", e.target.value)} />
+                            </FilterField>
+                            <FilterField label="Documentos base" htmlFor="sub-base" icon="ri-file-list-3-line">
+                                <FieldControl id="sub-base" type="text" inputMode="numeric" value={form.base_documents} onChange={(e) => setField("base_documents", e.target.value.replace(/[^\d]/g, ""))} />
+                            </FilterField>
+                            <FilterField label="Documentos extra" htmlFor="sub-extra" icon="ri-file-add-line">
+                                <FieldControl id="sub-extra" type="text" inputMode="numeric" value={form.extra_documents} onChange={(e) => setField("extra_documents", e.target.value.replace(/[^\d]/g, ""))} />
+                            </FilterField>
+                            <FilterField label="Valor (COP)" htmlFor="sub-price" icon="ri-money-dollar-circle-line">
+                                <FieldControl id="sub-price" type="text" inputMode="numeric" value={form.total_price} onChange={(e) => setField("total_price", e.target.value.replace(/[^\d]/g, ""))} />
+                            </FilterField>
+                            <FilterField label="Estado" htmlFor="sub-status" icon="ri-checkbox-circle-line">
+                                <FieldControl as="select" id="sub-status" value={form.status} onChange={(e) => setField("status", e.target.value)}>
+                                    <option value="active">Activa</option>
+                                    <option value="inactive">Inactiva</option>
+                                    <option value="expired">Vencida</option>
+                                </FieldControl>
+                            </FilterField>
                         </>
-                    ) : (
-                        <p className="confirm-message">La suscripción se creará a partir del plan seleccionado (fechas y documentos según el plan).</p>
-                    )}
-
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : isEdit ? "Guardar" : "Crear"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    ) : null}
+                </div>
+                {isEdit ? (
+                    <p className="admin-prefix-meta">Los documentos totales se recalculan como base + extra.</p>
+                ) : (
+                    <p className="confirm-message">La suscripción se creará a partir del plan seleccionado (fechas y documentos según el plan).</p>
+                )}
+            </form>
+        </AppModal>
     );
 };
 
@@ -711,7 +699,6 @@ const SubUserModal: React.FC<{ companyId: string; subUser: AdminSubUser | null; 
         doc_number: "",
     });
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     const setField = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -748,58 +735,56 @@ const SubUserModal: React.FC<{ companyId: string; subUser: AdminSubUser | null; 
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
-                <h3 className="confirm-title">{isEdit ? "Editar subusuario" : "Nuevo subusuario"}</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="su-name">Nombre</label>
-                            <input id="su-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="su-lastname">Apellido</label>
-                            <input id="su-lastname" type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="su-phone">Teléfono</label>
-                            <input id="su-phone" type="text" inputMode="numeric" value={form.phone} onChange={(e) => setField("phone", e.target.value.replace(/[^\d]/g, ""))} />
-                        </div>
-                        {!isEdit && (
-                            <>
-                                <div className="admin-field">
-                                    <label htmlFor="su-email">Correo</label>
-                                    <input id="su-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="su-doctype">Tipo de documento</label>
-                                    <select id="su-doctype" className="admin-select" value={form.doc_type} onChange={(e) => setField("doc_type", e.target.value)}>
-                                        {DOC_TYPE_OPTIONS.map((o) => (
-                                            <option key={o.value} value={o.value}>
-                                                {o.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="admin-field">
-                                    <label htmlFor="su-docnum">N° de documento</label>
-                                    <input id="su-docnum" type="text" value={form.doc_number} onChange={(e) => setField("doc_number", e.target.value)} />
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    {isEdit ? <p className="admin-prefix-meta">El correo y documento no se editan aquí. Usa "Restablecer contraseña" para cambiar el acceso.</p> : null}
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Guardando…" : isEdit ? "Guardar" : "Crear subusuario"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            wide
+            title={isEdit ? "Editar subusuario" : "Nuevo subusuario"}
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="subuser-form" className="export-submit" disabled={loading}>
+                        {loading ? "Guardando…" : isEdit ? "Guardar" : "Crear subusuario"}
+                    </button>
+                </>
+            }
+        >
+            <form id="subuser-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField label="Nombre" htmlFor="su-name" icon="ri-user-line">
+                        <FieldControl id="su-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Apellido" htmlFor="su-lastname" icon="ri-user-line">
+                        <FieldControl id="su-lastname" type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Teléfono" htmlFor="su-phone" icon="ri-phone-line">
+                        <FieldControl id="su-phone" type="text" inputMode="numeric" value={form.phone} onChange={(e) => setField("phone", e.target.value.replace(/[^\d]/g, ""))} />
+                    </FilterField>
+                    {!isEdit && (
+                        <>
+                            <FilterField label="Correo" htmlFor="su-email" icon="ri-mail-line">
+                                <FieldControl id="su-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
+                            </FilterField>
+                            <FilterField label="Tipo de documento" htmlFor="su-doctype" icon="ri-id-card-line">
+                                <FieldControl as="select" id="su-doctype" value={form.doc_type} onChange={(e) => setField("doc_type", e.target.value)}>
+                                    {DOC_TYPE_OPTIONS.map((o) => (
+                                        <option key={o.value} value={o.value}>
+                                            {o.label}
+                                        </option>
+                                    ))}
+                                </FieldControl>
+                            </FilterField>
+                            <FilterField label="N° de documento" htmlFor="su-docnum" icon="ri-hashtag">
+                                <FieldControl id="su-docnum" type="text" value={form.doc_number} onChange={(e) => setField("doc_number", e.target.value)} />
+                            </FilterField>
+                        </>
+                    )}
+                </div>
+                {isEdit ? <p className="admin-prefix-meta">El correo y documento no se editan aquí. Usa "Restablecer contraseña" para cambiar el acceso.</p> : null}
+            </form>
+        </AppModal>
     );
 };
 

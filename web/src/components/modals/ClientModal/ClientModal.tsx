@@ -9,6 +9,7 @@ import municipios from '../../../utils/municipios.json';
 import paises from '../../../utils/paises.json';
 import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock';
 import { useFormDraft, isFormDirty } from '../../../hooks/useFormDraft';
+import { AppDrawer, FilterField, FieldControl } from '../../../components/design-system';
 import UnsavedChangesModal from '../UnsavedChangesModal/UnsavedChangesModal';
 import './ClientModal.css';
 
@@ -321,30 +322,42 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
 
   if (!isOpen) return null;
 
+  const titleId = 'client-modal-title';
+
   return (
     <>
-    <div
-      className="modal-overlay client-modal-drawer"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="client-modal-title"
-    >
-      <div className="modal-container client-modal-drawer-panel">
-        <div className="modal-header">
-          <h2 id="client-modal-title">{isEditMode ? 'Editar Cliente' : 'Crear Nuevo Cliente'}</h2>
-          <button className="modal-close" onClick={requestClose} disabled={loading}>
-            <i className="ri-close-line"></i>
+    <AppDrawer
+      title={isEditMode ? 'Editar Cliente' : 'Crear Nuevo Cliente'}
+      titleIcon={isEditMode ? 'ri-edit-line' : 'ri-user-add-line'}
+      wide
+      closeDisabled={loading}
+      onClose={requestClose}
+      ariaLabelledBy={titleId}
+      footer={
+        <>
+          <button type="button" className="export-cancel" onClick={requestClose} disabled={loading}>
+            Cancelar
           </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="modal-body">
-          {/* Tipo y número de documento: solo editables al crear; en edición son solo lectura */}
-          <div className="form-row-doc">
-            <div className="form-group">
-              <label htmlFor="doc_type">Tipo de Documento *</label>
-              <select
+          <button type="submit" form="client-form" className="export-submit" disabled={loading}>
+            {loading ? (
+              <>
+                <i className="ri-loader-4-line rotating" aria-hidden />
+                {isEditMode ? 'Actualizando…' : 'Creando…'}
+              </>
+            ) : (
+              isEditMode ? 'Actualizar' : 'Crear'
+            )}
+          </button>
+        </>
+      }
+    >
+        <form id="client-form" onSubmit={handleSubmit} className="client-modal-form">
+          <div className="led-form-grid">
+            <FilterField label="Tipo de Documento *" htmlFor="doc_type" icon="ri-id-card-line">
+              <FieldControl
                 id="doc_type"
                 name="doc_type"
+                as="select"
                 value={formData.doc_type}
                 onChange={handleInputChange}
                 required
@@ -362,11 +375,21 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 <option value="DiExtranjero">Documento Identidad Extranjero</option>
                 <option value="Pep">PEP</option>
                 <option value="NitExtranjero">NIT Extranjero</option>
-              </select>
-            </div>
-            <div className="form-group form-group-doc-number">
-              <label htmlFor="doc_number">Número de Documento *</label>
-              <input
+              </FieldControl>
+            </FilterField>
+            <FilterField
+              label="Número de Documento *"
+              htmlFor="doc_number"
+              icon="ri-barcode-line"
+              hint={
+                !isEditMode && dianSearching ? (
+                  <span className="ds-field-hint">
+                    <i className="ri-loader-4-line rotating" aria-hidden /> Buscando en la DIAN...
+                  </span>
+                ) : undefined
+              }
+            >
+              <FieldControl
                 type="text"
                 id="doc_number"
                 name="doc_number"
@@ -378,15 +401,9 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 autoComplete="off"
                 inputMode="numeric"
               />
-              {!isEditMode && dianSearching && (
-                <small className="field-hint">
-                  <i className="ri-loader-4-line rotating"></i> Buscando en la DIAN...
-                </small>
-              )}
-            </div>
+            </FilterField>
           </div>
 
-          {/* Resultado búsqueda DIAN: solo en creación */}
           {!isEditMode && dianResult && (dianResult.ReceiverName || dianResult.ReceiverEmail) && (
             <div className="dian-result-card">
               <p className="dian-result-title">Encontrado en la DIAN</p>
@@ -407,14 +424,14 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
             </div>
           )}
 
-          <div className="form-grid form-grid-after-tipo-persona">
-            {/* Nombre */}
-            <div className="form-group full-width">
-              <label htmlFor="name">
-                {formData.tipoPersona === '1' ? 'Razón Social *' : 'Nombre Completo *'}
-              </label>
-              <input
-                type="text"
+          <div className="led-form-grid">
+            <FilterField
+              className="led-form-grid__full"
+              label={formData.tipoPersona === '1' ? 'Razón Social *' : 'Nombre Completo *'}
+              htmlFor="name"
+              icon={formData.tipoPersona === '1' ? 'ri-building-line' : 'ri-user-line'}
+            >
+              <FieldControl
                 id="name"
                 name="name"
                 value={formData.name}
@@ -423,15 +440,12 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 placeholder={formData.tipoPersona === '1' ? 'EMPRESA SAS' : 'Juan Pérez'}
                 disabled={loading}
               />
-            </div>
-
-            {/* Email */}
-            <div className="form-group">
-              <label htmlFor="email">Correo Electrónico *</label>
-              <input
-                type="email"
+            </FilterField>
+            <FilterField label="Correo Electrónico *" htmlFor="email" icon="ri-mail-line">
+              <FieldControl
                 id="email"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 required
@@ -440,13 +454,9 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 inputMode="email"
                 autoComplete="email"
               />
-            </div>
-
-            {/* Teléfono */}
-            <div className="form-group">
-              <label htmlFor="phone">Teléfono *</label>
-              <input
-                type="text"
+            </FilterField>
+            <FilterField label="Teléfono *" htmlFor="phone" icon="ri-phone-line">
+              <FieldControl
                 id="phone"
                 name="phone"
                 value={formData.phone}
@@ -456,13 +466,9 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 disabled={loading}
                 inputMode="numeric"
               />
-            </div>
-
-            {/* Dirección (texto) */}
-            <div className="form-group full-width">
-              <label htmlFor="address_value">Dirección (descripción)</label>
-              <input
-                type="text"
+            </FilterField>
+            <FilterField className="led-form-grid__full" label="Dirección (descripción)" htmlFor="address_value" icon="ri-map-pin-line">
+              <FieldControl
                 id="address_value"
                 name="address_value"
                 value={formData.address.value}
@@ -470,13 +476,11 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 placeholder="Calle 123 #45-67"
                 disabled={loading}
               />
-            </div>
-
-            {/* País */}
-            <div className="form-group">
-              <label htmlFor="address_pais">País</label>
+            </FilterField>
+            <FilterField label="País" htmlFor="address_pais" icon="ri-global-line">
               <SearchableSelect
                 id="address_pais"
+                embedded
                 options={paisesOptions}
                 value={formData.address.pais_codigo}
                 onChange={handleAddressCodeChange('pais_codigo')}
@@ -484,13 +488,11 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 disabled={loading}
                 aria-label="País"
               />
-            </div>
-
-            {/* Departamento */}
-            <div className="form-group">
-              <label htmlFor="address_departamento">Departamento</label>
+            </FilterField>
+            <FilterField label="Departamento" htmlFor="address_departamento" icon="ri-map-2-line">
               <SearchableSelect
                 id="address_departamento"
+                embedded
                 options={departamentosOptions}
                 value={formData.address.departamento_codigo}
                 onChange={handleAddressCodeChange('departamento_codigo')}
@@ -498,13 +500,11 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 disabled={loading}
                 aria-label="Departamento"
               />
-            </div>
-
-            {/* Ciudad/Municipio */}
-            <div className="form-group">
-              <label htmlFor="address_ciudad">Ciudad / Municipio</label>
+            </FilterField>
+            <FilterField label="Ciudad / Municipio" htmlFor="address_ciudad" icon="ri-building-2-line">
               <SearchableSelect
                 id="address_ciudad"
+                embedded
                 options={municipiosOptions}
                 value={formData.address.ciudad_codigo}
                 onChange={handleAddressCodeChange('ciudad_codigo')}
@@ -512,12 +512,9 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 disabled={loading || !formData.address.departamento_codigo}
                 aria-label="Ciudad o municipio"
               />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="address_zip_code">Código Postal</label>
-              <input
-                type="text"
+            </FilterField>
+            <FilterField label="Código Postal" htmlFor="address_zip_code" icon="ri-mail-send-line">
+              <FieldControl
                 id="address_zip_code"
                 name="address_zip_code"
                 value={formData.address.zip_code}
@@ -531,7 +528,7 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
                 disabled={loading}
                 inputMode="numeric"
               />
-            </div>
+            </FilterField>
           </div>
 
           {isEditMode && (
@@ -542,30 +539,8 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, onSuccess, c
               </p>
             </div>
           )}
-
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={requestClose}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? (
-                <>
-                  <i className="ri-loader-4-line rotating"></i>
-                  {isEditMode ? 'Actualizando...' : 'Creando...'}
-                </>
-              ) : (
-                isEditMode ? 'Actualizar' : 'Crear'
-              )}
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+    </AppDrawer>
     <UnsavedChangesModal
       isOpen={showUnsaved}
       onSaveDraft={handleSaveDraft}

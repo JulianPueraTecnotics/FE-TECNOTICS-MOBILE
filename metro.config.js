@@ -45,7 +45,17 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return { type: "sourceFile", filePath: path.join(rrRoot, "index.js") };
   }
   if (origResolve) {
-    return origResolve(context, moduleName, platform);
+    const resolved = origResolve(context, moduleName, platform);
+    if (
+      resolved?.type === "sourceFile" &&
+      resolved.filePath?.replace(/\\/g, "/").includes("@expo/metro-runtime/src/error-overlay/Data/LogContext")
+    ) {
+      return {
+        type: "sourceFile",
+        filePath: path.resolve(__dirname, "web/src/shims/expo/LogContext.tsx"),
+      };
+    }
+    return resolved;
   }
   return context.resolveRequest(context, moduleName, platform);
 };

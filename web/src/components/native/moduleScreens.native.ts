@@ -42,6 +42,15 @@ const ADMIN_MODULES: Array<{ path: string; config: Omit<ModuleScreenConfig, "sec
       highlights: ["Altas", "Permisos", "Auditoría"],
     },
   },
+  {
+    path: PATHS.ADMIN_CONTADORES,
+    config: {
+      title: "Contadores",
+      icon: "person-outline",
+      description: "Contadores externos con acceso delegado a empresas.",
+      highlights: ["Invitaciones", "Empresas asignadas", "Estado de acceso"],
+    },
+  },
 ];
 
 const EXTRA_MODULES: Array<{ path: string; section: string; config: Omit<ModuleScreenConfig, "section"> }> = [
@@ -188,6 +197,48 @@ const ACCOUNTING_SECTIONS: Record<string, Omit<ModuleScreenConfig, "section">> =
     icon: "calendar-outline",
     description: "Apertura y cierre de periodos contables mensuales.",
     highlights: ["Periodos abiertos", "Bloqueo", "Historial"],
+  },
+  terceros: {
+    title: "Auxiliar por tercero",
+    icon: "people-outline",
+    description: "Movimientos y saldos por tercero en el libro mayor.",
+    highlights: ["Saldos por NIT", "Movimientos", "Exportación"],
+  },
+  notas: {
+    title: "Notas EEFF",
+    icon: "document-text-outline",
+    description: "Notas explicativas a los estados financieros.",
+    highlights: ["Plantillas NIIF", "Corte por fecha", "Revelaciones"],
+  },
+  presupuesto: {
+    title: "Presupuesto",
+    icon: "bar-chart-outline",
+    description: "Presupuesto por cuenta y comparación con ejecución real.",
+    highlights: ["Escenarios", "Ejecución", "Desviaciones"],
+  },
+  fiscal: {
+    title: "Conciliación fiscal",
+    icon: "scale-outline",
+    description: "Diferencias entre contabilidad financiera y base fiscal.",
+    highlights: ["Partidas permanentes", "Temporales", "Cierre fiscal"],
+  },
+  ajustes: {
+    title: "Ajustes contables",
+    icon: "options-outline",
+    description: "Diferidos, provisiones y revaluación por diferencia en cambio.",
+    highlights: ["Amortización", "Provisiones", "TRM"],
+  },
+  salud: {
+    title: "Salud contable",
+    icon: "heart-outline",
+    description: "Verificación de integridad entre documentos y libros.",
+    highlights: ["Cuadres", "Pendientes", "Diagnóstico"],
+  },
+  ica: {
+    title: "ReteICA por municipio",
+    icon: "location-outline",
+    description: "Retención de ICA practicada agrupada por municipio del tercero.",
+    highlights: ["Exógena distrital", "Por municipio", "Sin NIT"],
   },
   dian: {
     title: "DIAN / Exógena",

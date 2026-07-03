@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import "../../billing-history/page/BillingHistory.css";
 import "../../billing-history/components/ReportsPanel.css";
+import "./Analytics.css";
 import { getCompanyStatistics, type CompanyStatisticsData } from "../../../services/company-statistics.service";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import StatisticsDashboard from "../../billing-history/components/StatisticsDashboard";
@@ -8,6 +8,8 @@ import ReportsPanel from "../../billing-history/components/ReportsPanel";
 import FinancialDashboard from "../components/FinancialDashboard";
 import TaxOpsDashboard from "../components/TaxOpsDashboard";
 import type { DateRange } from "../analytics.service";
+import { presetRange, PERIOD_PRESETS } from "../analytics.service";
+import { FilterField, FieldControl, ListPageContainer, ListPageHeader, ListPageShell } from "../../../components/design-system";
 
 type Tab = "resumen" | "ventas" | "rentabilidad" | "cartera" | "tesoreria" | "tributario" | "scoring" | "nomina" | "activos";
 
@@ -23,31 +25,11 @@ const TABS: { key: Tab; label: string; icon: string }[] = [
     { key: "activos", label: "Activos", icon: "ri-computer-line" },
 ];
 
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-function presetRange(preset: string): DateRange {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = now.getMonth();
-    switch (preset) {
-        case "mes":
-            return { from: iso(new Date(y, m, 1)), to: iso(new Date(y, m + 1, 0)) };
-        case "trimestre": {
-            const q = Math.floor(m / 3) * 3;
-            return { from: iso(new Date(y, q, 1)), to: iso(new Date(y, q + 3, 0)) };
-        }
-        case "anio":
-            return { from: iso(new Date(y, 0, 1)), to: iso(new Date(y, 11, 31)) };
-        default:
-            return {};
-    }
-}
-
 const AnalyticsPage: React.FC = () => {
     const [tab, setTab] = useState<Tab>("resumen");
     const [preset, setPreset] = useState("anio");
     const [range, setRange] = useState<DateRange>(presetRange("anio"));
 
-    // Data del dashboard de Ventas (operativo, sin filtro de fechas en backend).
     const [stats, setStats] = useState<CompanyStatisticsData | null>(null);
     const [statsLoading, setStatsLoading] = useState(false);
 
@@ -76,39 +58,66 @@ const AnalyticsPage: React.FC = () => {
     const showDateBar = tab === "resumen" || tab === "rentabilidad" || tab === "tesoreria" || tab === "tributario" || tab === "nomina" || tab === "scoring";
 
     return (
-        <main className="billing-history-page">
-            <div className="billing-history-layout">
-                <div className="billing-tabs" style={{ flexWrap: "wrap" }}>
+        <ListPageShell className="analytics-page">
+            <ListPageContainer>
+                <ListPageHeader
+                    title="Estadísticas"
+                    subtitle="Indicadores financieros, operativos y tributarios de tu empresa"
+                />
+
+                <nav className="analytics-tabs" aria-label="Secciones de estadísticas">
                     {TABS.map((t) => (
-                        <button key={t.key} className={`billing-tab ${tab === t.key ? "billing-tab--active" : ""}`} onClick={() => setTab(t.key)}>
-                            <i className={t.icon} /> {t.label}
+                        <button
+                            key={t.key}
+                            type="button"
+                            className={`analytics-tab ${tab === t.key ? "analytics-tab--active" : ""}`}
+                            onClick={() => setTab(t.key)}
+                            aria-current={tab === t.key ? "page" : undefined}
+                        >
+                            <i className={t.icon} aria-hidden />
+                            <span>{t.label}</span>
                         </button>
                     ))}
-                </div>
+                </nav>
 
                 {showDateBar && (
-                    <div className="reports-filters" style={{ margin: "0 0 1rem" }}>
-                        {[
-                            { k: "mes", l: "Mes" },
-                            { k: "trimestre", l: "Trimestre" },
-                            { k: "anio", l: "Año" },
-                            { k: "custom", l: "Personalizado" },
-                        ].map((p) => (
-                            <button key={p.k} className={`reports-chip ${preset === p.k ? "reports-chip--active" : ""}`} onClick={() => applyPreset(p.k)}>
-                                {p.l}
-                            </button>
-                        ))}
+                    <div className="analytics-filters">
+                        <div className="analytics-filters__chips reports-filters">
+                            {[...PERIOD_PRESETS, { k: "custom" as const, l: "Personalizado" }].map((p) => (
+                                <button
+                                    key={p.k}
+                                    type="button"
+                                    className={`reports-chip ${preset === p.k ? "reports-chip--active" : ""}`}
+                                    onClick={() => applyPreset(p.k)}
+                                >
+                                    {p.l}
+                                </button>
+                            ))}
+                        </div>
                         {preset === "custom" && (
-                            <span className="reports-custom-range">
-                                <input type="date" value={range.from ?? ""} onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))} />
-                                <span>—</span>
-                                <input type="date" value={range.to ?? ""} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} />
-                            </span>
+                            <div className="analytics-filters__custom led-form-grid">
+                                <FilterField label="Desde" htmlFor="analytics-from" icon="ri-calendar-line">
+                                    <FieldControl
+                                        id="analytics-from"
+                                        type="date"
+                                        value={range.from ?? ""}
+                                        onChange={(e) => setRange((r) => ({ ...r, from: e.target.value }))}
+                                    />
+                                </FilterField>
+                                <FilterField label="Hasta" htmlFor="analytics-to" icon="ri-calendar-line">
+                                    <FieldControl
+                                        id="analytics-to"
+                                        type="date"
+                                        value={range.to ?? ""}
+                                        onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))}
+                                    />
+                                </FilterField>
+                            </div>
                         )}
                     </div>
                 )}
 
-                <section className="billing-history-dashboard-section">
+                <section className="analytics-body" aria-label="Contenido de estadísticas">
                     {tab === "resumen" && <FinancialDashboard tab="resumen" range={range} />}
                     {tab === "rentabilidad" && <FinancialDashboard tab="rentabilidad" range={range} />}
                     {tab === "tesoreria" && <FinancialDashboard tab="tesoreria" range={range} />}
@@ -119,8 +128,8 @@ const AnalyticsPage: React.FC = () => {
                     {tab === "nomina" && <TaxOpsDashboard tab="nomina" range={range} />}
                     {tab === "activos" && <TaxOpsDashboard tab="activos" range={range} />}
                 </section>
-            </div>
-        </main>
+            </ListPageContainer>
+        </ListPageShell>
     );
 };
 

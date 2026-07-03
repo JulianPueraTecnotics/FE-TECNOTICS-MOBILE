@@ -2,6 +2,7 @@ export interface AchBank {
     nombre: string;
     codigo_simple: string;
     codigo_ach: string;
+    nit?: string;
 }
 
 export interface Bank {
@@ -45,6 +46,7 @@ export interface PayableResponse {
     ok: boolean;
     purchases: PayableInvoice[];
     total_pending: number;
+    pagination?: { page: number; limit: number; total: number; totalPages: number };
 }
 
 export interface PaymentBatchItem {

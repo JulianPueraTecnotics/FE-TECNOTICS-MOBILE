@@ -8,6 +8,7 @@ export type BillingScreenProps = {
   isNotaOption?: "credito" | "debito";
   isNotaRef?: string;
   recreateFromFacturaId?: string;
+  onNotaSubmitted?: () => void;
 };
 
 export type BillingNavigateState = {

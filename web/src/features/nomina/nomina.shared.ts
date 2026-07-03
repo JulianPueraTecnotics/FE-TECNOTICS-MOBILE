@@ -24,10 +24,11 @@ export const empleadoNombre = (e: {
   segundo_apellido?: string;
 }) => [e.primer_nombre, e.otros_nombres, e.primer_apellido, e.segundo_apellido].filter(Boolean).join(" ");
 
-export type NominaTab = "empleados" | "nomina" | "certificados";
+export type NominaTab = "empleados" | "nomina" | "pila" | "certificados";
 
 export const NOMINA_TABS: { key: NominaTab; label: string }[] = [
   { key: "empleados", label: "Empleados" },
   { key: "nomina", label: "Nómina" },
+  { key: "pila", label: "PILA" },
   { key: "certificados", label: "Certificados" },
 ];

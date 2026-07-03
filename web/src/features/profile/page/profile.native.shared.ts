@@ -41,7 +41,7 @@ export function formatLongDate(value: string | Date | undefined): string {
     : d.toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
 }
 
-export const PAY_WINDOW_DAYS = 5;
+export { PAY_WINDOW_DAYS } from "../../../components/ui/pagoCheckout.shared";
 
 export function daysUntil(endDate: string | Date | undefined): number | null {
   if (!endDate) return null;

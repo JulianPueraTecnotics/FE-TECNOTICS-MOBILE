@@ -3,7 +3,7 @@
     padding: 2rem;
     max-width: 1600px;
     margin: 0 auto;
-    min-height: calc(100dvh - 54px);
+    min-height: calc(100dvh - var(--header-height));
 }
 
 .billing-history-layout {

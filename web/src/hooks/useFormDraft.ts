@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { getItemSync, removeItemSync, setItemSync } from "../utils/storage";
 
 /**
- * Persistencia de borradores de formularios. Web: localStorage; nativo: AsyncStorage.
+ * Persistencia de borradores de formularios (web: localStorage, nativo: AsyncStorage vía storage.ts).
  */
 export function useFormDraft<T>(storageKey: string, enabled = true) {
   const loadDraft = useCallback((): T | null => {
@@ -20,7 +20,7 @@ export function useFormDraft<T>(storageKey: string, enabled = true) {
       try {
         setItemSync(storageKey, JSON.stringify(data));
       } catch {
-        // Cuota llena o almacenamiento inaccesible.
+        /* cuota llena o storage inaccesible */
       }
     },
     [storageKey],
@@ -30,7 +30,7 @@ export function useFormDraft<T>(storageKey: string, enabled = true) {
     try {
       removeItemSync(storageKey);
     } catch {
-      // noop
+      /* noop */
     }
   }, [storageKey]);
 

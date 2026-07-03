@@ -3,11 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useSearchParams } from "react-router-dom";
@@ -15,11 +13,10 @@ import BatchPaymentModalNative from "../../../components/native/recaudos/BatchPa
 import PaymentModalNative from "../../../components/native/recaudos/PaymentModal.native";
 import ReceiptsModalNative from "../../../components/native/recaudos/ReceiptsModal.native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { getReceivables, getReceivablesSummary } from "../../../services/recaudos.service";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
 import { formatCOP, formatDateCO } from "../../../utils/format";
@@ -39,7 +36,6 @@ const PAGE_SIZE = 20;
 
 export default function RecaudosNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = Math.max(1, Number(searchParams.get("page")) || 1);
 
@@ -163,60 +159,46 @@ export default function RecaudosNative() {
     setRefreshKey((k) => k + 1);
   };
 
-  if (loading) return <LoadingScreen />;
-
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Recaudos</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Carga los pagos de tus facturas y envía el comprobante de ingreso al cliente
-        </Text>
-      </View>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={[styles.filterScroll, { borderBottomColor: colors.border }]}
-        contentContainerStyle={styles.filterContent}
+    <>
+      <DsModuleScreen
+        title="Recaudos"
+        subtitle="Carga los pagos de tus facturas y envía el comprobante de ingreso al cliente"
+        loading={loading}
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          setRefreshKey((k) => k + 1);
+        }}
+        toolbar={<DsSearchField value={searchTerm} onChangeText={setSearchTerm} placeholder="Buscar por cliente o factura..." />}
       >
-        {STATUS_FILTER_OPTIONS.map((opt) => (
-          <Pressable
-            key={opt.value || "all"}
-            style={[
-              styles.filterChip,
-              statusFilter === opt.value ? { backgroundColor: colors.accent } : { borderColor: colors.border },
-            ]}
-            onPress={() => {
-              setStatusFilter(opt.value);
-              setPage(1);
-              setSearchParams(new URLSearchParams());
-            }}
-          >
-            <Text style={{ color: statusFilter === opt.value ? "#fff" : colors.primaryText, fontSize: 12 }}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginBottom: 12 }}
+          contentContainerStyle={styles.filterContent}
+        >
+          {STATUS_FILTER_OPTIONS.map((opt) => (
+            <Pressable
+              key={opt.value || "all"}
+              style={[
+                styles.filterChip,
+                statusFilter === opt.value ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border, borderWidth: 1 },
+              ]}
+              onPress={() => {
+                setStatusFilter(opt.value);
+                setPage(1);
+                setSearchParams(new URLSearchParams());
+              }}
+            >
+              <Text style={{ color: statusFilter === opt.value ? "#fff" : colors.primaryText, fontSize: 12 }}>
+                {opt.label}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
 
-      <View style={[styles.searchRow, { borderBottomColor: colors.border }]}>
-        <Ionicons name="search-outline" size={18} color={colors.textMuted} />
-        <TextInput
-          style={[styles.searchInput, { color: colors.primaryText }]}
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          placeholder="Buscar por cliente o factura..."
-          placeholderTextColor={colors.textMuted}
-        />
-        {searchTerm ? (
-          <Pressable onPress={() => setSearchTerm("")}>
-            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
-          </Pressable>
-        ) : null}
-      </View>
-
-      <View style={[styles.kpiRow, { borderBottomColor: colors.border }]}>
+        <View style={styles.kpiRow}>
         <View style={[styles.kpi, getSoftCardShadow(colors), { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
           <Text style={[styles.kpiLabel, { color: colors.textMuted }]}>TOTAL POR COBRAR</Text>
           <Text style={[styles.kpiValue, { color: colors.primary }]}>
@@ -250,9 +232,9 @@ export default function RecaudosNative() {
                 setSearchTerm("");
               }}
             >
-              <Text style={[styles.selLink, { color: colors.accent }]}>Limpiar</Text>
+              <Text style={[styles.selLink, { color: colors.headerAccent }]}>Limpiar</Text>
             </Pressable>
-            <Pressable style={[styles.batchBtn, { backgroundColor: colors.accent }]} onPress={() => setBatchOpen(true)}>
+            <Pressable style={[styles.batchBtn, { backgroundColor: colors.headerAccent }]} onPress={() => setBatchOpen(true)}>
               <Ionicons name="cash-outline" size={16} color="#fff" />
               <Text style={styles.batchBtnText}>Recaudar</Text>
             </Pressable>
@@ -260,27 +242,14 @@ export default function RecaudosNative() {
         </View>
       ) : null}
 
-      <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom + (selectedIds.size > 0 ? 8 : 0) }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              setRefreshKey((k) => k + 1);
-            }}
-            tintColor={colors.accent}
-          />
-        }
-      >
         {selectableInvoices.length > 0 ? (
           <Pressable style={styles.selectAllRow} onPress={toggleSelectAll}>
             <Ionicons
               name={allSelected ? "checkbox" : "square-outline"}
               size={20}
-              color={colors.accent}
+              color={colors.headerAccent}
             />
-            <Text style={[styles.selectAllText, { color: colors.accent }]}>
+            <Text style={[styles.selectAllText, { color: colors.headerAccent }]}>
               {allSelected ? "Deseleccionar todas" : "Seleccionar todas visibles"}
             </Text>
           </Pressable>
@@ -289,7 +258,7 @@ export default function RecaudosNative() {
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={handlePageChange} />
 
         {fetching && invoices.length === 0 ? (
-          <ActivityIndicator color={colors.accent} style={{ marginTop: 24 }} />
+          <ActivityIndicator color={colors.headerAccent} style={{ marginTop: 24 }} />
         ) : invoices.length === 0 ? (
           <Text style={[styles.empty, { color: colors.textMuted }]}>No hay facturas por cobrar</Text>
         ) : (
@@ -304,8 +273,8 @@ export default function RecaudosNative() {
                   styles.card,
                   getSoftCardShadow(colors),
                   {
-                    backgroundColor: selected ? `${colors.accent}11` : colors.cardBg,
-                    borderColor: selected ? colors.accent : colors.border,
+                    backgroundColor: selected ? `${colors.headerAccent}11` : colors.cardBg,
+                    borderColor: selected ? colors.headerAccent : colors.border,
                   },
                 ]}
               >
@@ -318,7 +287,7 @@ export default function RecaudosNative() {
                     <Ionicons
                       name={selected ? "checkbox" : "square-outline"}
                       size={22}
-                      color={colors.accent}
+                      color={colors.headerAccent}
                     />
                   </Pressable>
                   <View style={{ flex: 1 }}>
@@ -353,20 +322,14 @@ export default function RecaudosNative() {
 
                 <View style={styles.actions}>
                   {inv.balance > 0 ? (
-                    <Pressable
-                      style={[styles.actionBtn, { backgroundColor: colors.accent }]}
-                      onPress={() => setPayInvoice(inv)}
-                    >
-                      <Ionicons name="cash-outline" size={16} color="#fff" />
-                      <Text style={styles.actionBtnTextPrimary}>Recaudar</Text>
-                    </Pressable>
+                    <DsButton label="Recaudar" icon="cash-outline" compact onPress={() => setPayInvoice(inv)} />
                   ) : null}
                   <Pressable
                     style={[styles.actionBtn, { borderColor: colors.border }]}
                     onPress={() => setReceiptsInvoice(inv)}
                   >
-                    <Ionicons name="receipt-outline" size={16} color={colors.accent} />
-                    <Text style={[styles.actionBtnText, { color: colors.accent }]}>Comprobantes</Text>
+                    <Ionicons name="receipt-outline" size={16} color={colors.headerAccent} />
+                    <Text style={[styles.actionBtnText, { color: colors.headerAccent }]}>Comprobantes</Text>
                   </Pressable>
                 </View>
               </View>
@@ -375,7 +338,7 @@ export default function RecaudosNative() {
         )}
 
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={handlePageChange} />
-      </ScrollView>
+      </DsModuleScreen>
 
       <PaymentModalNative
         visible={!!payInvoice}
@@ -394,7 +357,7 @@ export default function RecaudosNative() {
         onClose={() => setBatchOpen(false)}
         onSuccess={handlePaymentSuccess}
       />
-    </View>
+    </>
   );
 }
 
@@ -416,38 +379,17 @@ function MetaItem({
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  title: { fontSize: 22, fontWeight: "700" },
-  subtitle: { fontSize: 13, marginTop: 4, lineHeight: 18 },
-  filterScroll: { maxHeight: 48, borderBottomWidth: StyleSheet.hairlineWidth },
-  filterContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+  filterContent: { gap: 8, alignItems: "center" },
   filterChip: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    borderWidth: 1,
     marginRight: 8,
   },
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  searchInput: { flex: 1, fontSize: 14, paddingVertical: 4 },
   kpiRow: {
     flexDirection: "row",
     gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    marginBottom: 12,
   },
   kpi: {
     flex: 1,
@@ -484,7 +426,7 @@ const styles = StyleSheet.create({
   empty: { textAlign: "center", marginTop: 32, fontSize: 15 },
   card: {
     borderWidth: 1,
-    borderRadius: SHELL_RADIUS.menuItem,
+    borderRadius: SHELL_RADIUS.card,
     padding: 14,
     marginBottom: 12,
     gap: 10,

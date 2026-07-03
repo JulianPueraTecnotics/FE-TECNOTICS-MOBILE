@@ -1,0 +1,199 @@
+/* Conciliación bancaria — botones y barras con tamaño natural (no heredan width:100%). */
+
+.cb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Caja de búsqueda con su tamaño propio (no la heredaba al cambiar de contenedor). */
+.cb-actions .search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: 24px;
+    padding: 8px 16px;
+    background: var(--card-bg);
+    flex: 1 1 280px;
+    min-width: 240px;
+    max-width: 360px;
+}
+.cb-actions .search-box i { color: var(--text-muted); }
+.cb-actions .search-box input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--primary-text);
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+/* Botón base de la página: ancho según contenido, no full-width. */
+.cb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    white-space: nowrap;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.cb-btn:hover:not(:disabled) { border-color: var(--accent-teal); color: var(--accent-teal); }
+.cb-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.cb-btn--primary {
+    background: var(--accent-teal);
+    border-color: var(--accent-teal);
+    color: #fff;
+}
+.cb-btn--primary:hover:not(:disabled) { background: var(--accent-teal-hover); border-color: var(--accent-teal-hover); color: #fff; }
+
+.cb-btn--active {
+    background: var(--accent-teal);
+    border-color: var(--accent-teal);
+    color: #fff;
+}
+
+/* Tabs Ingresos / Egresos: dos pestañas iguales, no botones gigantes. */
+.cb-tabs {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--bg-subtle);
+    padding: 4px;
+    border-radius: 10px;
+    margin: 14px 0;
+}
+.cb-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.cb-tab--active { background: var(--accent-teal); color: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
+/* Barra de resumen con acciones de selección a la derecha. */
+.cb-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+}
+.cb-summary__spacer { margin-left: auto; }
+.cb-summary__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Tabla de facturas/cuentas dentro de los modales (selección) ── */
+.cb-doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0 4px;
+    font-size: 0.88rem;
+    max-height: 280px;
+}
+.cb-doc-wrap { max-height: 300px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 8px; }
+.cb-doc-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+.cb-doc-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); }
+.cb-doc-table tbody tr:last-child td { border-bottom: none; }
+.cb-doc-table tbody tr { cursor: pointer; transition: background 0.12s ease; }
+.cb-doc-table tbody tr:hover { background: var(--bg-subtle); }
+.cb-doc-table tbody tr.is-sel { background: rgba(31, 157, 143, 0.1); }
+.cb-doc-table input[type="checkbox"] { cursor: pointer; }
+.cb-doc-col-saldo { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Botón de sugerencia de IA (gradiente distintivo) */
+.cb-btn--ia {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    border-color: transparent;
+    color: #fff;
+}
+.cb-btn--ia:hover:not(:disabled) { background: linear-gradient(135deg, #6d28d9, #4338ca); color: #fff; }
+.cb-btn--ia i { color: #fff; }
+
+/* Tarjeta de sugerencia de IA dentro del modal */
+.cb-ia-card {
+    border: 1px solid #c7b8f5;
+    background: linear-gradient(180deg, #faf7ff, #f3eeff);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 4px 0 12px;
+}
+.cb-ia-card--loading { color: #6d28d9; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.cb-ia-card__head { font-weight: 700; color: #6d28d9; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.cb-ia-card__cuenta { font-size: 1rem; margin: 2px 0; color: var(--primary-color); }
+.cb-ia-card__meta { font-size: 0.82rem; color: var(--tertiary-color); margin: 2px 0; }
+.cb-ia-card__razon { font-size: 0.85rem; color: var(--secondary-color); margin: 4px 0 0; font-style: italic; }
+.cb-ia-card__note { font-size: 0.8rem; color: #6d28d9; margin: 6px 0 0; }
+.cb-ia-spin { animation: cb-ia-pulse 1s ease-in-out infinite; }
+@keyframes cb-ia-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Modo demo */
+.cb-demo-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    background: rgba(234, 179, 8, 0.08);
+    color: var(--secondary-color);
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+.cb-demo-banner i { color: #b45309; font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+.cb-demo-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: rgba(234, 179, 8, 0.15);
+    color: #b45309;
+    vertical-align: middle;
+}
+
+.cb-mov-sug { line-height: 1.35; }
+.cb-mov-sug__line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cb-mov-sug__factura { color: var(--accent-teal); }
+.cb-mov-sug__ret { font-size: 0.7rem; background: rgba(234, 179, 8, 0.15); color: #b45309; }
+.cb-mov-sug__meta { display: block; color: var(--text-muted); margin-top: 2px; }
+.cb-mov-actions { justify-content: flex-start; flex-wrap: wrap; gap: 4px; }
+.cb-mov-actions--list,
+.cb-mov-actions--cards { width: 100%; }

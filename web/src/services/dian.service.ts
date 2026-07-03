@@ -28,7 +28,7 @@ export interface DianCredential {
 }
 
 export type DianSyncGroup = "received" | "emitted" | "all";
-export type DianSyncStatus = "queued" | "running" | "completed" | "failed";
+export type DianSyncStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
 
 export interface DianSyncFilters {
     fromDate: string;
@@ -46,6 +46,8 @@ export interface DianSyncJob {
     /** Mensaje de fase mientras corre (ej. "Descargando PDFs 12/127"). */
     progress?: string;
     total_listed: number;
+    /** Documentos con PDF descargable (excluye acuses). Objetivo real de la descarga. */
+    total_pdf_target?: number;
     total_downloaded: number;
     total_imported: number;
     total_skipped: number;
@@ -81,8 +83,17 @@ export interface DianDocument {
     total?: number;
     estado?: string;
     grupo?: string;
+    /** "venta" (emitida), "compra" (recibida válida), "ajena". Los "acuse" no se listan. */
+    clasificacion?: DianClasificacion;
     pdf_file_path?: string | null;
 }
+
+export type DianClasificacion = "venta" | "compra" | "ajena";
+export const DIAN_CLASIFICACION_LABELS: Record<DianClasificacion, string> = {
+    venta: "Venta (emitida)",
+    compra: "Compra/gasto",
+    ajena: "Ajena",
+};
 
 export type DianEventCode = "030" | "031" | "032" | "033";
 export type DianEventStatus = "pending" | "emitted" | "failed";
@@ -164,6 +175,12 @@ async function downloadBlob(url: string, fallbackName: string): Promise<{ total?
     return meta;
 }
 
+// ── Estado del módulo ────────────────────────────────────────────────────────
+
+/** Estado del módulo DIAN. No lanza 503: `enabled=false` cuando está apagado por defecto. */
+export const getDianStatus = async (): Promise<{ enabled: boolean }> =>
+    jsonRequest(API_ROUTES.DIAN_STATUS, "GET");
+
 // ── Credenciales ─────────────────────────────────────────────────────────────
 
 export const listCredentials = async (): Promise<{ credentials: DianCredential[] }> =>
@@ -220,12 +237,12 @@ export const enrichSyncJob = async (id: string): Promise<{ message: string; resu
 
 export const listSyncDocuments = async (
     id: string,
-    opts: { page?: number; pageSize?: number; grupo?: string; nit_emisor?: string; tipo_documento?: string } = {},
+    opts: { page?: number; pageSize?: number; clasificacion?: string; nit_emisor?: string; tipo_documento?: string } = {},
 ): Promise<Paginated & { documents: DianDocument[] }> => {
     const params = new URLSearchParams();
     params.set("page", String(opts.page ?? 1));
     params.set("pageSize", String(opts.pageSize ?? 20));
-    if (opts.grupo) params.set("grupo", opts.grupo);
+    if (opts.clasificacion) params.set("clasificacion", opts.clasificacion);
     if (opts.nit_emisor) params.set("nit_emisor", opts.nit_emisor);
     if (opts.tipo_documento) params.set("tipo_documento", opts.tipo_documento);
     return jsonRequest(`${API_ROUTES.DIAN_SYNC_DOCUMENTS(id)}?${params.toString()}`, "GET");
@@ -236,6 +253,29 @@ export const downloadSyncExcel = (id: string): Promise<{ total?: number }> =>
 
 export const downloadSyncPdfs = (id: string): Promise<{ total?: number; succeeded?: number; failed?: number }> =>
     downloadBlob(API_ROUTES.DIAN_SYNC_DOWNLOAD_PDFS(id), `dian-pdfs-${id}.zip`);
+
+/** Reintenta la descarga de los PDFs faltantes de un job (cuando el sync se cayó a mitad). */
+export const retryPdfs = (id: string): Promise<{ message: string; succeeded: number; missing: number }> =>
+    jsonRequest(API_ROUTES.DIAN_SYNC_RETRY_PDFS(id), "POST");
+
+/** Cancela un job en proceso (descarga colgada). El background se detiene en pocos segundos. */
+export const cancelSyncJob = (id: string): Promise<{ message: string }> =>
+    jsonRequest(API_ROUTES.DIAN_SYNC_CANCEL(id), "POST");
+
+/** Importación manual: sube el .xlsx de la DIAN y procesa documentos + PDFs + proveedores/productos. */
+export const importDianExcel = async (file: File, credentialId?: string): Promise<{ jobId: string; status: string }> => {
+    const form = new FormData();
+    form.append("file", file);
+    if (credentialId) form.append("credentialId", credentialId);
+    const response = await fetch(API_ROUTES.DIAN_IMPORT_EXCEL, { method: "POST", credentials: "include", body: form });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        const err = new Error((data as { message?: string }).message || "No se pudo importar el Excel") as Error & { status?: number };
+        err.status = response.status;
+        throw err;
+    }
+    return data as { jobId: string; status: string };
+};
 
 /** Abre el PDF de un documento en una pestaña nueva. */
 export const openDocumentPdf = async (id: string): Promise<void> => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getSequence, configureSequence, blockSequenceRange } from "../accounting.service";
 import type { AccountingSequence } from "../accounting.types";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { FilterField, FieldControl } from "../../../components/design-system";
 
 type SeqType = "egreso" | "causacion";
 
@@ -76,15 +77,13 @@ const SequenceCard: React.FC<{ type: SeqType; title: string }> = ({ type, title 
             <h2>{title}</h2>
             <p className="acc-sub">Número inicial del comprobante y rangos ya usados en otro sistema (no se reasignan).</p>
 
-            <div className="acc-grid">
-                <div className="acc-field">
-                    <label>Número inicial {inUse && <span className="acc-tag">en uso</span>}</label>
-                    <input type="number" value={base} onChange={(e) => setBase(e.target.value)} disabled={inUse} />
-                </div>
-                <div className="acc-field">
-                    <label>Número de comprobante (export)</label>
-                    <input type="number" value={comprobante} onChange={(e) => setComprobante(e.target.value)} />
-                </div>
+            <div className="led-form-grid" style={{ alignItems: "end" }}>
+                <FilterField label={`Número inicial${inUse ? " (en uso)" : ""}`} htmlFor={`seq-${type}-base`} icon="ri-hashtag">
+                    <FieldControl id={`seq-${type}-base`} type="number" value={base} onChange={(e) => setBase(e.target.value)} disabled={inUse} />
+                </FilterField>
+                <FilterField label="Número de comprobante (export)" htmlFor={`seq-${type}-comp`} icon="ri-file-list-3-line">
+                    <FieldControl id={`seq-${type}-comp`} type="number" value={comprobante} onChange={(e) => setComprobante(e.target.value)} />
+                </FilterField>
             </div>
             {seq && <p className="acc-sub">Último asignado: <strong>{seq.current_number}</strong></p>}
             <div className="acc-actions">
@@ -92,10 +91,16 @@ const SequenceCard: React.FC<{ type: SeqType; title: string }> = ({ type, title 
             </div>
 
             <h3 className="acc-h3">Rangos bloqueados</h3>
-            <div className="acc-grid acc-grid-3">
-                <div className="acc-field"><label>Desde</label><input type="number" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
-                <div className="acc-field"><label>Hasta</label><input type="number" value={to} onChange={(e) => setTo(e.target.value)} /></div>
-                <div className="acc-field"><label>Motivo</label><input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ej. usados en ERP" /></div>
+            <div className="led-form-grid" style={{ alignItems: "end" }}>
+                <FilterField label="Desde" htmlFor={`seq-${type}-from`} icon="ri-arrow-right-line">
+                    <FieldControl id={`seq-${type}-from`} type="number" value={from} onChange={(e) => setFrom(e.target.value)} />
+                </FilterField>
+                <FilterField label="Hasta" htmlFor={`seq-${type}-to`} icon="ri-arrow-left-line">
+                    <FieldControl id={`seq-${type}-to`} type="number" value={to} onChange={(e) => setTo(e.target.value)} />
+                </FilterField>
+                <FilterField label="Motivo" htmlFor={`seq-${type}-motivo`} icon="ri-file-text-line">
+                    <FieldControl id={`seq-${type}-motivo`} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ej. usados en ERP" />
+                </FilterField>
             </div>
             <div className="acc-actions">
                 <button className="btn-secondary" onClick={block} disabled={busy}>Bloquear rango</button>

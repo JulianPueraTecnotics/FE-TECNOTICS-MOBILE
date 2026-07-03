@@ -1,8 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "../../purchases/page/Purchases.css";
 import { getCostCenters, createCostCenter, deleteCostCenter, importCostCenters } from "../accounting.service";
 import type { CostCenter } from "../accounting.types";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import ConfirmModal from "../../../components/modals/ConfirmModal/ConfirmModal";
+import {
+    FilterField,
+    FieldControl,
+    useListFiltersPanel,
+    ColumnFilterFields,
+    useColumnFilters,
+    type ColumnFilterDef,
+} from "../../../components/design-system";
 import { downloadTemplateXlsx, downloadTemplateCsv, readSpreadsheet, type ColumnDef } from "../import.utils";
 
 const CC_COLUMNS: ColumnDef[] = [
@@ -10,15 +19,70 @@ const CC_COLUMNS: ColumnDef[] = [
     { key: "descripcion", header: "descripcion", sample: "Administración" },
 ];
 
+const COLUMN_FILTER_DEFS: ColumnFilterDef[] = [
+    { id: "codigo", label: "Código", type: "text", icon: "ri-hashtag", serverSide: true },
+    { id: "descripcion", label: "Descripción", type: "text", icon: "ri-file-text-line", serverSide: true },
+];
+
 const CostCenters: React.FC = () => {
     const [items, setItems] = useState<CostCenter[]>([]);
     const [loading, setLoading] = useState(true);
     const [codigo, setCodigo] = useState("");
     const [descripcion, setDescripcion] = useState("");
+    const [filterCodigo, setFilterCodigo] = useState("");
+    const [filterDescripcion, setFilterDescripcion] = useState("");
     const [adding, setAdding] = useState(false);
     const [importing, setImporting] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
     const [toDelete, setToDelete] = useState<{ id: string; name: string } | null>(null);
+
+    const getRowFilterValue = useCallback((row: CostCenter, filterId: string): string => {
+        switch (filterId) {
+            case "codigo": return row.codigo ?? "";
+            case "descripcion": return row.descripcion ?? "";
+            default: return "";
+        }
+    }, []);
+    const { values: colFilterValues, setFilter: setColFilter, clearFilters: clearColFilters, hasActiveClientFilters, filterRows } =
+        useColumnFilters(COLUMN_FILTER_DEFS, getRowFilterValue);
+
+    const filteredItems = useMemo(() => {
+        const qCod = filterCodigo.trim().toLowerCase();
+        const qDesc = filterDescripcion.trim().toLowerCase();
+        const base = items.filter((c) => {
+            if (qCod && !c.codigo.toLowerCase().includes(qCod)) return false;
+            if (qDesc && !(c.descripcion || "").toLowerCase().includes(qDesc)) return false;
+            return true;
+        });
+        return filterRows(base);
+    }, [items, filterCodigo, filterDescripcion, filterRows]);
+
+    const hasActiveFilters = filterCodigo.trim() !== "" || filterDescripcion.trim() !== "" || hasActiveClientFilters;
+
+    const clearFilters = () => {
+        setFilterCodigo("");
+        setFilterDescripcion("");
+        clearColFilters();
+    };
+
+    const { filtersToolbar, filtersMobileDrawer } = useListFiltersPanel({
+        panelId: "cost-centers",
+        title: "Filtrar centros de costo",
+        hasActiveFilters,
+        onClear: clearFilters,
+        repositionDeps: [filterCodigo, filterDescripcion, colFilterValues],
+        filterContent: (
+            <>
+                <FilterField label="Código" htmlFor="cc-filter-codigo" icon="ri-hashtag">
+                    <FieldControl id="cc-filter-codigo" value={filterCodigo} onChange={(e) => setFilterCodigo(e.target.value)} placeholder="Ej. 001" />
+                </FilterField>
+                <FilterField label="Descripción" htmlFor="cc-filter-descripcion" icon="ri-file-text-line">
+                    <FieldControl id="cc-filter-descripcion" value={filterDescripcion} onChange={(e) => setFilterDescripcion(e.target.value)} placeholder="Administración" />
+                </FilterField>
+                <ColumnFilterFields defs={COLUMN_FILTER_DEFS} values={colFilterValues} onChange={setColFilter} />
+            </>
+        ),
+    });
 
     const load = async () => {
         setLoading(true);
@@ -61,7 +125,7 @@ const CostCenters: React.FC = () => {
             const rows = await readSpreadsheet(file, CC_COLUMNS);
             const valid = rows
                 .map((r) => ({ codigo: (r.codigo || "").trim(), descripcion: (r.descripcion || "").trim() }))
-                .filter((r) => r.codigo && r.codigo !== "001"); // ignora vacíos y la fila guía
+                .filter((r) => r.codigo && r.codigo !== "001");
             if (!valid.length) {
                 errorToast("No se encontraron centros de costo válidos. Usa la plantilla (columnas: codigo, descripcion).");
                 return;
@@ -110,31 +174,44 @@ const CostCenters: React.FC = () => {
                 </div>
             </div>
 
-            <div className="acc-grid acc-grid-3" style={{ alignItems: "end" }}>
-                <div className="acc-field"><label>Código</label><input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ej. 001" /></div>
-                <div className="acc-field"><label>Descripción</label><input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Administración" /></div>
+            <div className="led-form-grid" style={{ alignItems: "end" }}>
+                <FilterField label="Código" htmlFor="cc-codigo" icon="ri-hashtag">
+                    <FieldControl id="cc-codigo" value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ej. 001" />
+                </FilterField>
+                <FilterField label="Descripción" htmlFor="cc-descripcion" icon="ri-file-text-line">
+                    <FieldControl id="cc-descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Administración" />
+                </FilterField>
                 <div className="acc-actions" style={{ margin: 0 }}><button className="btn-primary" onClick={add} disabled={adding}>Agregar</button></div>
             </div>
+
+            {filtersMobileDrawer}
 
             {loading ? (
                 <div className="page-loading" style={{ padding: 24 }}>Cargando...</div>
             ) : items.length === 0 ? (
                 <p className="acc-sub" style={{ marginTop: 16 }}>No hay centros de costo todavía.</p>
             ) : (
-                <table className="acc-table" style={{ marginTop: 16 }}>
-                    <thead><tr><th>Código</th><th>Descripción</th><th></th></tr></thead>
-                    <tbody>
-                        {items.map((c) => (
-                            <tr key={c._id}>
-                                <td>{c.codigo}</td>
-                                <td>{c.descripcion || "—"}</td>
-                                <td style={{ textAlign: "right" }}>
-                                    <button className="btn-icon" title="Eliminar" onClick={() => setToDelete({ id: c._id, name: c.codigo })}><i className="ri-delete-bin-line" /></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <>
+                    <div className="purchases-filters-toolbar" style={{ marginTop: 16, justifyContent: "flex-end" }}>
+                        {filtersToolbar}
+                    </div>
+                    <div className="purchases-table-container ds-table-container" style={{ marginTop: 8 }}>
+                    <table className="purchases-table ds-table">
+                        <thead><tr><th>Código</th><th>Descripción</th><th></th></tr></thead>
+                        <tbody>
+                            {filteredItems.map((c) => (
+                                <tr key={c._id}>
+                                    <td data-label="Código">{c.codigo}</td>
+                                    <td data-label="Descripción">{c.descripcion || "—"}</td>
+                                    <td style={{ textAlign: "right" }}>
+                                        <button className="btn-action" title="Eliminar" onClick={() => setToDelete({ id: c._id, name: c.codigo })}><i className="ri-delete-bin-line" /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    </div>
+                </>
             )}
 
             <ConfirmModal isOpen={!!toDelete} title="Eliminar centro de costo" message={`¿Eliminar "${toDelete?.name}"?`} confirmText="Eliminar" onClose={() => setToDelete(null)} onConfirm={remove} />

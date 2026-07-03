@@ -4,7 +4,7 @@
     padding: 2rem;
     max-width: 1600px;
     margin: 0 auto;
-    min-height: calc(100dvh - 54px);
+    min-height: calc(100dvh - var(--header-height));
 }
 
 .nomina-container {
@@ -15,12 +15,217 @@
     padding: 2rem;
 }
 
+.nomina-sticky-head {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--card-bg);
+    margin: -2rem -2rem 0;
+    padding: 2rem 2rem 0.5rem;
+    border-radius: 12px 12px 0 0;
+}
+
 .nomina-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+.nomina-filters-toolbar {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    padding: 0;
+    margin: 0;
+    position: relative;
+}
+
+.ds-toolbar__actions .nomina-filters-toolbar {
+    flex-shrink: 0;
+}
+
+.nomina-filters-dropdown { position: relative; }
+
+.nomina-filters-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--header-accent) 8%);
+    color: var(--primary-text);
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+}
+
+.nomina-filters-toggle:hover,
+.nomina-filters-toggle.open {
+    border-color: var(--header-accent);
+    color: var(--header-accent);
+    background: rgba(96, 153, 172, 0.1);
+}
+
+.nomina-filters-chevron { font-size: 1.125rem; color: var(--text-muted); transition: transform 0.2s; }
+.nomina-filters-chevron.open { transform: rotate(180deg); color: var(--header-accent); }
+.nomina-filters-badge { width: 6px; height: 6px; border-radius: 50%; background: var(--header-accent); }
+
+.nomina-filters-panel {
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 1px solid rgba(96, 153, 172, 0.28);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(0, 39, 55, 0.14);
+}
+
+.nomina-filters-panel--floating {
+    position: fixed;
+    z-index: 11002;
+    max-height: min(70vh, calc(100vh - 1rem));
+    overflow: auto;
+}
+
+.nomina-filters-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.nomina-filters-panel__title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.nomina-filters-grid { display: grid; grid-template-columns: 1fr; gap: 0.875rem; }
+
+.nomina-filters-clear {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--header-accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nomina-filters-clear--inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    background: var(--card-bg);
+}
+
+.nomina-filters-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 11001;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.nomina-filters-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(100%, 400px);
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
+}
+
+.nomina-filters-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.nomina-filters-drawer__title { margin: 0; font-size: 1rem; font-weight: 700; }
+
+.nomina-filters-drawer__close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: var(--bg-subtle);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nomina-filters-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+}
+
+.nomina-filters-drawer__body .nomina-filters-panel__head { display: none; }
+
+.nomina-list-view {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
+}
+
+.nomina-list-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.nomina-list-item__head { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-light); }
+.nomina-list-item__fields { display: grid; grid-template-columns: 1fr 1fr; margin: 0; }
+.nomina-list-item__field { padding: 0.65rem 0.75rem; }
+.nomina-list-item__field:not(:last-child) { border-right: 1px solid var(--border-light); }
+.nomina-list-item__field dt { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+.nomina-list-item__field dd { margin: 0; font-size: 0.875rem; word-break: break-word; }
+.nomina-list-item__actions { border-top: 1px solid var(--border-light); padding: 0.75rem 1rem; margin-top: auto; }
+
+.nomina-cards-view {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.nomina-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.nomina-card__header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-light); }
+.nomina-card__fields { margin: 0; }
+.nomina-card__field { padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border-light); }
+.nomina-card__field dt { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+.nomina-card__field dd { margin: 0; font-size: 0.875rem; word-break: break-word; }
+.nomina-card__actions { border-top: 1px solid var(--border-light); padding: 0.75rem 1rem; margin-top: auto; }
+
+.nomina-actions--list,
+.nomina-actions--cards { justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 1199px) {
+    .nomina-cards-view { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .nomina-page .header-content {
@@ -281,9 +486,37 @@
         padding: 1.25rem 1rem;
     }
 
+    .nomina-sticky-head {
+        margin: -1.25rem -1rem 0;
+        padding: 1.25rem 1rem 0.5rem;
+    }
+
     .nomina-header {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .nomina-filters-toggle,
+    .nomina-filters-clear--inline {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .ds-toolbar__actions .nomina-filters-toolbar {
+        width: 100%;
+        order: -1;
+    }
+
+    .nomina-filters-dropdown {
+        width: 100%;
+    }
+
+    .nomina-filters-toggle {
+        width: 100%;
+    }
+
+    .nomina-list-view {
+        grid-template-columns: 1fr;
     }
 
     .nomina-page .header-content h1 {

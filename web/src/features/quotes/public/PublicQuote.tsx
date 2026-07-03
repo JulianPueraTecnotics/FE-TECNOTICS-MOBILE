@@ -5,6 +5,7 @@ import type { IQuote } from "../../../types";
 import { QUOTE_STATUS_LABELS, type QuoteStatus } from "../../../types";
 import { getPublicQuote, downloadPublicQuote, approvePublicQuote } from "../../../services/quotes.service";
 import { formatCOP } from "../quotes.utils";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 import "./PublicQuote.css";
 
 const formatDate = (iso?: string): string => {
@@ -209,41 +210,50 @@ const PublicQuote: React.FC = () => {
 
                 {/* Acciones */}
                 <footer className="pubq-actions">
-                    <button className="pubq-btn pubq-btn--ghost" onClick={handleDownload} disabled={downloading}>
+                    <button type="button" className="btn-secondary pubq-btn" onClick={handleDownload} disabled={downloading}>
                         <i className={downloading ? "ri-loader-4-line rotating" : "ri-download-line"}></i> Descargar PDF
                     </button>
                     {!quote.approved && (
-                        <button className="pubq-btn pubq-btn--primary" onClick={() => setShowApprove(true)}>
+                        <button type="button" className="btn-primary pubq-btn" onClick={() => setShowApprove(true)}>
                             <i className="ri-check-double-line"></i> Aprobar cotización
                         </button>
                     )}
                 </footer>
             </div>
 
-            {/* Modal de aprobación */}
             {showApprove && (
-                <div className="pubq-modal-overlay" onClick={() => !approving && setShowApprove(false)}>
-                    <div className="pubq-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3>Aprobar cotización</h3>
-                        <p>Ingresa el código de aprobación que te compartió la empresa.</p>
-                        <input
+                <AppModal
+                    title="Aprobar cotización"
+                    titleIcon="ri-check-double-line"
+                    onClose={() => setShowApprove(false)}
+                    closeDisabled={approving}
+                    compact
+                    footer={
+                        <>
+                            <button type="button" className="btn-secondary" onClick={() => setShowApprove(false)} disabled={approving}>
+                                Cancelar
+                            </button>
+                            <button type="button" className="btn-primary" onClick={handleApprove} disabled={approving}>
+                                {approving ? "Aprobando..." : "Aprobar"}
+                            </button>
+                        </>
+                    }
+                >
+                    <p className="pubq-modal-text">Ingresa el código de aprobación que te compartió la empresa.</p>
+                    <FilterField label="Código de aprobación" htmlFor="pubq-approve-code" icon="ri-shield-keyhole-line">
+                        <FieldControl
+                            id="pubq-approve-code"
                             type="text"
                             inputMode="numeric"
                             placeholder="Código de aprobación"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             disabled={approving}
+                            className="pubq-code-input"
+                            autoFocus
                         />
-                        <div className="pubq-modal-actions">
-                            <button className="pubq-btn pubq-btn--ghost" onClick={() => setShowApprove(false)} disabled={approving}>
-                                Cancelar
-                            </button>
-                            <button className="pubq-btn pubq-btn--primary" onClick={handleApprove} disabled={approving}>
-                                {approving ? "Aprobando..." : "Aprobar"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    </FilterField>
+                </AppModal>
             )}
         </main>
     );

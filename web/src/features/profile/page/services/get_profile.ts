@@ -132,7 +132,8 @@ export interface CompanyDocuments {
 
 export interface CompanyProfileResponse {
     company: CompanyInterface;
-    companyDocuments: CompanyDocuments;
+    // null cuando la empresa no tiene documentos de cuenta cargados (p. ej. demo).
+    companyDocuments: CompanyDocuments | null;
 }
 
 export const getProfileService = async () => {

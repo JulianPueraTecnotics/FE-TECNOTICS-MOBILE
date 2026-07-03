@@ -10,7 +10,7 @@ import {
     type PlantillaLote,
 } from "../../../services/nomina.service";
 import { getAllEmpleados, type Empleado } from "../../../services/empleados.service";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppDrawer, FilterField, FieldControl } from "../../../components/design-system";
 import {
     PERIODO_NOMINA_OPTIONS,
     PORCENTAJE_POR_TIPO_HORA,
@@ -114,8 +114,6 @@ const NominaModal: React.FC<NominaModalProps> = ({ isOpen, onClose, onSuccess, p
     const [expandido, setExpandido] = useState<string | null>(null);
     /** Resultados del último lote emitido (resumen por trabajador). */
     const [resultados, setResultados] = useState<LoteItemResult[] | null>(null);
-
-    useBodyScrollLock(isOpen);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -317,18 +315,38 @@ const NominaModal: React.FC<NominaModalProps> = ({ isOpen, onClose, onSuccess, p
     };
 
     return (
-        <div className="modal-overlay nomina-drawer" role="dialog" aria-modal="true" aria-labelledby="nomina-modal-title">
-            <div className="modal-container nomina-drawer-panel">
-                <div className="modal-header">
-                    <h2 id="nomina-modal-title">{plantilla ? `Emitir nómina · ${plantilla.periodo_label}` : "Emitir nómina"}</h2>
-                    <button className="modal-close" onClick={onClose} disabled={loading}>
-                        <i className="ri-close-line"></i>
+        <AppDrawer
+            wide
+            title={plantilla ? `Emitir nómina · ${plantilla.periodo_label}` : "Emitir nómina"}
+            titleIcon="ri-file-list-3-line"
+            onClose={onClose}
+            closeDisabled={loading}
+            ariaLabelledBy="nomina-modal-title"
+            footer={
+                resultados ? (
+                    <button type="button" className="export-cancel" onClick={onClose}>
+                        Cerrar
                     </button>
-                </div>
-
-                {/* Resumen del lote emitido */}
+                ) : (
+                    <>
+                        <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                            Cancelar
+                        </button>
+                        <button type="submit" form="nomina-form" className="export-submit" disabled={loading || seleccionados.length === 0}>
+                            {loading ? (
+                                <>
+                                    <i className="ri-loader-4-line rotating" aria-hidden /> Emitiendo…
+                                </>
+                            ) : (
+                                `Emitir ${seleccionados.length || ""} nómina(s)`
+                            )}
+                        </button>
+                    </>
+                )
+            }
+        >
                 {resultados ? (
-                    <div className="modal-body">
+                    <div>
                         <div className="nomina-section">
                             <h3 className="nomina-section-title"><i className="ri-checkbox-multiple-line"></i> Resultado del lote</h3>
                             <div className="lote-result-list">
@@ -346,12 +364,9 @@ const NominaModal: React.FC<NominaModalProps> = ({ isOpen, onClose, onSuccess, p
                                 })}
                             </div>
                         </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn-primary" onClick={onClose}>Cerrar</button>
-                        </div>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="modal-body">
+                    <form id="nomina-form" onSubmit={handleSubmit}>
                         <p className="field-hint section-hint">
                             Selecciona uno o varios trabajadores, define el periodo común y ajusta los conceptos de cada uno. Cada nómina se emite por separado.
                         </p>
@@ -393,23 +408,48 @@ const NominaModal: React.FC<NominaModalProps> = ({ isOpen, onClose, onSuccess, p
 
                                                     {sel && expandido === emp._id && c && (
                                                         <div className="empleado-pick-body">
-                                                            <div className="form-grid">
-                                                                <div className="form-group">
-                                                                    <label>Días trabajados</label>
-                                                                    <input type="number" min={1} max={31} value={c.dias_trabajados || ""} onChange={(e) => patchConcepto(emp._id, { dias_trabajados: onlyNum(e.target.value) })} disabled={loading} />
-                                                                </div>
-                                                                <div className="form-group">
-                                                                    <label>Auxilio de transporte</label>
-                                                                    <input inputMode="numeric" value={c.auxilio_transporte || ""} onChange={(e) => patchConcepto(emp._id, { auxilio_transporte: onlyNum(e.target.value) })} disabled={loading} placeholder="0" />
-                                                                </div>
-                                                                <div className="form-group">
-                                                                    <label>Salud (%)</label>
-                                                                    <input inputMode="numeric" value={c.salud_porcentaje || ""} onChange={(e) => patchConcepto(emp._id, { salud_porcentaje: onlyNum(e.target.value) })} disabled={loading} placeholder="4" />
-                                                                </div>
-                                                                <div className="form-group">
-                                                                    <label>Pensión (%)</label>
-                                                                    <input inputMode="numeric" value={c.pension_porcentaje || ""} onChange={(e) => patchConcepto(emp._id, { pension_porcentaje: onlyNum(e.target.value) })} disabled={loading} placeholder="4" />
-                                                                </div>
+                                                            <div className="led-form-grid">
+                                                                <FilterField label="Días trabajados" htmlFor={`nomina-dias-${emp._id}`} icon="ri-calendar-line">
+                                                                    <FieldControl
+                                                                        id={`nomina-dias-${emp._id}`}
+                                                                        type="number"
+                                                                        min={1}
+                                                                        max={31}
+                                                                        value={c.dias_trabajados || ""}
+                                                                        onChange={(e) => patchConcepto(emp._id, { dias_trabajados: onlyNum(e.target.value) })}
+                                                                        disabled={loading}
+                                                                    />
+                                                                </FilterField>
+                                                                <FilterField label="Auxilio de transporte" htmlFor={`nomina-aux-${emp._id}`} icon="ri-bus-line">
+                                                                    <FieldControl
+                                                                        id={`nomina-aux-${emp._id}`}
+                                                                        inputMode="numeric"
+                                                                        value={c.auxilio_transporte || ""}
+                                                                        onChange={(e) => patchConcepto(emp._id, { auxilio_transporte: onlyNum(e.target.value) })}
+                                                                        disabled={loading}
+                                                                        placeholder="0"
+                                                                    />
+                                                                </FilterField>
+                                                                <FilterField label="Salud (%)" htmlFor={`nomina-salud-${emp._id}`} icon="ri-heart-pulse-line">
+                                                                    <FieldControl
+                                                                        id={`nomina-salud-${emp._id}`}
+                                                                        inputMode="numeric"
+                                                                        value={c.salud_porcentaje || ""}
+                                                                        onChange={(e) => patchConcepto(emp._id, { salud_porcentaje: onlyNum(e.target.value) })}
+                                                                        disabled={loading}
+                                                                        placeholder="4"
+                                                                    />
+                                                                </FilterField>
+                                                                <FilterField label="Pensión (%)" htmlFor={`nomina-pension-${emp._id}`} icon="ri-shield-check-line">
+                                                                    <FieldControl
+                                                                        id={`nomina-pension-${emp._id}`}
+                                                                        inputMode="numeric"
+                                                                        value={c.pension_porcentaje || ""}
+                                                                        onChange={(e) => patchConcepto(emp._id, { pension_porcentaje: onlyNum(e.target.value) })}
+                                                                        disabled={loading}
+                                                                        placeholder="4"
+                                                                    />
+                                                                </FilterField>
                                                             </div>
 
                                                             {/* Horas extra */}
@@ -472,35 +512,30 @@ const NominaModal: React.FC<NominaModalProps> = ({ isOpen, onClose, onSuccess, p
                         {/* Periodo común */}
                         <div className="nomina-section">
                             <h3 className="nomina-section-title"><i className="ri-calendar-line"></i> Periodo (común a todos)</h3>
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label htmlFor="nomina_prefijo">Prefijo (numeración)</label>
+                            <div className="led-form-grid">
+                                <FilterField label="Prefijo (numeración)" htmlFor="nomina_prefijo" icon="ri-price-tag-3-line">
                                     {prefijos.length > 0 ? (
-                                        <select id="nomina_prefijo" value={periodo.prefijo} onChange={(e) => setPeriodo((p) => ({ ...p, prefijo: e.target.value }))} disabled={loading}>
+                                        <FieldControl as="select" id="nomina_prefijo" value={periodo.prefijo} onChange={(e) => setPeriodo((p) => ({ ...p, prefijo: e.target.value }))} disabled={loading}>
                                             {prefijos.map((p) => (<option key={p.prefix} value={p.prefix}>{p.prefix}{p.default ? " (por defecto)" : ""}</option>))}
-                                        </select>
+                                        </FieldControl>
                                     ) : (
-                                        <input id="nomina_prefijo" type="text" value="NESET (pruebas)" disabled readOnly />
+                                        <FieldControl id="nomina_prefijo" type="text" value="NESET (pruebas)" disabled readOnly />
                                     )}
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="periodo_nomina">Tipo de periodo *</label>
-                                    <select id="periodo_nomina" value={periodo.periodo_nomina} onChange={(e) => setPeriodo((p) => ({ ...p, periodo_nomina: e.target.value }))} disabled={loading}>
+                                </FilterField>
+                                <FilterField label="Tipo de periodo *" htmlFor="periodo_nomina" icon="ri-calendar-2-line">
+                                    <FieldControl as="select" id="periodo_nomina" value={periodo.periodo_nomina} onChange={(e) => setPeriodo((p) => ({ ...p, periodo_nomina: e.target.value }))} disabled={loading}>
                                         {PERIODO_NOMINA_OPTIONS.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="fecha_liquidacion_inicio">Inicio del periodo *</label>
-                                    <input id="fecha_liquidacion_inicio" type="date" value={periodo.fecha_liquidacion_inicio} onChange={(e) => setPeriodo((p) => ({ ...p, fecha_liquidacion_inicio: e.target.value }))} disabled={loading} />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="fecha_liquidacion_fin">Fin del periodo *</label>
-                                    <input id="fecha_liquidacion_fin" type="date" value={periodo.fecha_liquidacion_fin} onChange={(e) => setPeriodo((p) => ({ ...p, fecha_liquidacion_fin: e.target.value }))} disabled={loading} />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="fecha_pago">Fecha de pago *</label>
-                                    <input id="fecha_pago" type="date" value={periodo.fecha_pago} onChange={(e) => setPeriodo((p) => ({ ...p, fecha_pago: e.target.value }))} disabled={loading} />
-                                </div>
+                                    </FieldControl>
+                                </FilterField>
+                                <FilterField label="Inicio del periodo *" htmlFor="fecha_liquidacion_inicio" icon="ri-calendar-line">
+                                    <FieldControl id="fecha_liquidacion_inicio" type="date" value={periodo.fecha_liquidacion_inicio} onChange={(e) => setPeriodo((p) => ({ ...p, fecha_liquidacion_inicio: e.target.value }))} disabled={loading} />
+                                </FilterField>
+                                <FilterField label="Fin del periodo *" htmlFor="fecha_liquidacion_fin" icon="ri-calendar-check-line">
+                                    <FieldControl id="fecha_liquidacion_fin" type="date" value={periodo.fecha_liquidacion_fin} onChange={(e) => setPeriodo((p) => ({ ...p, fecha_liquidacion_fin: e.target.value }))} disabled={loading} />
+                                </FilterField>
+                                <FilterField label="Fecha de pago *" htmlFor="fecha_pago" icon="ri-money-dollar-circle-line">
+                                    <FieldControl id="fecha_pago" type="date" value={periodo.fecha_pago} onChange={(e) => setPeriodo((p) => ({ ...p, fecha_pago: e.target.value }))} disabled={loading} />
+                                </FilterField>
                             </div>
                         </div>
 
@@ -509,17 +544,9 @@ const NominaModal: React.FC<NominaModalProps> = ({ isOpen, onClose, onSuccess, p
                             <div className="totales-row"><span>Trabajadores</span><span>{seleccionados.length}</span></div>
                             <div className="totales-row total"><span>Total neto del lote</span><span>{formatCOP(totalLote)}</span></div>
                         </div>
-
-                        <div className="modal-footer">
-                            <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Cancelar</button>
-                            <button type="submit" className="btn-primary" disabled={loading || seleccionados.length === 0}>
-                                {loading ? (<><i className="ri-loader-4-line rotating"></i> Emitiendo...</>) : `Emitir ${seleccionados.length || ""} nómina(s)`}
-                            </button>
-                        </div>
                     </form>
                 )}
-            </div>
-        </div>
+        </AppDrawer>
     );
 };
 

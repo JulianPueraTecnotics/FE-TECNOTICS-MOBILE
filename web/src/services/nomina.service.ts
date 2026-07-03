@@ -357,3 +357,82 @@ export const downloadForm220 = async (anio: number, empleadoId: string, nombre: 
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 };
+
+// ── PILA (Planilla Integrada de Liquidación de Aportes) ──
+export interface PilaCotizante {
+    empleado_id: string;
+    documento: string;
+    nombre: string;
+    dias: number;
+    ibc: number;
+    salud_empleado: number;
+    salud_empleador: number;
+    pension_empleado: number;
+    pension_empleador: number;
+    fsp: number;
+    arl: number;
+    ccf: number;
+    sena: number;
+    icbf: number;
+    total: number;
+    advertencias?: string[];
+}
+export interface PilaTotales {
+    ibc: number; salud: number; pension: number; fsp: number; arl: number; ccf: number; sena: number; icbf: number; total: number; trabajadores: number;
+}
+export interface PilaPlanilla {
+    periodo_key: string;
+    periodo_label: string;
+    anio: number;
+    smlmv: number;
+    cotizantes: PilaCotizante[];
+    totales: PilaTotales;
+}
+export interface PilaHistorialItem {
+    periodo_key: string;
+    periodo_label: string;
+    anio: number;
+    totales: PilaTotales;
+    createdAt?: string;
+}
+
+/** Calcula (sin guardar) la PILA del período para revisión. */
+export const previewPila = async (periodo: string): Promise<PilaPlanilla> => {
+    const res = await fetch(`${API_ROUTES.NOMINA_PILA_PREVIEW}?periodo=${encodeURIComponent(periodo)}`, { method: "GET", credentials: "include", headers: jsonHeaders });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Error al previsualizar la PILA");
+    return data;
+};
+
+/** Genera y guarda la PILA del período (arma el archivo plano). */
+export const generarPila = async (periodo: string, periodo_label?: string): Promise<{ ok: boolean; message: string; planilla: PilaPlanilla }> => {
+    const res = await fetch(API_ROUTES.NOMINA_PILA_GENERAR, { method: "POST", credentials: "include", headers: jsonHeaders, body: JSON.stringify({ periodo, periodo_label }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Error al generar la PILA");
+    return data;
+};
+
+export const getPilaHistorial = async (): Promise<PilaHistorialItem[]> => {
+    const res = await fetch(API_ROUTES.NOMINA_PILA_HISTORIAL, { method: "GET", credentials: "include", headers: jsonHeaders });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Error al cargar el historial de PILA");
+    return data;
+};
+
+/** Descarga el archivo plano de la PILA (operador Aportes en Línea). */
+export const downloadPila = async (periodo: string): Promise<void> => {
+    const res = await fetch(API_ROUTES.NOMINA_PILA_DOWNLOAD(periodo), { method: "GET", credentials: "include" });
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { message?: string }).message || "No se pudo descargar la PILA");
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `PILA-${periodo}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};

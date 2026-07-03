@@ -30,7 +30,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.1rem 1.4rem;
-    background: var(--primary-color);
+    background: var(--primary-color-bg, var(--primary-color));
     color: #fff;
 }
 
@@ -105,6 +105,21 @@
     margin: 1rem 0 0;
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+.supplier-drawer-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.supplier-drawer-form .rotating {
+    animation: pm-spin 0.8s linear infinite;
+}
+
+@keyframes pm-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .pm-actions {
@@ -294,5 +309,25 @@
 @media (max-width: 560px) {
     .pm-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ── Móvil: modales no exceden el viewport y tablas internas más densas ── */
+@media (max-width: 480px) {
+    .pm-modal {
+        max-width: 95vw !important;
+    }
+    .pm-body {
+        padding: 1rem;
+    }
+    .cb-doc-table {
+        font-size: 0.7rem;
+    }
+    .cb-doc-table th,
+    .cb-doc-table td {
+        padding: 6px 4px;
+    }
+    .cb-doc-wrap {
+        max-height: 60vh;
     }
 }

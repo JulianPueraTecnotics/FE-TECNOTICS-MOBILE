@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useNavigate } from "react-router-dom";
+import { DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
@@ -99,25 +100,35 @@ export default function TreasuryPaymentsNative() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Pagos a proveedores</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Selecciona facturas y genera lote bancario</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom + (selectedRows.length ? 80 : 0) }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Buscar proveedor, NIT, número..."
-          placeholderTextColor={colors.textMuted}
-          style={[styles.search, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-        />
-
+    <DsModuleScreen
+      title="Pagos a proveedores"
+      subtitle="Selecciona facturas y genera lote bancario"
+      loading={loading}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      toolbar={<DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar proveedor, NIT, número..." />}
+      footer={
+        selectedRows.length > 0 ? (
+          <View style={[styles.bar, { borderTopColor: colors.border, backgroundColor: colors.cardBg, paddingBottom: insets.paddingBottom }]}>
+            <Text style={{ color: colors.primaryText, fontSize: 13 }}>
+              {selectedRows.length} factura(s) · {formatCOP(totalSelected)}
+            </Text>
+            {anyMissingBank ? <Text style={{ color: "#dc2626", fontSize: 12 }}>Proveedores sin banco</Text> : null}
+            <LedgerChipRow>
+              {banks.map((b) => (
+                <LedgerChip key={b._id} label={b.nombre_banco} active={bankId === b._id} onPress={() => setBankId(b._id)} />
+              ))}
+            </LedgerChipRow>
+            <LedgerPrimaryBtn
+              label="Generar lote"
+              onPress={handleGenerate}
+              loading={generating}
+              disabled={!bankId || anyMissingBank}
+            />
+          </View>
+        ) : undefined
+      }
+    >
         {!loading && rows.length > 0 ? (
           <Text style={{ color: colors.textMuted, marginVertical: 8 }}>
             Total por pagar: <Text style={{ fontWeight: "700", color: colors.primaryText }}>{formatCOP(totalPending)}</Text>
@@ -128,9 +139,7 @@ export default function TreasuryPaymentsNative() {
           <Text style={{ color: "#d97706", marginBottom: 8 }}>Configura un banco en Tesorería › Bancos</Text>
         ) : null}
 
-        {loading ? (
-          <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Cargando...</Text>
-        ) : rows.length === 0 ? (
+        {rows.length === 0 ? (
           <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>No hay facturas pendientes. ¡Todo al día!</Text>
         ) : (
           rows.map((r) => {
@@ -142,7 +151,7 @@ export default function TreasuryPaymentsNative() {
                 style={[
                   styles.card,
                   {
-                    borderColor: checked ? colors.accent : colors.border,
+                    borderColor: checked ? colors.headerAccent : colors.border,
                     backgroundColor: checked ? colors.bgSubtle : colors.cardBg,
                   },
                 ]}
@@ -180,38 +189,12 @@ export default function TreasuryPaymentsNative() {
             );
           })
         )}
-      </ScrollView>
-
-      {selectedRows.length > 0 ? (
-        <View style={[styles.bar, { borderTopColor: colors.border, backgroundColor: colors.cardBg, paddingBottom: insets.paddingBottom }]}>
-          <Text style={{ color: colors.primaryText, fontSize: 13 }}>
-            {selectedRows.length} factura(s) · {formatCOP(totalSelected)}
-          </Text>
-          {anyMissingBank ? <Text style={{ color: "#dc2626", fontSize: 12 }}>Proveedores sin banco</Text> : null}
-          <LedgerChipRow>
-            {banks.map((b) => (
-              <LedgerChip key={b._id} label={b.nombre_banco} active={bankId === b._id} onPress={() => setBankId(b._id)} />
-            ))}
-          </LedgerChipRow>
-          <LedgerPrimaryBtn
-            label="Generar lote"
-            onPress={handleGenerate}
-            loading={generating}
-            disabled={!bankId || anyMissingBank}
-          />
-        </View>
-      ) : null}
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
-  search: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, marginBottom: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 12, marginBottom: 10 },
   amount: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14 },
-  bar: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 16, borderTopWidth: StyleSheet.hairlineWidth, gap: 8 },
+  bar: { padding: 16, borderTopWidth: StyleSheet.hairlineWidth, gap: 8 },
 });

@@ -1,4 +1,8 @@
-import type { DateRange } from "./analytics.service";
+import type { DateRange, PeriodPreset } from "./analytics.service";
+import { PERIOD_PRESETS, presetRange } from "./analytics.service";
+
+export type { DateRange };
+export { presetRange };
 
 export type AnalyticsTab =
   | "resumen"
@@ -35,34 +39,12 @@ const ICON_MAP = {
   "hardware-chip-outline": true,
 };
 
-export const DATE_PRESETS = [
-  { key: "mes", label: "Mes" },
-  { key: "trimestre", label: "Trimestre" },
-  { key: "anio", label: "Año" },
+export const DATE_PRESETS: { key: PeriodPreset | "custom"; label: string }[] = [
+  ...PERIOD_PRESETS.map((p) => ({ key: p.k, label: p.l })),
   { key: "custom", label: "Personalizado" },
 ];
 
 const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-
-export const iso = (d: Date) => d.toISOString().slice(0, 10);
-
-export function presetRange(preset: string): DateRange {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  switch (preset) {
-    case "mes":
-      return { from: iso(new Date(y, m, 1)), to: iso(new Date(y, m + 1, 0)) };
-    case "trimestre": {
-      const q = Math.floor(m / 3) * 3;
-      return { from: iso(new Date(y, q, 1)), to: iso(new Date(y, q + 3, 0)) };
-    }
-    case "anio":
-      return { from: iso(new Date(y, 0, 1)), to: iso(new Date(y, 11, 31)) };
-    default:
-      return {};
-  }
-}
 
 export function tabUsesDateBar(tab: AnalyticsTab) {
   return tab === "resumen" || tab === "rentabilidad" || tab === "tesoreria" || tab === "tributario" || tab === "nomina" || tab === "scoring";

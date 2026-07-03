@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { type Nomina, resyncNominaStatus } from "../../../services/nomina.service";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppDrawer } from "../../../components/design-system";
 import {
     FORMA_PAGO_OPTIONS,
     PERIODO_NOMINA_OPTIONS,
@@ -46,7 +46,6 @@ const renderConceptoValue = (val: unknown): string => {
 
 const NominaDetailModal: React.FC<NominaDetailModalProps> = ({ isOpen, onClose, nomina, onUpdated }) => {
     const [resyncing, setResyncing] = useState(false);
-    useBodyScrollLock(isOpen);
 
     if (!isOpen || !nomina) return null;
 
@@ -82,21 +81,22 @@ const NominaDetailModal: React.FC<NominaDetailModalProps> = ({ isOpen, onClose, 
     );
 
     return (
-        <div className="modal-overlay nomina-drawer" role="dialog" aria-modal="true" aria-labelledby="nomina-detail-title">
-            <div className="modal-container nomina-drawer-panel">
-                <div className="modal-header">
-                    <h2 id="nomina-detail-title">
-                        Nómina {ne?.NumeroSecuenciaXML?.Numero ?? ""}
-                        <span className={`status-badge status-${status.toLowerCase()}`} style={{ marginLeft: 10 }}>
-                            {statusLabel[status] ?? status}
-                        </span>
-                    </h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Cerrar">
-                        <i className="ri-close-line"></i>
-                    </button>
-                </div>
-
-                <div className="modal-body">
+        <AppDrawer
+            title={`Nómina ${ne?.NumeroSecuenciaXML?.Numero ?? ""}`}
+            titleIcon="ri-file-list-3-line"
+            onClose={onClose}
+            closeDisabled={resyncing}
+            ariaLabelledBy="nomina-detail-title"
+            footer={
+                <button type="button" className="export-cancel" onClick={onClose}>
+                    Cerrar
+                </button>
+            }
+        >
+                <div>
+                    <span className={`status-badge status-${status.toLowerCase()}`} style={{ marginBottom: 12, display: "inline-block" }}>
+                        {statusLabel[status] ?? status}
+                    </span>
                     {/* Estado DIAN */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-shield-check-line"></i> Estado DIAN</h3>
@@ -198,12 +198,7 @@ const NominaDetailModal: React.FC<NominaDetailModalProps> = ({ isOpen, onClose, 
                         <p className="field-hint">Emitida por {nomina.systemInfo.send_by}{nomina.createdAt ? ` · ${new Date(nomina.createdAt).toLocaleString("es-CO")}` : ""}</p>
                     )}
                 </div>
-
-                <div className="modal-footer">
-                    <button type="button" className="btn-secondary" onClick={onClose}>Cerrar</button>
-                </div>
-            </div>
-        </div>
+        </AppDrawer>
     );
 };
 

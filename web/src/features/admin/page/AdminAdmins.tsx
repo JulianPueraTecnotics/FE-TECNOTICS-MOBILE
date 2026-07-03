@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Admin.css";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 import { adminCreateAdmin, adminListAdmins, type AdminAccount } from "../services/admin_companies.service";
 
 const formatDate = (value?: string) => {
@@ -16,7 +16,6 @@ const CreateAdminModal: React.FC<{ onClose: () => void; onCreated: (admin: Admin
     const [form, setForm] = useState(emptyForm);
     const [show, setShow] = useState(false);
     const [loading, setLoading] = useState(false);
-    useBodyScrollLock(true);
 
     const setField = (k: keyof typeof emptyForm, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -49,42 +48,48 @@ const CreateAdminModal: React.FC<{ onClose: () => void; onCreated: (admin: Admin
     };
 
     return (
-        <div className="confirm-overlay" onClick={onClose}>
-            <div className="confirm-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
-                <h3 className="confirm-title">Nuevo administrador</h3>
-                <form className="admin-form" onSubmit={submit}>
-                    <div className="admin-form-grid">
-                        <div className="admin-field">
-                            <label htmlFor="adm-name">Nombre</label>
-                            <input id="adm-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
-                        </div>
-                        <div className="admin-field">
-                            <label htmlFor="adm-lastname">Apellido</label>
-                            <input id="adm-lastname" type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="admin-field">
-                        <label htmlFor="adm-email">Correo electrónico</label>
-                        <input id="adm-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} autoComplete="off" />
-                    </div>
-                    <div className="admin-field">
-                        <label htmlFor="adm-pwd">Contraseña</label>
-                        <input id="adm-pwd" type={show ? "text" : "password"} value={form.password} onChange={(e) => setField("password", e.target.value)} placeholder="Mínimo 8 caracteres" autoComplete="new-password" />
-                        <button type="button" className="admin-btn-secondary" onClick={() => setShow((v) => !v)} style={{ alignSelf: "flex-start" }}>
-                            {show ? "Ocultar" : "Mostrar"} contraseña
-                        </button>
-                    </div>
-                    <div className="confirm-actions">
-                        <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="admin-btn-primary" disabled={loading}>
-                            {loading ? "Creando…" : "Crear administrador"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <AppModal
+            title="Nuevo administrador"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
+                    </button>
+                    <button type="submit" form="create-admin-form" className="export-submit" disabled={loading}>
+                        {loading ? "Creando…" : "Crear administrador"}
+                    </button>
+                </>
+            }
+        >
+            <form id="create-admin-form" className="admin-form" onSubmit={submit}>
+                <div className="led-form-grid">
+                    <FilterField label="Nombre" htmlFor="adm-name" icon="ri-user-line">
+                        <FieldControl id="adm-name" type="text" value={form.name} onChange={(e) => setField("name", e.target.value)} />
+                    </FilterField>
+                    <FilterField label="Apellido" htmlFor="adm-lastname" icon="ri-user-line">
+                        <FieldControl id="adm-lastname" type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} />
+                    </FilterField>
+                    <FilterField className="led-form-grid__full" label="Correo electrónico" htmlFor="adm-email" icon="ri-mail-line">
+                        <FieldControl id="adm-email" type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} autoComplete="off" />
+                    </FilterField>
+                    <FilterField
+                        className="led-form-grid__full"
+                        label="Contraseña"
+                        htmlFor="adm-pwd"
+                        icon="ri-lock-password-line"
+                        hint={
+                            <button type="button" className="admin-btn-secondary" onClick={() => setShow((v) => !v)} style={{ alignSelf: "flex-start", marginTop: 4 }}>
+                                {show ? "Ocultar" : "Mostrar"} contraseña
+                            </button>
+                        }
+                    >
+                        <FieldControl id="adm-pwd" type={show ? "text" : "password"} value={form.password} onChange={(e) => setField("password", e.target.value)} placeholder="Mínimo 8 caracteres" autoComplete="new-password" />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 

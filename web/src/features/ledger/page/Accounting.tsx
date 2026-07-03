@@ -1,7 +1,8 @@
-import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../../accounting/page/Configuration.css";
+import "../../purchases/page/Purchases.css";
 import "./Accounting.css";
+import { ListPageShell } from "../../../components/design-system";
 import JournalEntries from "../components/JournalEntries";
 import JournalBook from "../components/JournalBook";
 import Periods from "../components/Periods";
@@ -14,8 +15,12 @@ import YearClosing from "../components/YearClosing";
 import DianExogena from "../components/DianExogena";
 import IcaMunicipio from "../components/IcaMunicipio";
 import Adjustments from "../components/Adjustments";
+import Budget from "../components/Budget";
+import FinancialNotes from "../components/FinancialNotes";
+import ConciliacionFiscal from "../components/ConciliacionFiscal";
+import IntegrityPanel from "../components/IntegrityPanel";
 
-type Section = "comprobantes" | "diario" | "mayor" | "terceros" | "balance" | "estados" | "ajustes" | "saldos" | "cierre" | "periodos" | "dian" | "ica";
+type Section = "comprobantes" | "diario" | "mayor" | "terceros" | "balance" | "estados" | "notas" | "presupuesto" | "fiscal" | "ajustes" | "saldos" | "cierre" | "periodos" | "dian" | "ica" | "salud";
 
 const NAV: { key: Section; label: string; icon: string; group: string }[] = [
     { key: "comprobantes", label: "Comprobantes", icon: "ri-file-list-3-line", group: "Movimientos" },
@@ -24,62 +29,52 @@ const NAV: { key: Section; label: string; icon: string; group: string }[] = [
     { key: "terceros", label: "Auxiliar por tercero", icon: "ri-group-line", group: "Libros" },
     { key: "balance", label: "Balance de prueba", icon: "ri-scales-3-line", group: "Estados financieros" },
     { key: "estados", label: "Estados financieros", icon: "ri-line-chart-line", group: "Estados financieros" },
+    { key: "notas", label: "Notas a los EEFF", icon: "ri-sticky-note-line", group: "Estados financieros" },
+    { key: "presupuesto", label: "Presupuesto", icon: "ri-bar-chart-grouped-line", group: "Estados financieros" },
+    { key: "fiscal", label: "Conciliación fiscal", icon: "ri-git-merge-line", group: "Estados financieros" },
     { key: "ajustes", label: "Ajustes contables", icon: "ri-equalizer-line", group: "Procesos" },
     { key: "saldos", label: "Saldos iniciales", icon: "ri-flag-line", group: "Procesos" },
     { key: "cierre", label: "Cierre anual", icon: "ri-lock-2-line", group: "Procesos" },
     { key: "periodos", label: "Períodos", icon: "ri-calendar-close-line", group: "Procesos" },
+    { key: "salud", label: "Salud contable", icon: "ri-shield-check-line", group: "Procesos" },
     { key: "dian", label: "DIAN / Exógena", icon: "ri-government-line", group: "DIAN" },
     { key: "ica", label: "ReteICA por municipio", icon: "ri-map-pin-2-line", group: "DIAN" },
 ];
 
 const AccountingPage: React.FC = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const initial = (searchParams.get("sec") as Section) || "comprobantes";
-    const [section, setSection] = useState<Section>(NAV.some((n) => n.key === initial) ? initial : "comprobantes");
+    const [searchParams] = useSearchParams();
+    // La sección activa se deriva del query `?sec=` que controla el menú lateral principal.
+    const requested = searchParams.get("sec") as Section | null;
+    const section: Section = requested && NAV.some((n) => n.key === requested) ? requested : "comprobantes";
 
-    const go = (s: Section) => {
-        setSection(s);
-        setSearchParams((prev) => {
-            const p = new URLSearchParams(prev);
-            p.set("sec", s);
-            return p;
-        });
-    };
-
-    const groups = [...new Set(NAV.map((n) => n.group))];
+    const actual = NAV.find((n) => n.key === section);
 
     return (
-        <main className="config-page">
-            <div className="config-shell">
-                <aside className="config-sidebar">
-                    <h1 className="config-title"><i className="ri-book-2-line" /> Contabilidad</h1>
-                    {groups.map((g) => (
-                        <div key={g} className="config-nav-group">
-                            <span className="config-nav-group__label">{g}</span>
-                            {NAV.filter((n) => n.group === g).map((n) => (
-                                <button key={n.key} className={`config-nav-item ${section === n.key ? "active" : ""}`} onClick={() => go(n.key)}>
-                                    <i className={n.icon} /> {n.label}
-                                </button>
-                            ))}
-                        </div>
-                    ))}
-                </aside>
+        <ListPageShell className="config-page container-scroll">
+            {/* El menú de secciones vive en el sidebar principal (izquierda) vía ?sec=, así que
+                aquí ya no se duplica un aside interno: solo mostramos la sección activa. */}
+            <div className="config-shell config-shell--full">
                 <section className="config-content">
+                    <h1 className="config-title config-title--page"><i className={actual?.icon ?? "ri-book-2-line"} /> {actual?.label ?? "Contabilidad"}</h1>
                     {section === "comprobantes" && <JournalEntries />}
                     {section === "diario" && <JournalBook />}
                     {section === "mayor" && <GeneralLedger />}
                     {section === "terceros" && <ThirdPartyLedger />}
                     {section === "balance" && <TrialBalance />}
                     {section === "estados" && <FinancialStatements />}
+                    {section === "notas" && <FinancialNotes />}
+                    {section === "presupuesto" && <Budget />}
+                    {section === "fiscal" && <ConciliacionFiscal />}
                     {section === "ajustes" && <Adjustments />}
                     {section === "saldos" && <InitialBalances />}
                     {section === "cierre" && <YearClosing />}
                     {section === "periodos" && <Periods />}
+                    {section === "salud" && <IntegrityPanel />}
                     {section === "dian" && <DianExogena />}
                     {section === "ica" && <IcaMunicipio />}
                 </section>
             </div>
-        </main>
+        </ListPageShell>
     );
 };
 

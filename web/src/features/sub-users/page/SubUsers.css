@@ -1,3 +1,16 @@
+.subusers-page--embedded .clients-header {
+    margin-bottom: 0.75rem;
+}
+
+.subusers-page--embedded .clients-container {
+    padding: 0;
+}
+
+.subusers-page--embedded .clients-actions {
+    width: 100%;
+    flex-wrap: wrap;
+}
+
 /* Chips de estado — mismos tokens que `Documents.css` (.status-badge) */
 .subusers-page .status-badge {
     padding: 0.35rem 0.75rem;

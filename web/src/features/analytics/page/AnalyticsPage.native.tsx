@@ -1,9 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,7 +10,8 @@ import {
 } from "react-native";
 import AnalyticsKpiNative from "../../../components/native/analytics/AnalyticsKpi.native";
 import AnalyticsSectionNative, { AnalyticsRow } from "../../../components/native/analytics/AnalyticsSection.native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { SimpleGroupedBarChart } from "../../../components/native/analytics/SimpleMiniChart.native";
+import { DsModuleScreen } from "../../../components/design-system-native";
 import { getCompanyStatistics, type CompanyStatisticsData } from "../../../services/company-statistics.service";
 import {
   getCarteraAging,
@@ -42,7 +41,6 @@ import {
   getRetenciones,
   getScoring,
   getTopProductos,
-  type DateRange,
   type ExecutiveSummary,
   type PlMonthlyRow,
 } from "../analytics.service";
@@ -60,6 +58,7 @@ import {
   presetRange,
   tabUsesDateBar,
   type AnalyticsTab,
+  type DateRange,
 } from "../analytics.shared";
 
 function KpiGrid({ children }: { children: React.ReactNode }) {
@@ -206,20 +205,21 @@ export default function AnalyticsPageNative() {
     void load();
   }, [load]);
 
-  if (loading && !refreshing) return <LoadingScreen />;
-
   const showDateBar = tabUsesDateBar(tab);
   const showCarteraDateBar = tab === "cartera";
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Estadísticas</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Indicadores financieros y operativos de tu empresa
-        </Text>
-      </View>
-
+    <DsModuleScreen
+      title="Estadísticas"
+      subtitle="Indicadores financieros y operativos de tu empresa"
+      loading={loading && !refreshing}
+      noScroll
+      refreshing={refreshing}
+      onRefresh={() => {
+        setRefreshing(true);
+        setRefreshKey((k) => k + 1);
+      }}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -229,7 +229,7 @@ export default function AnalyticsPageNative() {
         {ANALYTICS_TABS.map((t) => (
           <Pressable
             key={t.key}
-            style={[styles.tabChip, tab === t.key ? { backgroundColor: colors.accent } : { borderColor: colors.border, borderWidth: 1 }]}
+            style={[styles.tabChip, tab === t.key ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border, borderWidth: 1 }]}
             onPress={() => setTab(t.key)}
           >
             <Ionicons name={t.icon} size={14} color={tab === t.key ? "#fff" : colors.primaryText} />
@@ -248,19 +248,10 @@ export default function AnalyticsPageNative() {
       ) : null}
 
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom + 16 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              setRefreshKey((k) => k + 1);
-            }}
-            tintColor={colors.accent}
-          />
-        }
       >
-        {loading && refreshing ? <ActivityIndicator color={colors.accent} style={{ marginBottom: 12 }} /> : null}
+        {loading && refreshing ? <ActivityIndicator color={colors.headerAccent} style={{ marginBottom: 12 }} /> : null}
 
         {tab === "resumen" && exec ? (
           <>
@@ -283,6 +274,17 @@ export default function AnalyticsPageNative() {
             ) : null}
             {pl.length ? (
               <AnalyticsSectionNative title="Resultado mensual" subtitle="Ingresos y utilidad por mes">
+                <SimpleGroupedBarChart
+                  groups={pl.slice(-6).map((r) => ({
+                    label: monthLabel(r.year, r.month).slice(0, 6),
+                    series: [
+                      { label: "Ing", value: r.ingresos, color: "#22c55e" },
+                      { label: "Util", value: r.utilidadNeta, color: "#3b82f6" },
+                    ],
+                  }))}
+                  formatValue={moneyShort}
+                  emptyLabel="Sin datos de P&L"
+                />
                 {pl.map((r) => (
                   <AnalyticsRow key={r.periodo} left={monthLabel(r.year, r.month)} right={money(r.utilidadNeta)} />
                 ))}
@@ -310,6 +312,13 @@ export default function AnalyticsPageNative() {
             </KpiGrid>
             {stats.facturas.porMes.length ? (
               <AnalyticsSectionNative title="Facturado por mes">
+                <SimpleGroupedBarChart
+                  groups={[...stats.facturas.porMes].reverse().slice(-6).map((m) => ({
+                    label: monthLabel(m.year, m.month).slice(0, 6),
+                    series: [{ label: "Total", value: m.totalValorAPagar, color: "#22c55e" }],
+                  }))}
+                  formatValue={moneyShort}
+                />
                 {[...stats.facturas.porMes].reverse().map((m) => (
                   <AnalyticsRow key={`${m.year}-${m.month}`} left={monthLabel(m.year, m.month)} right={money(m.totalValorAPagar)} />
                 ))}
@@ -317,6 +326,12 @@ export default function AnalyticsPageNative() {
             ) : null}
             {stats.facturas.porEstado.length ? (
               <AnalyticsSectionNative title="Por estado">
+                <SimpleGroupedBarChart
+                  groups={stats.facturas.porEstado.map((e) => ({
+                    label: (ESTADO_FACTURA[e.estado] ?? e.estado).slice(0, 8),
+                    series: [{ label: "N", value: e.count, color: "#6366f1" }],
+                  }))}
+                />
                 {stats.facturas.porEstado.map((e) => (
                   <AnalyticsRow key={e.estado} left={ESTADO_FACTURA[e.estado] ?? e.estado} right={String(e.count)} />
                 ))}
@@ -351,8 +366,41 @@ export default function AnalyticsPageNative() {
               <AnalyticsKpiNative label="Recaudado" value={moneyShort(recaudo?.total ?? 0)} icon="cash-outline" accent="#14b8a6" />
               <AnalyticsKpiNative label="Cotiz. facturadas" value={String(embudo?.facturadas ?? 0)} hint={`Conv. ${embudo?.tasaConversion ?? 0}%`} icon="document-outline" />
             </KpiGrid>
+            {cartera?.buckets?.length ? (
+              <AnalyticsSectionNative title="Cartera por antigüedad">
+                <SimpleGroupedBarChart
+                  groups={cartera.buckets.map((b) => ({
+                    label: b.label,
+                    series: [{ label: "$", value: b.total, color: "#22c55e" }],
+                  }))}
+                  formatValue={moneyShort}
+                />
+              </AnalyticsSectionNative>
+            ) : null}
+            {cxp?.buckets?.length ? (
+              <AnalyticsSectionNative title="Cuentas por pagar — antigüedad">
+                <SimpleGroupedBarChart
+                  groups={cxp.buckets.map((b) => ({
+                    label: b.label,
+                    series: [{ label: "$", value: b.total, color: "#ef4444" }],
+                  }))}
+                  formatValue={moneyShort}
+                />
+              </AnalyticsSectionNative>
+            ) : null}
             {comparativo.length ? (
               <AnalyticsSectionNative title="Ventas vs compras vs gastos">
+                <SimpleGroupedBarChart
+                  groups={comparativo.slice(-6).map((r) => ({
+                    label: monthLabel(r.year, r.month).slice(0, 6),
+                    series: [
+                      { label: "V", value: r.ventas, color: "#22c55e" },
+                      { label: "C", value: r.compras, color: "#3b82f6" },
+                      { label: "G", value: r.gastos, color: "#f59e0b" },
+                    ],
+                  }))}
+                  formatValue={moneyShort}
+                />
                 {comparativo.map((r) => (
                   <AnalyticsRow
                     key={`${r.year}-${r.month}`}
@@ -408,7 +456,7 @@ export default function AnalyticsPageNative() {
                 style={[
                   styles.toggleBtn,
                   { borderColor: colors.border },
-                  pendTipo === "cobrar" && { backgroundColor: colors.accent, borderColor: colors.accent },
+                  pendTipo === "cobrar" && { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent },
                 ]}
                 onPress={() => setPendTipo("cobrar")}
               >
@@ -418,7 +466,7 @@ export default function AnalyticsPageNative() {
                 style={[
                   styles.toggleBtn,
                   { borderColor: colors.border },
-                  pendTipo === "pagar" && { backgroundColor: colors.accent, borderColor: colors.accent },
+                  pendTipo === "pagar" && { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent },
                 ]}
                 onPress={() => setPendTipo("pagar")}
               >
@@ -438,6 +486,16 @@ export default function AnalyticsPageNative() {
             ) : null}
             {cash?.meses.length ? (
               <AnalyticsSectionNative title="Flujo de caja histórico">
+                <SimpleGroupedBarChart
+                  groups={cash.meses.slice(-6).map((m) => ({
+                    label: monthLabel(m.year, m.month).slice(0, 6),
+                    series: [
+                      { label: "E", value: m.entradas, color: "#22c55e" },
+                      { label: "S", value: m.salidas, color: "#ef4444" },
+                    ],
+                  }))}
+                  formatValue={moneyShort}
+                />
                 {cash.meses.map((m) => (
                   <AnalyticsRow key={`${m.year}-${m.month}`} left={monthLabel(m.year, m.month)} right={`E ${moneyShort(m.entradas)} · S ${moneyShort(m.salidas)}`} />
                 ))}
@@ -487,6 +545,13 @@ export default function AnalyticsPageNative() {
             </KpiGrid>
             {payroll.porPeriodo.length ? (
               <AnalyticsSectionNative title="Costo laboral por mes">
+                <SimpleGroupedBarChart
+                  groups={payroll.porPeriodo.slice(-6).map((p) => ({
+                    label: periodoLabel(p.periodo).slice(0, 8),
+                    series: [{ label: "Costo", value: p.costo, color: "#14b8a6" }],
+                  }))}
+                  formatValue={moneyShort}
+                />
                 {payroll.porPeriodo.map((p) => (
                   <AnalyticsRow key={p.periodo} left={periodoLabel(p.periodo)} right={money(p.costo)} />
                 ))}
@@ -520,7 +585,7 @@ export default function AnalyticsPageNative() {
                 style={[
                   styles.toggleBtn,
                   { borderColor: colors.border },
-                  scoreTipo === "cliente" && { backgroundColor: colors.accent, borderColor: colors.accent },
+                  scoreTipo === "cliente" && { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent },
                 ]}
                 onPress={() => setScoreTipo("cliente")}
               >
@@ -530,7 +595,7 @@ export default function AnalyticsPageNative() {
                 style={[
                   styles.toggleBtn,
                   { borderColor: colors.border },
-                  scoreTipo === "proveedor" && { backgroundColor: colors.accent, borderColor: colors.accent },
+                  scoreTipo === "proveedor" && { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent },
                 ]}
                 onPress={() => setScoreTipo("proveedor")}
               >
@@ -554,7 +619,7 @@ export default function AnalyticsPageNative() {
           </>
         ) : null}
       </ScrollView>
-    </View>
+    </DsModuleScreen>
   );
 }
 
@@ -576,7 +641,7 @@ function DateBar({
         {DATE_PRESETS.map((p) => (
           <Pressable
             key={p.key}
-            style={[styles.presetChip, preset === p.key ? { backgroundColor: colors.accent } : { borderColor: colors.border, borderWidth: 1 }]}
+            style={[styles.presetChip, preset === p.key ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border, borderWidth: 1 }]}
             onPress={() => onPreset(p.key)}
           >
             <Text style={{ color: preset === p.key ? "#fff" : colors.primaryText, fontSize: 12 }}>{p.label}</Text>
@@ -606,9 +671,6 @@ function DateBar({
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 22, fontWeight: "700" },
-  subtitle: { fontSize: 13, marginTop: 2 },
   tabs: { paddingHorizontal: 12, paddingVertical: 8, alignItems: "center" },
   tabChip: {
     flexDirection: "row",

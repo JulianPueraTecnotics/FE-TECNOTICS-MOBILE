@@ -43,7 +43,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--primary-color);
+    background: var(--primary-color-bg, var(--primary-color));
     color: #fff;
     flex-shrink: 0;
 }
@@ -82,6 +82,13 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+}
+
+.side-picker__content--drawer {
+    flex: unset;
+    overflow: visible;
+    padding: 0;
+    background: transparent;
 }
 
 .side-picker__search {

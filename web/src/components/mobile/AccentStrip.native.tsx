@@ -15,7 +15,7 @@ const AccentStrip: React.FC<AccentStripProps> = ({ height = 2, opacity = 0.75, s
   return (
     <View style={[styles.wrap, { height, opacity }, style]}>
       <LinearGradient
-        colors={[colors.accent, colors.primary, colors.accent]}
+        colors={[colors.headerAccent, colors.primary, colors.headerAccent]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={StyleSheet.absoluteFill}

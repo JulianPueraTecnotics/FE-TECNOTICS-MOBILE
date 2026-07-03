@@ -14,12 +14,44 @@ async function parse<T>(r: Response): Promise<T> {
     return data as T;
 }
 
-export const getEntries = async (params: { tipo?: string; estado?: string; desde?: string; hasta?: string; search?: string; page?: number } = {}): Promise<EntriesResponse> => {
+export const getEntries = async (params: { tipo?: string; estado?: string; desde?: string; hasta?: string; search?: string; page?: number; limit?: number } = {}): Promise<EntriesResponse> => {
     const qs = new URLSearchParams();
-    Object.entries({ ...params, limit: 20 }).forEach(([k, v]) => {
+    Object.entries({ limit: 20, ...params }).forEach(([k, v]) => {
         if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
     });
     return parse<EntriesResponse>(await fetch(`${API_ROUTES.LEDGER_ENTRIES}?${qs.toString()}`, json("GET")));
+};
+
+/** Fila del export de auditoría: una línea contable con su comprobante y documento origen. */
+export interface EntryExportRow {
+    comprobante: string;
+    tipo: string;
+    fecha: string;
+    periodo: string;
+    estado: string;
+    descripcion_comprobante: string;
+    origen_tipo: string;
+    documento_origen: string;
+    cuenta: string;
+    cuenta_nombre: string;
+    tercero: string;
+    centro_costo: string;
+    base: number | string;
+    debito: number;
+    credito: number;
+    descripcion_linea: string;
+    creado_por: string;
+    contabilizado_por: string;
+}
+
+/** Export de auditoría: comprobantes con detalle de líneas y documento origen (para Excel). */
+export const getEntriesExport = async (params: { tipo?: string; estado?: string; desde?: string; hasta?: string; search?: string } = {}): Promise<{ ok: boolean; rows: EntryExportRow[]; total_comprobantes: number; total_lineas: number }> => {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
+    });
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return parse(await fetch(`${API_ROUTES.LEDGER_ENTRIES_EXPORT}${suffix}`, json("GET")));
 };
 
 export const getEntry = async (id: string): Promise<{ ok: boolean; entry: JournalEntry }> => parse(await fetch(API_ROUTES.LEDGER_ENTRY_BY_ID(id), json("GET")));

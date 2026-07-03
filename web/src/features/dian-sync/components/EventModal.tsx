@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { emitEvent, DIAN_EVENT_LABELS, type DianDocument, type DianEventCode } from "../../../services/dian.service";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
-import "../../../components/modals/nomina-modals.css";
+import { AppModal, FilterField, FieldControl } from "../../../components/design-system";
 
 interface EventModalProps {
     isOpen: boolean;
@@ -12,7 +11,6 @@ interface EventModalProps {
     document: DianDocument | null;
 }
 
-/** Modal para emitir un evento (acuse) sobre una factura recibida. */
 const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSuccess, credentialId, document: doc }) => {
     const [eventCode, setEventCode] = useState<DianEventCode>("030");
     const [serie, setSerie] = useState("");
@@ -20,8 +18,6 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSuccess, cre
     const [documentTypeId, setDocumentTypeId] = useState("");
     const [eventPrefix, setEventPrefix] = useState("");
     const [loading, setLoading] = useState(false);
-
-    useBodyScrollLock(isOpen);
 
     useEffect(() => {
         if (isOpen && doc) {
@@ -63,60 +59,51 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSuccess, cre
     };
 
     return (
-        <div className="modal-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }} onClick={onClose}>
-            <div className="modal-container" style={{ maxWidth: 580, width: "100%", maxHeight: "90vh", borderRadius: 12 }} onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>Emitir evento</h2>
-                    <button className="modal-close" onClick={onClose} disabled={loading} aria-label="Cerrar">
-                        <i className="ri-close-line"></i>
+        <AppModal
+            title="Emitir evento"
+            titleIcon="ri-mail-check-line"
+            onClose={onClose}
+            closeDisabled={loading}
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>Cancelar</button>
+                    <button type="submit" form="dian-event-form" className="export-submit" disabled={loading}>
+                        {loading ? <><i className="ri-loader-4-line rotating" aria-hidden /> Emitiendo…</> : "Emitir evento"}
                     </button>
+                </>
+            }
+        >
+            <form id="dian-event-form" onSubmit={handleSubmit}>
+                <div className="info-box" style={{ marginBottom: "1rem" }}>
+                    <i className="ri-mail-check-line" aria-hidden />
+                    <p>
+                        Factura de <strong>{doc.nombre_emisor || doc.nit_emisor || "—"}</strong>.<br />
+                        CUFE: <code style={{ wordBreak: "break-all" }}>{doc.cufe}</code>
+                    </p>
                 </div>
-
-                <form className="modal-body" onSubmit={handleSubmit}>
-                    <div className="info-box">
-                        <i className="ri-mail-check-line"></i>
-                        <p>
-                            Factura de <strong>{doc.nombre_emisor || doc.nit_emisor || "—"}</strong>.<br />
-                            CUFE: <code style={{ wordBreak: "break-all" }}>{doc.cufe}</code>
-                        </p>
-                    </div>
-
-                    <div className="form-grid">
-                        <div className="form-group full-width">
-                            <label>Tipo de evento *</label>
-                            <select value={eventCode} onChange={(e) => setEventCode(e.target.value as DianEventCode)} disabled={loading}>
-                                {(Object.keys(DIAN_EVENT_LABELS) as DianEventCode[]).map((code) => (
-                                    <option key={code} value={code}>{code} · {DIAN_EVENT_LABELS[code]}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label>Serie (prefijo-folio) *</label>
-                            <input type="text" value={serie} onChange={(e) => setSerie(e.target.value)} placeholder="Ej. FEM-58" disabled={loading} />
-                        </div>
-                        <div className="form-group">
-                            <label>NIT del emisor *</label>
-                            <input type="text" value={senderNit} onChange={(e) => setSenderNit(e.target.value)} disabled={loading} />
-                        </div>
-                        <div className="form-group">
-                            <label>Tipo de documento</label>
-                            <input type="text" value={documentTypeId} onChange={(e) => setDocumentTypeId(e.target.value)} placeholder="Opcional" disabled={loading} />
-                        </div>
-                        <div className="form-group">
-                            <label>Prefijo del evento</label>
-                            <input type="text" value={eventPrefix} onChange={(e) => setEventPrefix(e.target.value)} placeholder="Opcional" disabled={loading} />
-                        </div>
-                    </div>
-
-                    <div className="modal-footer">
-                        <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Cancelar</button>
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? <><i className="ri-loader-4-line rotating"></i> Emitiendo...</> : "Emitir evento"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div className="led-form-grid">
+                    <FilterField label="Tipo de evento *" htmlFor="dian-ev-type" icon="ri-mail-check-line">
+                        <FieldControl id="dian-ev-type" as="select" value={eventCode} onChange={(e) => setEventCode(e.target.value as DianEventCode)} disabled={loading}>
+                            {(Object.keys(DIAN_EVENT_LABELS) as DianEventCode[]).map((code) => (
+                                <option key={code} value={code}>{code} · {DIAN_EVENT_LABELS[code]}</option>
+                            ))}
+                        </FieldControl>
+                    </FilterField>
+                    <FilterField label="Serie (prefijo-folio) *" htmlFor="dian-ev-serie" icon="ri-file-text-line">
+                        <FieldControl id="dian-ev-serie" type="text" value={serie} onChange={(e) => setSerie(e.target.value)} placeholder="Ej. FEM-58" disabled={loading} />
+                    </FilterField>
+                    <FilterField label="NIT del emisor *" htmlFor="dian-ev-nit" icon="ri-building-line">
+                        <FieldControl id="dian-ev-nit" type="text" value={senderNit} onChange={(e) => setSenderNit(e.target.value)} disabled={loading} />
+                    </FilterField>
+                    <FilterField label="Tipo de documento" htmlFor="dian-ev-doctype" icon="ri-file-list-3-line">
+                        <FieldControl id="dian-ev-doctype" type="text" value={documentTypeId} onChange={(e) => setDocumentTypeId(e.target.value)} placeholder="Opcional" disabled={loading} />
+                    </FilterField>
+                    <FilterField label="Prefijo del evento" htmlFor="dian-ev-prefix" icon="ri-price-tag-3-line">
+                        <FieldControl id="dian-ev-prefix" type="text" value={eventPrefix} onChange={(e) => setEventPrefix(e.target.value)} placeholder="Opcional" disabled={loading} />
+                    </FilterField>
+                </div>
+            </form>
+        </AppModal>
     );
 };
 

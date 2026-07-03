@@ -24,7 +24,7 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
-const COLORS = { primary: "rgba(59,130,246,0.9)", teal: "rgba(20,184,166,0.9)", success: "rgba(34,197,94,0.9)", warning: "rgba(234,179,8,0.9)", danger: "rgba(239,68,68,0.9)", palette: ["rgba(34,197,94,0.9)", "rgba(59,130,246,0.9)", "rgba(234,179,8,0.9)", "rgba(168,85,247,0.9)", "rgba(20,184,166,0.9)", "rgba(239,68,68,0.9)"] };
+const COLORS = { primary: "rgba(96,153,172,0.92)", teal: "rgba(90,159,180,0.92)", success: "rgba(34,197,94,0.9)", warning: "rgba(234,179,8,0.9)", danger: "rgba(239,68,68,0.9)", palette: ["rgba(34,197,94,0.9)", "rgba(96,153,172,0.92)", "rgba(234,179,8,0.9)", "rgba(168,85,247,0.9)", "rgba(90,159,180,0.9)", "rgba(239,68,68,0.9)"] };
 const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 const money = (n: number) => "$" + (n || 0).toLocaleString("es-CO", { maximumFractionDigits: 0 });
 const pLabel = (p: string) => { const [y, m] = p.split("-"); return `${MONTHS[parseInt(m, 10) - 1]} ${y.slice(2)}`; };

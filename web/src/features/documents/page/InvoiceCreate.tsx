@@ -3,5 +3,5 @@ import { PATHS } from "../../../router/paths.contants";
 
 /** En web el editor completo está en Dashboard (fe-billing). */
 export default function InvoiceCreate() {
-  return <Navigate to={PATHS.DASHBOARD} replace />;
+  return <Navigate to={PATHS.DASHBOARD_BILLING} replace />;
 }

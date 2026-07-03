@@ -11,17 +11,12 @@ import type {
   ContratoMandatoUrlResponse,
 } from '../types';
 
-/** Archivo web (File) o asset nativo para FormData en React Native. */
-export type RegisterUploadFile =
-  | File
-  | { uri: string; name: string; type: string };
-
 // ============================================
 // PASO 1: Registro inicial con logo
 // ============================================
 export const signupStep1 = async (
   data: SignupStep1Request,
-  logo: RegisterUploadFile
+  logo: File
 ): Promise<SignupStep1Response> => {
   const formData = new FormData();
 
@@ -84,10 +79,10 @@ export const signupStep2VerifyOTP = async (
 export const signupStep3UploadDocs = async (
   companyId: string,
   files: {
-    rut: RegisterUploadFile;
-    camara_comercio: RegisterUploadFile;
-    cedula_front: RegisterUploadFile;
-    cedula_back: RegisterUploadFile;
+    rut: File;
+    camara_comercio: File;
+    cedula_front: File;
+    cedula_back: File;
   }
 ): Promise<SignupStep3Response> => {
   const formData = new FormData();

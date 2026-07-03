@@ -1,32 +1,88 @@
-.config-page {
-    padding: 1.5rem;
-    max-width: 1500px;
-    margin: 0 auto;
+.config-page,
+.config-page.ds-page {
+    padding: 0;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    min-height: calc(100dvh - var(--header-height));
+}
+
+/* Scroll vertical: ocupa el viewport bajo el header fijo */
+.config-page.container-scroll {
+    box-sizing: border-box;
+    min-width: 0;
+    height: calc(100dvh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
+    overflow-x: clip;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding-bottom: 0;
 }
 
 .config-shell {
     display: grid;
-    grid-template-columns: 250px 1fr;
-    gap: 1.5rem;
-    align-items: start;
+    grid-template-columns: minmax(220px, 248px) minmax(0, 1fr);
+    gap: 0;
+    align-items: stretch;
+    min-width: 0;
+    min-height: calc(100dvh - var(--header-height));
 }
 
 .config-sidebar {
     background: var(--card-bg);
-    border: 1px solid var(--border-light);
-    border-radius: 12px;
-    padding: 1rem;
+    border: none;
+    border-right: 1px solid var(--border-light);
+    border-radius: 0;
+    padding: 1rem 0.65rem 1.25rem;
     position: sticky;
-    top: 1rem;
+    top: 0;
+    align-self: stretch;
+    min-height: calc(100dvh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.config-sidebar__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.config-sidebar__close {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.config-sidebar__close:hover {
+    color: var(--header-accent);
+    border-color: var(--header-accent);
+}
+
+.config-nav {
+    display: flex;
+    flex-direction: column;
 }
 
 .config-title {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.15rem;
+    font-size: 1rem;
     color: var(--primary-color);
-    margin: 0.25rem 0 1rem;
+    margin: 0;
 }
 
 .config-nav-group {
@@ -48,14 +104,39 @@
     gap: 0.55rem;
     width: 100%;
     text-align: left;
-    padding: 9px 12px;
+    padding: 10px 12px;
     border: none;
     background: none;
     border-radius: 8px;
     color: var(--primary-text);
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.15s, color 0.15s;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.config-nav-item__icon {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--header-accent) 10%, var(--bg-subtle));
+    color: var(--header-accent);
+    font-size: 1rem;
+}
+
+.config-nav-item__label {
+    flex: 1;
+    min-width: 0;
+}
+
+.config-nav-item__check {
+    flex-shrink: 0;
+    font-size: 1rem;
+    opacity: 0.95;
 }
 
 .config-nav-item:hover {
@@ -63,12 +144,231 @@
 }
 
 .config-nav-item.active {
-    background: var(--accent-teal);
+    background: var(--header-accent);
+    color: #fff;
+}
+
+.config-nav-item.active .config-nav-item__icon {
+    background: rgba(255, 255, 255, 0.18);
     color: #fff;
 }
 
 .config-content {
     min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+    padding: 1rem 1.25rem 1.5rem;
+    box-sizing: border-box;
+}
+
+.config-content-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+    min-width: 0;
+}
+
+.config-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 1rem 0.55rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--header-accent) 45%, var(--border-light));
+    background: color-mix(in srgb, var(--header-accent) 10%, var(--card-bg));
+    color: var(--header-accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 4px rgba(96, 153, 172, 0.12);
+}
+
+.config-nav-toggle:hover {
+    background: color-mix(in srgb, var(--header-accent) 16%, var(--card-bg));
+    border-color: var(--header-accent);
+}
+
+.config-nav-toggle__icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--header-accent);
+    color: #fff;
+    font-size: 1.05rem;
+}
+
+.config-content-toolbar__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-text);
+    min-width: 0;
+}
+
+.config-content-toolbar__title i {
+    color: var(--header-accent);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.config-content__body {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* ─── Drawer móvil (modal lateral) ─── */
+.config-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 11001;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: rgba(0, 20, 30, 0.48);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    cursor: pointer;
+    animation: config-drawer-fade 0.2s ease-out;
+}
+
+.config-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100vw;
+    z-index: 11002;
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border: none;
+    border-left: var(--header-accent-width) solid var(--header-accent);
+    box-shadow: -8px 0 36px rgba(0, 39, 55, 0.22);
+    animation: config-drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    box-sizing: border-box;
+}
+
+.config-drawer__head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: calc(var(--header-height) + 0.85rem) 1rem 0.85rem;
+    border-bottom: 1px solid var(--border-light);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--header-accent) 8%, var(--card-bg)) 0%,
+        var(--card-bg) 100%
+    );
+}
+
+.config-drawer__title-wrap {
+    min-width: 0;
+}
+
+.config-drawer__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.config-drawer__title i {
+    color: var(--header-accent);
+    font-size: 1.2rem;
+}
+
+.config-drawer__subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+.config-drawer__close {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.15rem;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.config-drawer__close:hover {
+    color: var(--header-accent);
+    border-color: var(--header-accent);
+    background: color-mix(in srgb, var(--header-accent) 10%, var(--bg-subtle));
+}
+
+.config-drawer__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.85rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0));
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .config-drawer__head {
+        padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+    }
+
+    .config-drawer__title {
+        font-size: 1rem;
+    }
+
+    .config-nav-item--drawer {
+        min-height: 44px;
+    }
+}
+
+.config-nav-item--drawer {
+    padding: 0.7rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    margin-bottom: 0.2rem;
+}
+
+.config-nav-item--drawer:hover {
+    border-color: var(--border-light);
+}
+
+.config-nav-item--drawer.active {
+    border-color: var(--header-accent);
+    box-shadow: 0 2px 8px rgba(96, 153, 172, 0.18);
+}
+
+@keyframes config-drawer-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes config-drawer-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
 }
 
 /* Las páginas embebidas (Profile/SubUsers) ya traen su propio contenedor; lo
@@ -76,6 +376,42 @@
 .config-content .profile-page,
 .config-content .sub-users-page {
     padding: 0;
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+.config-content .profile-page .profile-container {
+    padding: 0;
+    box-shadow: none;
+    max-width: 100%;
+}
+
+.config-content .profile-page .profile-card {
+    padding: 1rem 1.05rem;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.config-content .sub-users-page .clients-container {
+    padding: 0;
+    max-width: 100%;
+}
+
+.config-content .led-form-grid,
+.config-content .prefix-add-grid,
+.config-content .billing-reports-card,
+.config-content .prefix-add-form {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.config-content .profile-page .profile-card h2 {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
+
+.config-content .profile-page .profile-section-tab {
+    font-size: 0.9375rem;
 }
 
 /* ===== Tarjetas contables (acc-*) ===== */
@@ -140,7 +476,7 @@
     padding: 8px 16px;
     border: none;
     border-radius: 8px;
-    background: var(--accent-teal);
+    background: var(--header-accent);
     color: #fff;
     font-weight: 600;
     font-size: 0.85rem;
@@ -231,16 +567,6 @@
     text-transform: uppercase;
 }
 
-.acc-table input {
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    background: var(--card-bg);
-    color: var(--primary-text);
-    outline: none;
-}
-
 .acc-actions {
     display: flex;
     justify-content: flex-end;
@@ -252,7 +578,7 @@
     padding: 9px 22px;
     border: none;
     border-radius: 8px;
-    background: var(--accent-teal);
+    background: var(--header-accent);
     color: #fff;
     font-weight: 600;
     cursor: pointer;
@@ -299,6 +625,35 @@
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
+    min-width: 0;
+}
+
+.acc-roles-editor {
+    min-width: 0;
+}
+
+.acc-roles-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+}
+
+.acc-roles-toolbar .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+@media (min-width: 480px) {
+    .acc-roles-toolbar .btn-secondary {
+        flex: 0 1 auto;
+    }
 }
 
 .acc-rolelist {
@@ -351,16 +706,8 @@
 
 .acc-perm-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.4rem 1rem;
-}
-
-.acc-perm {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-size: 0.88rem;
-    color: var(--primary-text);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: 0.55rem;
 }
 
 .btn-icon {
@@ -379,18 +726,265 @@
 }
 
 @media (max-width: 920px) {
+    .config-page,
+    .config-page.ds-page {
+        padding: 0;
+    }
+
     .config-shell {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        min-height: auto;
     }
-    .config-sidebar {
-        position: static;
+
+    .config-content {
+        padding: 0.75rem 0.85rem 1rem;
     }
+
+    .config-content-toolbar {
+        align-items: center;
+    }
+
+    .config-content-toolbar__title {
+        font-size: 0.98rem;
+    }
+
     .acc-roles-layout {
         grid-template-columns: 1fr;
     }
+
     .acc-grid,
     .acc-grid-3,
     .acc-perm-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .acc-card-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .acc-head-actions {
+        width: 100%;
+    }
+}
+
+/* ── Perfil tributario (DIAN) ── */
+.config-section {
+    padding: 8px 4px;
+}
+.config-section__head {
+    margin-bottom: 16px;
+}
+.config-section__head h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color, #1a202c);
+}
+.config-section__head h2 i {
+    color: var(--accent-teal);
+}
+.config-section__desc {
+    margin: 4px 0 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+.tax-detect {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+.tax-detect i {
+    color: var(--accent-teal);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.tax-detect strong {
+    color: var(--text-color, #1a202c);
+    text-transform: capitalize;
+}
+.tax-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.tax-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 460px;
+}
+.tax-field span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-color, #1a202c);
+}
+.tax-field input,
+.tax-field select {
+    padding: 9px 11px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-color, #1a202c);
+    font-size: 0.9rem;
+}
+.tax-checks {
+    display: contents;
+}
+
+.tax-checks .ds-check-card-grid {
+    grid-column: 1 / -1;
+}
+.tax-actions {
+    margin-top: 20px;
+}
+
+.tax-actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 12px 24px !important;
+    border-radius: 24px;
+    background-color: var(--header-accent) !important;
+    font-weight: 600;
+}
+
+.tax-actions .btn-primary:hover:not(:disabled) {
+    background-color: #4a8496 !important;
+}
+
+/* ── Contenedor de tabla contable con scroll horizontal (móvil) ── */
+.acc-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+}
+
+/* ── Móvil: la parte contable ──
+   Dos estrategias según el tipo de tabla:
+   (A) Tablas SIMPLES (.acc-table normal, 1 fila por registro): formato TARJETA. Cada celda
+       con data-label se apila con su etiqueta a la izquierda. Nada queda cortado.
+   (B) Tablas AGRUPADas (.led-diary libro diario, .led-grid cuadrículas con colSpan):
+       el card-layout no encaja, así que scroll horizontal cómodo con la tabla intacta. */
+@media (max-width: 767px) {
+    /* (B) Libro diario y cuadrículas: scroll horizontal, NO card. */
+    .led-diary,
+    .led-grid {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        font-size: 0.8rem;
+    }
+
+    /* (A) Tablas simples en formato tarjeta. Se EXCLUYE led-diary/led-grid (scroll) y
+       las de estados financieros (.fs-block .acc-table, solo 2 columnas, ya legibles). */
+    .acc-table:not(.led-diary):not(.led-grid) thead {
+        display: none;
+    }
+    .fs-block .acc-table thead {
+        display: table-header-group; /* restaura: las FS no van en card */
+    }
+    .acc-table:not(.led-diary):not(.led-grid) tbody tr {
+        display: block;
+        margin-bottom: 0.85rem;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--border-light);
+        border-radius: 10px;
+        background: var(--card-bg);
+    }
+    .fs-block .acc-table tbody tr {
+        display: table-row;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+    }
+    .acc-table:not(.led-diary):not(.led-grid) tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        border: none;
+        padding: 0.3rem 0;
+        text-align: right;
+    }
+    .fs-block .acc-table tbody td {
+        display: table-cell;
+    }
+    .acc-table:not(.led-diary):not(.led-grid) tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-muted);
+        text-align: left;
+        flex-shrink: 0;
+    }
+    .fs-block .acc-table tbody td::before {
+        content: ""; /* FS no usa etiquetas */
+    }
+    .fs-block .acc-table tfoot tr {
+        display: table-row;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: none;
+    }
+    .fs-block .acc-table tfoot td {
+        display: table-cell;
+    }
+    .fs-block .acc-table tfoot td::before {
+        content: "";
+    }
+    /* Las acciones (con botones) ocupan toda la fila, no a la derecha. */
+    .acc-table:not(.led-diary):not(.led-grid) tbody td .led-row-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+/* ── Móvil estrecho: densidad de tablas, acciones y campos apilados ── */
+@media (max-width: 480px) {
+    .acc-table {
+        font-size: 0.78rem;
+    }
+    .acc-table th,
+    .acc-table td {
+        padding: 8px 6px;
+    }
+    .acc-card-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .acc-head-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.3rem;
+    }
+    .acc-head-actions select,
+    .acc-head-actions .btn-primary,
+    .acc-head-actions .btn-secondary,
+    .acc-field {
+        width: 100%;
+    }
+    .led-grid tfoot button {
+        width: 100%;
+    }
+    .tax-field {
+        max-width: 100%;
+    }
+    .acc-grid,
+    .acc-grid-3 {
         grid-template-columns: 1fr;
     }
 }

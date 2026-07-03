@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
+import { DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { deleteRemision, downloadRemision, getRemisiones, sendRemisionEmail } from "../../../services/remisiones.service";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
@@ -24,7 +24,6 @@ function formatDate(iso?: string): string {
 
 export default function RemisionesNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [remisiones, setRemisiones] = useState<IRemision[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -86,36 +85,30 @@ export default function RemisionesNative() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Remisiones</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Entregas firmadas por el cliente</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-      >
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Buscar remisión o cliente..."
-          placeholderTextColor={colors.textMuted}
-          style={[styles.search, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-        />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
-          <LedgerChipRow>
-            <LedgerChip label="Todas" active={statusFilter === ""} onPress={() => setStatusFilter("")} />
-            {STATUSES.map((s) => (
-              <LedgerChip
-                key={s}
-                label={REMISION_STATUS_LABELS[s]}
-                active={statusFilter === s}
-                onPress={() => setStatusFilter(statusFilter === s ? "" : s)}
-              />
-            ))}
-          </LedgerChipRow>
-        </ScrollView>
+    <DsModuleScreen
+      title="Remisiones"
+      subtitle="Entregas firmadas por el cliente"
+      refreshing={refreshing}
+      onRefresh={async () => {
+        setRefreshing(true);
+        await load();
+        setRefreshing(false);
+      }}
+      toolbar={<DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar remisión o cliente..." />}
+    >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+        <LedgerChipRow>
+          <LedgerChip label="Todas" active={statusFilter === ""} onPress={() => setStatusFilter("")} />
+          {STATUSES.map((s) => (
+            <LedgerChip
+              key={s}
+              label={REMISION_STATUS_LABELS[s]}
+              active={statusFilter === s}
+              onPress={() => setStatusFilter(statusFilter === s ? "" : s)}
+            />
+          ))}
+        </LedgerChipRow>
+      </ScrollView>
 
         {loading ? (
           <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Cargando...</Text>
@@ -175,16 +168,10 @@ export default function RemisionesNative() {
           ))
         )}
         <NativePagination page={page} totalPages={totalPages} loading={loading} onChange={setPage} />
-      </ScrollView>
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
-  search: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, marginBottom: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginTop: 10 },
 });

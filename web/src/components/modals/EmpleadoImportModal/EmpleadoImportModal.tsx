@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { createEmpleado, getAllEmpleadosFull, updateEmpleado, type Empleado } from "../../../services/empleados.service";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppDrawer, FilterField } from "../../../components/design-system";
 import {
     buildExistingDocsSet,
     buildInstructionsCsv,
@@ -41,8 +41,6 @@ const EmpleadoImportModal: React.FC<EmpleadoImportModalProps> = ({ isOpen, onClo
     const [empleados, setEmpleados] = useState<Empleado[]>([]);
     const [loadingEmpleados, setLoadingEmpleados] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-
-    useBodyScrollLock(isOpen);
 
     // Al abrir, carga todos los empleados existentes para clasificar las filas correctamente.
     useEffect(() => {
@@ -170,16 +168,38 @@ const EmpleadoImportModal: React.FC<EmpleadoImportModalProps> = ({ isOpen, onClo
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay nomina-drawer" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
-            <div className="modal-container nomina-drawer-panel">
-                <div className="modal-header">
-                    <h2 id="import-modal-title">Importar empleados</h2>
-                    <button className="modal-close" onClick={handleClose} disabled={importing}>
-                        <i className="ri-close-line"></i>
+        <AppDrawer
+            title="Importar empleados"
+            titleIcon="ri-upload-2-line"
+            onClose={handleClose}
+            closeDisabled={importing}
+            ariaLabelledBy="import-modal-title"
+            footer={
+                results ? (
+                    <button type="button" className="export-cancel" onClick={handleClose}>
+                        Cerrar
                     </button>
-                </div>
-
-                <div className="modal-body">
+                ) : (
+                    <>
+                        <button type="button" className="export-cancel" onClick={handleClose} disabled={importing}>
+                            Cancelar
+                        </button>
+                        <button type="button" className="export-submit" onClick={handleImport} disabled={importing || loadingEmpleados || validRows.length === 0}>
+                            {importing ? (
+                                <>
+                                    <i className="ri-loader-4-line rotating" aria-hidden /> Importando {progress.done}/{progress.total}…
+                                </>
+                            ) : (
+                                <>
+                                    <i className="ri-upload-cloud-line" aria-hidden /> Importar {validRows.length || ""} empleado{validRows.length !== 1 ? "s" : ""}
+                                </>
+                            )}
+                        </button>
+                    </>
+                )
+            }
+        >
+                <div>
                     {/* Paso 1 — plantilla */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-download-2-line"></i> 1. Descarga la plantilla</h3>
@@ -200,30 +220,35 @@ const EmpleadoImportModal: React.FC<EmpleadoImportModalProps> = ({ isOpen, onClo
                     {/* Paso 2 — archivo */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-upload-2-line"></i> 2. Sube el archivo</h3>
-                        <div
-                            className="import-dropzone"
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => inputRef.current?.click()}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => {
-                                e.preventDefault();
-                                const file = e.dataTransfer.files?.[0];
-                                if (file) void handleFile(file);
-                            }}
-                        >
-                            <i className="ri-file-upload-line"></i>
-                            <p>{fileName ? fileName : "Haz clic o arrastra aquí tu archivo CSV"}</p>
-                            <span className="field-hint">Formatos aceptados: .csv (UTF-8)</span>
+                        <div className="led-form-grid">
+                        <FilterField className="led-form-grid__full" label="Archivo CSV" htmlFor="empleado-import-file" icon="ri-file-upload-line">
+                            <div
+                                className="import-dropzone"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => inputRef.current?.click()}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    const file = e.dataTransfer.files?.[0];
+                                    if (file) void handleFile(file);
+                                }}
+                            >
+                                <i className="ri-file-upload-line"></i>
+                                <p>{fileName ? fileName : "Haz clic o arrastra aquí tu archivo CSV"}</p>
+                                <span className="field-hint">Formatos aceptados: .csv (UTF-8)</span>
+                            </div>
+                            <input
+                                ref={inputRef}
+                                id="empleado-import-file"
+                                type="file"
+                                accept=".csv,text/csv,.xlsx,.xls"
+                                onChange={onInputChange}
+                                style={{ display: "none" }}
+                            />
+                        </FilterField>
                         </div>
-                        <input
-                            ref={inputRef}
-                            type="file"
-                            accept=".csv,text/csv,.xlsx,.xls"
-                            onChange={onInputChange}
-                            style={{ display: "none" }}
-                        />
                     </div>
 
                     {(parsing || loadingEmpleados) && (
@@ -295,23 +320,7 @@ const EmpleadoImportModal: React.FC<EmpleadoImportModalProps> = ({ isOpen, onClo
                         </div>
                     )}
                 </div>
-
-                <div className="modal-footer">
-                    {results ? (
-                        <button type="button" className="btn-primary" onClick={handleClose}>Cerrar</button>
-                    ) : (
-                        <>
-                            <button type="button" className="btn-secondary" onClick={handleClose} disabled={importing}>Cancelar</button>
-                            <button type="button" className="btn-primary" onClick={handleImport} disabled={importing || loadingEmpleados || validRows.length === 0}>
-                                {importing
-                                    ? (<><i className="ri-loader-4-line rotating"></i> Importando {progress.done}/{progress.total}...</>)
-                                    : (<><i className="ri-upload-cloud-line"></i> Importar {validRows.length || ""} empleado{validRows.length !== 1 ? "s" : ""}</>)}
-                            </button>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
+        </AppDrawer>
     );
 };
 

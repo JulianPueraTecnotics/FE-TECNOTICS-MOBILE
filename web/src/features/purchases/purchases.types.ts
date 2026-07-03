@@ -56,7 +56,11 @@ export interface Purchase {
     issue_date?: string;
     currency?: string;
     subtotal: number;
+    /** Ingresos para terceros (no son base gravable de la empresa). */
+    ingresos_terceros?: number;
     iva_total: number;
+    /** Impuesto al consumo (INC). */
+    impuesto_consumo?: number;
     total: number;
     lines: PurchaseLine[];
     status: "imported" | "reviewed" | "paid" | "void";

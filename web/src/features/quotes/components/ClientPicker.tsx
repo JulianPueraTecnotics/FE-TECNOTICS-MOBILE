@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import type { IExternUser } from "../../../types";
 import { getAllClients, searchClients } from "../../../services/clients.service";
 import { useDebouncedValue, FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
+import { AppDrawer } from "../../../components/design-system";
 import "./SidePicker.css";
 
 interface ClientPickerProps {
@@ -44,46 +45,41 @@ const ClientPicker: React.FC<ClientPickerProps> = ({ isOpen, onClose, onPick }) 
     if (!isOpen) return null;
 
     return (
-        <div className="side-picker">
-            <div className="side-picker__overlay" onClick={onClose}></div>
-            <div className="side-picker__panel" role="dialog" aria-modal="true" aria-label="Seleccionar cliente">
-                <div className="side-picker__header">
-                    <h2>Seleccionar cliente</h2>
-                    <button className="side-picker__close" onClick={onClose} aria-label="Cerrar">
-                        <i className="ri-close-line"></i>
-                    </button>
+        <AppDrawer
+            title="Seleccionar cliente"
+            titleIcon="ri-user-search-line"
+            onClose={onClose}
+        >
+            <div className="side-picker__content side-picker__content--drawer">
+                <div className="side-picker__search">
+                    <i className="ri-search-line" aria-hidden />
+                    <input
+                        type="search"
+                        placeholder="Buscar por nombre o documento"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        autoFocus
+                    />
                 </div>
-                <div className="side-picker__content">
-                    <div className="side-picker__search">
-                        <i className="ri-search-line"></i>
-                        <input
-                            type="search"
-                            placeholder="Buscar por nombre o documento"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            autoFocus
-                        />
-                    </div>
-                    <ul className="side-picker__list">
-                        {loading ? (
-                            <li className="side-picker__empty">Cargando clientes...</li>
-                        ) : list.length === 0 ? (
-                            <li className="side-picker__empty">No hay clientes para mostrar</li>
-                        ) : (
-                            list.map((c) => (
-                                <li key={c._id} className="side-picker__item" onClick={() => onPick(c)}>
-                                    <div className="side-picker__item-main">
-                                        <span className="side-picker__item-name">{c.name}</span>
-                                        <span className="side-picker__item-code">{c.doc_number}</span>
-                                    </div>
-                                    {c.email && <span className="side-picker__item-sub">{c.email}</span>}
-                                </li>
-                            ))
-                        )}
-                    </ul>
-                </div>
+                <ul className="side-picker__list">
+                    {loading ? (
+                        <li className="side-picker__empty">Cargando clientes...</li>
+                    ) : list.length === 0 ? (
+                        <li className="side-picker__empty">No hay clientes para mostrar</li>
+                    ) : (
+                        list.map((c) => (
+                            <li key={c._id} className="side-picker__item" onClick={() => onPick(c)}>
+                                <div className="side-picker__item-main">
+                                    <span className="side-picker__item-name">{c.name}</span>
+                                    <span className="side-picker__item-code">{c.doc_number}</span>
+                                </div>
+                                {c.email && <span className="side-picker__item-sub">{c.email}</span>}
+                            </li>
+                        ))
+                    )}
+                </ul>
             </div>
-        </div>
+        </AppDrawer>
     );
 };
 

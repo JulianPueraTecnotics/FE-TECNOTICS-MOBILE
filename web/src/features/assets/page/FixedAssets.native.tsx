@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { LedgerField, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
+import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -45,7 +45,6 @@ const emptyForm = {
 
 export default function FixedAssetsNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [assets, setAssets] = useState<FixedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -211,25 +210,17 @@ export default function FixedAssetsNative() {
   const setF = (key: keyof typeof emptyForm, value: string) => setForm((p) => ({ ...p, [key]: value }));
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border, paddingHorizontal: 16 }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Activos fijos</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Registro, depreciación y baja/venta</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-        keyboardShouldPersistTaps="handled"
+    <>
+      <DsModuleScreen
+        title="Activos fijos"
+        subtitle="Registro, depreciación y baja/venta"
+        loading={loading}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        toolbar={<DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar..." />}
+        headerActions={<DsButton label="Nuevo" icon="add" compact onPress={openNew} />}
       >
         <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Buscar..."
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText }]}
-          />
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginVertical: 8 }}>
             {["", "activo", "dado_de_baja", "vendido"].map((s) => (
               <Pressable
@@ -238,7 +229,7 @@ export default function FixedAssetsNative() {
                 style={[
                   styles.chip,
                   {
-                    borderColor: estado === s ? colors.accent : colors.border,
+                    borderColor: estado === s ? colors.headerAccent : colors.border,
                     backgroundColor: estado === s ? colors.bgSubtle : colors.pageBg,
                   },
                 ]}
@@ -249,14 +240,11 @@ export default function FixedAssetsNative() {
           </View>
           <LedgerField label="Período depreciación (YYYY-MM)" value={periodo} onChangeText={setPeriodo} />
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-            <LedgerPrimaryBtn label="Nuevo activo" icon="add" onPress={openNew} />
             <LedgerPrimaryBtn label="Depreciar mes" variant="secondary" onPress={runDepreciation} loading={depreciating} />
           </View>
         </View>
 
-        {loading ? (
-          <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Cargando...</Text>
-        ) : assets.length === 0 ? (
+        {assets.length === 0 ? (
           <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Sin activos.</Text>
         ) : (
           assets.map((a) => (
@@ -298,7 +286,7 @@ export default function FixedAssetsNative() {
             </View>
           ))
         )}
-      </ScrollView>
+      </DsModuleScreen>
 
       <Modal visible={modal !== null} animationType="slide" onRequestClose={() => setModal(null)}>
         <ScrollView
@@ -311,7 +299,7 @@ export default function FixedAssetsNative() {
               {modal === "new" ? "Nuevo activo" : "Editar activo"}
             </Text>
             <Pressable onPress={() => setModal(null)}>
-              <Text style={{ color: colors.accent, fontWeight: "600" }}>Cerrar</Text>
+              <Text style={{ color: colors.headerAccent, fontWeight: "600" }}>Cerrar</Text>
             </Pressable>
           </View>
           <LedgerField label="Código" value={form.codigo} onChangeText={(v) => setF("codigo", v)} />
@@ -339,7 +327,7 @@ export default function FixedAssetsNative() {
                 <Pressable
                   key={t}
                   onPress={() => setDisp((p) => ({ ...p, tipo: t }))}
-                  style={[styles.chip, { borderColor: disp.tipo === t ? colors.accent : colors.border }]}
+                  style={[styles.chip, { borderColor: disp.tipo === t ? colors.headerAccent : colors.border }]}
                 >
                   <Text style={{ color: colors.primaryText }}>{t === "venta" ? "Venta" : "Baja"}</Text>
                 </Pressable>
@@ -360,17 +348,12 @@ export default function FixedAssetsNative() {
           </View>
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 12 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 10, paddingVertical: 10, fontSize: 14, marginBottom: 8 },
   chip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "flex-end" },
   modalBox: { padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16 },

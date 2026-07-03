@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigate } from "react-router-dom";
 import NativePagination from "../../../components/native/list/NativePagination.native";
+import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { PATHS } from "../../../router/paths.contants";
 import {
@@ -28,7 +28,6 @@ const STATUSES: (QuoteStatus | "")[] = ["", "draft", "sent", "accepted", "reject
 
 export default function QuotesNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const navigate = useNavigate();
   const [quotes, setQuotes] = useState<IQuote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,36 +90,30 @@ export default function QuotesNative() {
     s === "accepted" || s === "invoiced" ? "ok" : s === "rejected" ? "bad" : "warn";
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Cotizaciones</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Propuestas comerciales para tus clientes</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-      >
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Buscar cliente o número..."
-          placeholderTextColor={colors.textMuted}
-          style={[styles.search, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-        />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
-          <LedgerChipRow>
-            {STATUSES.map((s) => (
-              <LedgerChip
-                key={s || "all"}
-                label={s ? QUOTE_STATUS_LABELS[s as QuoteStatus] : "Todos"}
-                active={statusFilter === s}
-                onPress={() => setStatusFilter(statusFilter === s ? "" : s)}
-              />
-            ))}
-          </LedgerChipRow>
-        </ScrollView>
-        <LedgerPrimaryBtn label="Nueva cotización" onPress={() => navigate(PATHS.SALES_COTIZACIONES_NUEVA)} />
+    <DsModuleScreen
+      title="Cotizaciones"
+      subtitle="Propuestas comerciales para tus clientes"
+      refreshing={refreshing}
+      onRefresh={async () => {
+        setRefreshing(true);
+        await load();
+        setRefreshing(false);
+      }}
+      toolbar={<DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar cliente o número..." />}
+    >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+        <LedgerChipRow>
+          {STATUSES.map((s) => (
+            <LedgerChip
+              key={s || "all"}
+              label={s ? QUOTE_STATUS_LABELS[s as QuoteStatus] : "Todos"}
+              active={statusFilter === s}
+              onPress={() => setStatusFilter(statusFilter === s ? "" : s)}
+            />
+          ))}
+        </LedgerChipRow>
+      </ScrollView>
+      <DsButton label="Nueva cotización" icon="add" onPress={() => navigate(PATHS.SALES_COTIZACIONES_NUEVA)} compact />
         {totalAmount != null ? (
           <Text style={{ color: colors.textMuted, marginVertical: 8 }}>Total listado: {formatCOP(totalAmount)}</Text>
         ) : null}
@@ -211,16 +204,10 @@ export default function QuotesNative() {
           ))
         )}
         <NativePagination page={page} totalPages={totalPages} loading={loading} onChange={setPage} />
-      </ScrollView>
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
-  search: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, marginBottom: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginTop: 10 },
 });

@@ -61,6 +61,26 @@ export interface CoaAccount {
     nivel?: number;
     codigo_padre?: string | null;
     estado: "ACTIVA" | "INACTIVA";
+    es_movimiento?: boolean;
+    // Clasificación funcional de la plantilla contable.
+    categoria?: string | null;
+    clase?: string | null;
+    relacion_con?: string | null;
+    maneja_vencimientos?: "no" | "cartera" | "proveedores" | null;
+    diferencia_fiscal?: boolean;
+}
+
+/** Fila de la plantilla contable "Cuentas contables" (todas las columnas). */
+export interface CoaTemplateRow {
+    codigo: string;
+    nombre: string;
+    categoria?: string;
+    clase?: string;
+    relacion_con?: string;
+    maneja_vencimientos?: string;
+    diferencia_fiscal?: string;
+    activo?: string;
+    nivel_agrupacion?: string;
 }
 
 export interface Role {

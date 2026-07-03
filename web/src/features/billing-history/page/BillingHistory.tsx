@@ -5,6 +5,7 @@ import { getCompanyStatistics, type CompanyStatisticsData } from "../../../servi
 import { errorToast } from "../../../components/shared/toast/toasts";
 import StatisticsDashboard from "../components/StatisticsDashboard";
 import ReportsPanel from "../components/ReportsPanel";
+import { ListPageShell } from "../../../components/design-system";
 
 type Tab = "resumen" | "reportes";
 
@@ -32,7 +33,7 @@ const BillingHistoryPage: React.FC = () => {
     }, [loadStats]);
 
     return (
-        <main className="billing-history-page">
+        <ListPageShell className="billing-history-page">
             <div className="billing-history-layout">
                 <div className="billing-tabs">
                     <button className={`billing-tab ${tab === "resumen" ? "billing-tab--active" : ""}`} onClick={() => setTab("resumen")}>
@@ -53,7 +54,7 @@ const BillingHistoryPage: React.FC = () => {
                     </section>
                 )}
             </div>
-        </main>
+        </ListPageShell>
     );
 };
 

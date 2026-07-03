@@ -1,0 +1,67 @@
+.attachments-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.attachments-head__title {
+    margin: 0;
+}
+
+.attachments-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.85rem;
+}
+
+.attachments-adjuntar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.attachments-empty {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.attachments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.attachments-list__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid rgba(96, 153, 172, 0.22);
+    border-radius: 10px;
+    background: var(--card-bg);
+}
+
+.attachments-list__link {
+    color: var(--header-accent);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+}
+
+.attachments-list__link:hover {
+    text-decoration: underline;
+}
+
+.attachments-list__delete {
+    flex-shrink: 0;
+    padding: 0.35rem 0.55rem;
+}

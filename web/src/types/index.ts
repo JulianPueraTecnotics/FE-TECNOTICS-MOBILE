@@ -701,6 +701,12 @@ export interface ItemData {
     };
     /** Código de unidad de medida (ej: KGM, LTR, PCE) */
     unidad_medida?: string;
+    /** Inventario: si true mueve kardex y descarga existencias al vender. */
+    controla_inventario?: boolean;
+    /** Inventario: método de costeo (por defecto "promedio"). */
+    costeo?: "promedio" | "peps" | "estandar";
+    stock_minimo?: number;
+    stock_maximo?: number;
     /** Opcional: ReteIVA aplicada a esta línea (sobre el IVA del ítem) */
     reteiva?: ReteIVAInput;
     /** Opcional: Retenciones por línea (ReteRenta, ReteICA) */
@@ -734,6 +740,12 @@ export interface CreateItemRequest {
     kind: "product" | "service";
     taxes: { iva: number; other: number };
     unidad_medida?: string;
+    /** Inventario: si true mueve kardex y descarga existencias al vender. */
+    controla_inventario?: boolean;
+    /** Inventario: método de costeo (por defecto "promedio"). */
+    costeo?: "promedio" | "peps" | "estandar";
+    stock_minimo?: number;
+    stock_maximo?: number;
     total?: number;
     reteiva?: ReteIVAInput;
     retenciones?: RetencionInput[];

@@ -50,14 +50,14 @@ export type VerifiedSessionPayload =
           user_id?: never;
       };
 
-export const loginService = async ({ email, password }: { email: string; password: string }): Promise<{ message: string; data: CompanyLoginData }> => {
+export const loginService = async ({ email, password, turnstileToken }: { email: string; password: string; turnstileToken?: string }): Promise<{ message: string; data: CompanyLoginData }> => {
     const response = await fetch(API_ROUTES.LOGIN, {
         method: "POST",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, turnstileToken }),
     });
 
     const payload = await response.json();

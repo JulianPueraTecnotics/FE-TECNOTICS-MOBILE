@@ -1,0 +1,93 @@
+/* Activos fijos — layout y responsive */
+.af-page {
+    min-width: 0;
+    overflow-x: clip;
+}
+
+.af-page .purchases-container {
+    min-width: 0;
+}
+
+.af-depreciate-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+}
+
+.af-depreciate-bar__field {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.af-depreciate-bar__field .ds-filter-field {
+    margin: 0;
+}
+
+.af-depreciate-bar__action {
+    flex: 0 1 auto;
+    white-space: nowrap;
+}
+
+.af-page .purchases-empty {
+    padding: 2rem 1rem;
+}
+
+.af-page .purchases-empty .btn-primary {
+    width: 100%;
+    max-width: 20rem;
+    justify-content: center;
+}
+
+@media (max-width: 767px) {
+    .af-depreciate-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+    }
+
+    .af-depreciate-bar__field {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .af-depreciate-bar__action {
+        width: 100%;
+        white-space: normal;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .af-page .ds-row-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.35rem;
+    }
+
+    .af-page .purchases-table tbody td[data-label="Acciones"] {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .af-page .purchases-table tbody td[data-label="Acciones"] .ds-row-actions {
+        justify-content: stretch;
+    }
+
+    .af-page .purchases-table tbody td[data-label="Acciones"] .btn-action {
+        flex: 1 1 calc(50% - 0.2rem);
+        justify-content: center;
+        min-width: 0;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .af-depreciate-bar__action {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}

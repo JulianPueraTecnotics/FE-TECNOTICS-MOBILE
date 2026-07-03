@@ -1,17 +1,18 @@
-header {
+.app-header {
     width: 100%;
-    height: 54px;
-    min-height: 54px;
+    height: var(--header-height);
+    min-height: var(--header-height);
     background-color: var(--header-bg);
-    border-bottom: 1px solid var(--border-header);
+    border-bottom: var(--header-accent-width) solid var(--header-accent);
+    box-shadow: none;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 10;
-    padding: 0 24px;
-    padding-left: max(24px, env(safe-area-inset-left));
-    padding-right: max(24px, env(safe-area-inset-right));
+    z-index: 100;
+    padding: 0 20px;
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -31,47 +32,85 @@ header {
 }
 
 .header__column:first-child {
-    gap: 20px;
+    gap: 16px;
 }
 
-/* Agrupa navegación + tema + menú a la derecha (junto al botón de modo oscuro) */
+/* Agrupa usuario + tema + hamburguesa */
+.header__account-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    padding-left: 12px;
+    border-left: 1px solid rgba(96, 153, 172, 0.35);
+    flex-shrink: 0;
+    height: 100%;
+}
+
+.header__account-tools .user-menu,
+.header__account-tools .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+}
+
+.header__theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: inherit;
+}
+
 .header__right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    margin-left: auto;
+    height: 100%;
+    min-width: 0;
 }
 
 .header__brand {
-    max-width: 180px;
+    max-width: none;
+    max-height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    text-decoration: none;
+}
+
+.header__brand-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .header__brand img {
     width: 100%;
-    height: 100%;
+    height: auto;
+    max-height: 32px;
     object-fit: contain;
 }
 
-[data-theme="dark"] .header__brand img {
-    filter: invert(1) grayscale(1);
-}
-
-.header__theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
+.header__brand img.app-logo {
+    width: auto;
     height: 40px;
-    padding: 0;
-    color: var(--primary-text);
-    border-radius: 8px;
+    max-height: 40px;
+    max-width: min(240px, 58vw);
+    object-fit: contain;
+    object-position: left center;
 }
 
-.header__theme-toggle:hover {
-    color: var(--primary-color);
-}
-
-.header__theme-toggle i {
-    font-size: 20px;
+.sidebar__brand img.app-logo {
+    width: auto;
+    height: 32px;
+    max-height: 32px;
+    max-width: 160px;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .header__menu-button {
@@ -86,7 +125,7 @@ header {
 }
 
 .header__menu-item {
-    padding: 6px;
+    padding: 5px;
     display: flex;
     align-items: center;
     border-radius: 6px;
@@ -103,10 +142,9 @@ header {
     background-color: rgba(90, 159, 180, 0.14);
 }
 
-/* Alinear el menú de usuario con la altura del header */
-.header__menu-item .user-menu {
-    display: flex;
-    align-items: center;
+/* Alinear controles de cuenta en el header */
+.header__account-tools .user-menu-button {
+    gap: 0.45rem;
 }
 
 .header__menu-link {
@@ -114,10 +152,15 @@ header {
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 15px;
+    gap: 6px;
+    font-size: 14px;
     font-weight: 500;
+    line-height: 1.3;
     transition: color 0.15s ease;
+}
+
+.header__menu-link i {
+    font-size: 16px;
 }
 
 .header__menu-link:hover {
@@ -132,7 +175,7 @@ header {
 
 .header__divider {
     width: 1px;
-    height: 18px;
+    height: 20px;
     background-color: var(--border-header);
     margin: 0 4px;
 }
@@ -140,10 +183,10 @@ header {
 .header__menu-item--trial .header__menu-link--trial {
     background-color: var(--accent-teal);
     color: white;
-    padding: 9px 20px;
-    border-radius: 24px;
+    padding: 7px 16px;
+    border-radius: 20px;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 13px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(0, 0, 0, 0.06);
 }
@@ -162,10 +205,10 @@ header {
 .header__menu-item.btn-secondary .header__menu-link {
     background-color: var(--accent-teal);
     color: white;
-    border-radius: 24px;
-    padding: 9px 20px;
+    border-radius: 20px;
+    padding: 7px 16px;
     font-weight: 500;
-    font-size: 15px;
+    font-size: 13px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(0, 0, 0, 0.06);
 }
@@ -177,57 +220,61 @@ header {
 }
 
 /* ============================================================
-   DESKTOP (≥768px): el menú de empresa se muestra en el SIDEBAR
-   izquierdo fijo, no en el header. Aquí solo dejamos logo + tema
-   + menú de usuario. Ocultamos el menú de empresa del header.
+   SESIÓN EMPRESA — header simple (logo + usuario); menú en sidebar
    ============================================================ */
+.app-header--company .header__brand {
+    max-width: none;
+}
+
+.app-header--company .header__brand img {
+    max-height: 32px;
+}
+
 @media (min-width: 768px) {
-    .header__company-menu {
+    html.has-app-sidebar .app-header--company .header__menu-button {
         display: none;
     }
 }
 
-/* TABLET/MÓVIL (<768px): el menú de empresa NO va en el header;
-   se accede por el botón hamburguesa que abre el sidebar drawer. */
 @media (max-width: 767px) {
-    .header__navs--company .header__company-menu {
-        display: none;
+    .header__account-tools {
+        gap: 4px;
+        padding-left: 6px;
     }
 
     .header__menu-button {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 44px;
-        min-height: 44px;
-        padding: 0.5rem;
+        min-width: 36px;
+        min-height: 36px;
+        padding: 0.35rem;
     }
 
     .header__menu-button i {
-        font-size: 24px;
+        font-size: 22px;
         margin-right: 0;
     }
 }
-
 @media (max-width: 857px) {
-    .header__menu-item {
-        a {
-            span {
-                display: none;
-            }
-        }
+    .header__navs:not(.header__navs--company) .header__menu-item a span {
+        display: none;
     }
 }
 
 @media (max-width: 548px) {
-    header {
-        padding: 0.3rem;
+    .app-header {
+        padding: 0 0.5rem;
+        padding-left: max(0.5rem, env(safe-area-inset-left));
+        padding-right: max(0.5rem, env(safe-area-inset-right));
     }
 }
 
 @media (max-width: 495px) {
-    header {
-        padding: 0.5rem 0.75rem;
+    .app-header {
+        padding: 0 0.65rem;
+        padding-left: max(0.65rem, env(safe-area-inset-left));
+        padding-right: max(0.65rem, env(safe-area-inset-right));
     }
 
     .header__navs {
@@ -238,27 +285,32 @@ header {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 44px;
-        min-height: 44px;
-        padding: 0.5rem;
+        min-width: 32px;
+        min-height: 32px;
+        padding: 0.25rem;
 
         i {
-            font-size: 24px;
+            font-size: 20px;
             margin-right: 0;
         }
     }
 
-    .header__theme-toggle {
-        min-width: 44px;
-        min-height: 44px;
+    .header__account-tools {
+        padding-left: 8px;
+        gap: 6px;
+        border-left: none;
+    }
+
+    .header__account-tools .user-menu-button {
+        margin: 0;
     }
 
     .header__brand {
-        max-height: 48px;
-        max-width: 48px;
+        max-height: 28px;
+        max-width: 28px;
 
         img {
-            height: 100%;
+            max-height: 28px;
         }
     }
 }

@@ -4,8 +4,8 @@ import { AuthContext } from "../../store/auth.context";
 import { useTheme } from "../../store/theme.context";
 import { PATHS } from "../../router/paths.contants";
 import UserMenu from "../shared/UserMenu/UserMenu";
-import logo from "../../assets/brand.png";
-import favicon from "../../assets/favicon.png";
+import { appIconSrc } from "../../assets/app-icon";
+import { APP_BRAND_NAME } from "../../utils/global";
 import "./mobile-shell.css";
 
 interface MobileHeaderProps {
@@ -42,6 +42,7 @@ const PAGE_TITLES: Record<string, string> = {
     [PATHS.ADMIN_HOME]: "Empresas",
     [PATHS.ADMIN_PLANS]: "Planes",
     [PATHS.ADMIN_ADMINS]: "Administradores",
+    [PATHS.ADMIN_CONTADORES]: "Contadores",
     [PATHS.LOGIN]: "Iniciar sesión",
     [PATHS.REGISTER]: "Registrarse",
     [PATHS.FORGOT_PASSWORD]: "Recuperar contraseña",
@@ -52,7 +53,7 @@ function resolveTitle(pathname: string): string | null {
     if (pathname.startsWith("/ventas/cotizaciones/") && pathname.endsWith("/editar")) return "Editar cotización";
     if (pathname.startsWith("/documentos/")) return "Detalle factura";
     if (pathname.startsWith("/admin/empresas/")) return "Empresa";
-    if (pathname === PATHS.HOME) return "Tecnotics";
+    if (pathname === PATHS.HOME) return APP_BRAND_NAME;
     return null;
 }
 
@@ -81,7 +82,8 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ onOpenMenu, showMenuButton 
                         </button>
                     ) : (
                         <NavLink to={PATHS.HOME} className="mobile-header__brand">
-                            <img src={favicon} alt="Tecnotics" />
+                            <img src={appIconSrc} alt="" className="mobile-header__brand-icon" />
+                            <span className="mobile-header__brand-name">{APP_BRAND_NAME}</span>
                         </NavLink>
                     )}
                 </div>
@@ -101,15 +103,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ onOpenMenu, showMenuButton 
                             <i className="ri-moon-line" aria-hidden />
                         )}
                     </button>
-                    {showUserMenu ? (
-                        <UserMenu />
-                    ) : (
-                        !showMenuButton && (
-                            <NavLink to={PATHS.HOME} className="mobile-header__brand">
-                                <img src={logo} alt="Tecnotics" />
-                            </NavLink>
-                        )
-                    )}
+                    {showUserMenu ? <UserMenu /> : null}
                 </div>
             </div>
         </header>

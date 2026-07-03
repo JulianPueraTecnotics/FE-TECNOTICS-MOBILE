@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pago suscripción</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f8fafc;
+      color: #334155;
+    }
+    .box { text-align: center; padding: 24px; max-width: 320px; }
+    .error { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="box"><p id="status">Cargando pasarela de pago…</p></div>
+  <script src="https://checkout.epayco.co/checkout.js"></script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var key = params.get("key");
+      var raw = params.get("data");
+      var status = document.getElementById("status");
+
+      if (!key || !raw) {
+        status.textContent = "Parámetros de pago incompletos.";
+        status.className = "error";
+        return;
+      }
+
+      var payload;
+      try {
+        payload = JSON.parse(decodeURIComponent(raw));
+      } catch (e) {
+        status.textContent = "No se pudo leer los datos del pago.";
+        status.className = "error";
+        return;
+      }
+
+      var tries = 0;
+      function openCheckout() {
+        if (!window.ePayco) {
+          if (++tries > 80) {
+            status.textContent = "No se pudo cargar ePayco.";
+            status.className = "error";
+            return;
+          }
+          setTimeout(openCheckout, 150);
+          return;
+        }
+        var handler = window.ePayco.checkout.configure({ key: key, test: true });
+        handler.open(payload);
+      }
+      openCheckout();
+    })();
+  </script>
+</body>
+</html>

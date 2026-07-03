@@ -1,5 +1,7 @@
 import Constants from "expo-constants";
 
+export const APP_BRAND_NAME = "Tecnotics Contable";
+
 interface ExpoExtra {
   apiBaseUrl?: string;
   feUrl?: string;
@@ -11,24 +13,58 @@ function readExtra(): ExpoExtra {
   return (Constants.expoConfig?.extra ?? {}) as ExpoExtra;
 }
 
-function env(key: string, extraKey: keyof ExpoExtra): string {
-  const fromProcess = process.env[key];
-  if (typeof fromProcess === "string" && fromProcess.trim()) {
-    return fromProcess.trim().replace(/\/$/, "");
+function stripUrl(value: string | undefined): string {
+  return typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
+}
+
+/**
+ * Metro solo embebe EXPO_PUBLIC_* con acceso estático (process.env.EXPO_PUBLIC_X).
+ * No usar process.env[variable]: en web queda undefined y cae al fallback de producción.
+ */
+function resolveApiUrl(): string {
+  const fromEnv = stripUrl(process.env.EXPO_PUBLIC_API_BASE_URL);
+  if (fromEnv) return fromEnv;
+  const fromExtra = stripUrl(readExtra().apiBaseUrl);
+  if (fromExtra) return fromExtra;
+  const fromVite = stripUrl(process.env.VITE_APP_BACK_URL);
+  if (fromVite) return fromVite;
+  return __DEV__ ? "http://localhost:3001" : "https://facturacionelectronicatt.tecnotics.co";
+}
+
+function resolveFeUrl(): string {
+  const fromEnv = stripUrl(process.env.EXPO_PUBLIC_FE_URL);
+  if (fromEnv) return fromEnv;
+  const fromExtra = stripUrl(readExtra().feUrl);
+  if (fromExtra) return fromExtra;
+  const fromVite = stripUrl(process.env.VITE_APP_FE_URL);
+  if (fromVite) return fromVite;
+  return __DEV__ ? "http://localhost:8081" : "https://facturacionelectronicatt.tecnotics.co";
+}
+
+function resolveEnvKey(expoKey: string, extraKey: keyof ExpoExtra): string {
+  if (expoKey === "EXPO_PUBLIC_EPAYCO_PUBLIC_KEY") {
+    return (
+      stripUrl(process.env.EXPO_PUBLIC_EPAYCO_PUBLIC_KEY) ||
+      stripUrl(readExtra().epaycoPublicKey) ||
+      stripUrl(process.env.VITE_APP_EPAYCO_PUBLIC_KEY)
+    );
   }
-  const fromExtra = readExtra()[extraKey];
-  if (typeof fromExtra === "string" && fromExtra.trim()) {
-    return fromExtra.trim().replace(/\/$/, "");
+  if (expoKey === "EXPO_PUBLIC_EPAYCO_CUSTOMER_ID") {
+    return (
+      stripUrl(process.env.EXPO_PUBLIC_EPAYCO_CUSTOMER_ID) ||
+      stripUrl(readExtra().epaycoCustomerId) ||
+      stripUrl(process.env.VITE_APP_EPAYCO_CUSTOMER_ID)
+    );
   }
-  return "";
+  return stripUrl(readExtra()[extraKey]);
 }
 
 /** URLs del back — leídas por Expo (EXPO_PUBLIC_* + app.config.js extra). */
 export const ENV = {
-  API_URL: env("EXPO_PUBLIC_API_BASE_URL", "apiBaseUrl") || "https://facturacionelectronicatt.tecnotics.co",
-  FE_URL: env("EXPO_PUBLIC_FE_URL", "feUrl") || "https://facturacion.tecnotics.co",
-  EPAYCO_PUBLIC_KEY: env("EXPO_PUBLIC_EPAYCO_PUBLIC_KEY", "epaycoPublicKey"),
-  EPAYCO_CUSTOMER_ID: env("EXPO_PUBLIC_EPAYCO_CUSTOMER_ID", "epaycoCustomerId"),
+  API_URL: resolveApiUrl(),
+  FE_URL: resolveFeUrl(),
+  EPAYCO_PUBLIC_KEY: resolveEnvKey("EXPO_PUBLIC_EPAYCO_PUBLIC_KEY", "epaycoPublicKey"),
+  EPAYCO_CUSTOMER_ID: resolveEnvKey("EXPO_PUBLIC_EPAYCO_CUSTOMER_ID", "epaycoCustomerId"),
 };
 
 export const API_ROUTES = {
@@ -42,6 +78,12 @@ export const API_ROUTES = {
     COMPANY_PASSWORD_RESET: ENV.API_URL + "/auth/password/reset",
     LOGOUT: ENV.API_URL + "/auth/signout",
     VALIDATE_SESSION: ENV.API_URL + "/auth/me",
+    WHOAMI: ENV.API_URL + "/auth/whoami",
+
+    CONTADOR_SIGNIN: ENV.API_URL + "/contador/signin",
+    CONTADOR_VERIFY_2FA: ENV.API_URL + "/contador/verify-2fa",
+    CONTADOR_SELECT_COMPANY: ENV.API_URL + "/contador/select-company",
+
     GET_PROFILE: ENV.API_URL + "/company/get-info",
     UPDATE_COMPANY_INFO: ENV.API_URL + "/company/info",
     COMPANY_PREFIXES: ENV.API_URL + "/company/prefixes",
@@ -161,11 +203,14 @@ export const API_ROUTES = {
     // ============================================
     /** Importación manual de XML/ZIP. kind: "purchase" | "expense". POST multipart. */
     PURCHASES_IMPORT: (kind: string) => ENV.API_URL + `/purchases/${kind}/import`,
+    PURCHASES_IMPORT_EXCEL: (kind: string) => ENV.API_URL + `/purchases/${kind}/import-excel`,
     /** Listado de compras/gastos importados. kind: "purchase" | "expense". */
     PURCHASES_LIST: (kind: string) => ENV.API_URL + `/purchases/${kind}`,
     PURCHASE_BY_ID: (id: string) => ENV.API_URL + `/purchase/${id}`,
+    PURCHASE_PDF: (id: string) => ENV.API_URL + `/purchase/${id}/pdf`,
     PURCHASE_RETENTION_PREVIEW: (id: string) => ENV.API_URL + `/purchase/${id}/retenciones/preview`,
     PURCHASE_RETENTION_APPLY: (id: string) => ENV.API_URL + `/purchase/${id}/retenciones`,
+    PURCHASE_RETENTION_GROUPED: (id: string) => ENV.API_URL + `/purchase/${id}/retenciones-agrupadas`,
 
     // ============================================
     // PRODUCTOS POR PROVEEDOR (parametrización contable + IA)
@@ -174,6 +219,8 @@ export const API_ROUTES = {
     SUPPLIER_ITEM_BY_ID: (id: string) => ENV.API_URL + `/supplier-items/${id}`,
     SUPPLIER_ITEM_SUGGEST: (id: string) => ENV.API_URL + `/supplier-items/${id}/suggest`,
     SUPPLIER_ITEM_APPLY_SUGGESTION: (id: string) => ENV.API_URL + `/supplier-items/${id}/apply-suggestion`,
+    SUPPLIER_ITEM_LESSONS: ENV.API_URL + "/supplier-items/lessons",
+    SUPPLIER_ITEM_LESSON_BY_ID: (id: string) => ENV.API_URL + `/supplier-items/lessons/${id}`,
 
     // ============================================
     // TESORERÍA (pago a proveedores)
@@ -183,6 +230,7 @@ export const API_ROUTES = {
     TREASURY_BANK_BY_ID: (id: string) => ENV.API_URL + `/treasury/banks/${id}`,
     /** Facturas por pagar (pendientes/parciales). */
     TREASURY_PAYABLE: ENV.API_URL + "/treasury/payable",
+    TREASURY_PAYABLE_SUPPLIERS: ENV.API_URL + "/treasury/payable-suppliers",
     /** Lotes de pago. */
     TREASURY_BATCHES: ENV.API_URL + "/treasury/batches",
     TREASURY_BATCH_BY_ID: (id: string) => ENV.API_URL + `/treasury/batches/${id}`,
@@ -190,7 +238,16 @@ export const API_ROUTES = {
     TREASURY_BATCH_SENT: (id: string) => ENV.API_URL + `/treasury/batches/${id}/sent`,
     TREASURY_BATCH_RECONCILE: (id: string) => ENV.API_URL + `/treasury/batches/${id}/reconcile`,
     TREASURY_BATCH_COMPROBANTES: (id: string) => ENV.API_URL + `/treasury/batches/${id}/comprobantes`,
-    // Conciliación bancaria
+    // Conciliación asistida (movimientos puente → clientes/proveedores)
+    TREASURY_BANKCONC_PENDING: ENV.API_URL + "/treasury/bank-conciliation/pending",
+    TREASURY_BANKCONC_DOCUMENTS: ENV.API_URL + "/treasury/bank-conciliation/documents",
+    TREASURY_BANKCONC_APPLY: ENV.API_URL + "/treasury/bank-conciliation/apply",
+    TREASURY_BANKCONC_APPLY_MULTIPLE: ENV.API_URL + "/treasury/bank-conciliation/apply-multiple",
+    TREASURY_BANKCONC_APPLY_MULTIPLE_PURCHASES: ENV.API_URL + "/treasury/bank-conciliation/apply-multiple-purchases",
+    TREASURY_BANKCONC_APPLY_BATCH: ENV.API_URL + "/treasury/bank-conciliation/apply-batch",
+    TREASURY_BANKCONC_APPLY_ALL: ENV.API_URL + "/treasury/bank-conciliation/apply-all-suggested",
+    TREASURY_BANKCONC_APPLY_ACCOUNT: ENV.API_URL + "/treasury/bank-conciliation/apply-account",
+    // Conciliación bancaria (extracto vs libros)
     TREASURY_RECONS: ENV.API_URL + "/treasury/reconciliations",
     TREASURY_RECON_BY_ID: (id: string) => ENV.API_URL + `/treasury/reconciliations/${id}`,
     TREASURY_RECON_SUMMARY: (id: string) => ENV.API_URL + `/treasury/reconciliations/${id}/summary`,
@@ -198,6 +255,40 @@ export const API_ROUTES = {
     TREASURY_RECON_CONCILIATORIAS: (id: string) => ENV.API_URL + `/treasury/reconciliations/${id}/conciliatorias`,
     TREASURY_RECON_ADJUSTMENT: (id: string) => ENV.API_URL + `/treasury/reconciliations/${id}/adjustment`,
     TREASURY_RECON_CLOSE: (id: string) => ENV.API_URL + `/treasury/reconciliations/${id}/close`,
+    TREASURY_RECON_IMPORT_PDF: ENV.API_URL + "/treasury/reconciliations/import-pdf",
+    TREASURY_RECON_POST_STATEMENTS: ENV.API_URL + "/treasury/reconciliations/post-statements",
+    TREASURY_STMT_GENERIC_PREVIEW: ENV.API_URL + "/treasury/statement/generic-preview",
+    TREASURY_STMT_GENERIC_IMPORT: ENV.API_URL + "/treasury/statement/generic-import",
+    TREASURY_STMT_GENERIC_POST: ENV.API_URL + "/treasury/statement/generic-post",
+    TREASURY_STMT_PROFILES: ENV.API_URL + "/treasury/statement/profiles",
+    TREASURY_STMT_PROFILE_BY_ID: (id: string) => ENV.API_URL + `/treasury/statement/profiles/${id}`,
+
+    CONC2_GENERATE: ENV.API_URL + "/treasury/conciliacion/generate",
+    CONC2_MOVEMENTS: ENV.API_URL + "/treasury/conciliacion/movements",
+    CONC2_DOCUMENTS: ENV.API_URL + "/treasury/conciliacion/documents",
+    CONC2_SEARCH_TERCEROS: ENV.API_URL + "/treasury/conciliacion/search-terceros",
+    CONC2_LIST: ENV.API_URL + "/treasury/conciliacion/list",
+    CONC2_CONFIRM: ENV.API_URL + "/treasury/conciliacion/confirm",
+    CONC2_CONFIRM_BATCH: ENV.API_URL + "/treasury/conciliacion/confirm-batch",
+    CONC2_REJECT: ENV.API_URL + "/treasury/conciliacion/reject",
+    CONC2_MANUAL: ENV.API_URL + "/treasury/conciliacion/manual",
+    CONC2_SIMILAR: ENV.API_URL + "/treasury/conciliacion/similar",
+    CONC2_RECURRING: ENV.API_URL + "/treasury/conciliacion/recurring",
+    CONC2_CARTERA: ENV.API_URL + "/treasury/conciliacion/cartera",
+    CONC2_CARTERA_CLIENTE: ENV.API_URL + "/treasury/conciliacion/cartera-cliente",
+    CONC2_CXP: ENV.API_URL + "/treasury/conciliacion/cxp",
+    CONC2_CXP_PROVEEDOR: ENV.API_URL + "/treasury/conciliacion/cxp-proveedor",
+    CONC2_PAGAR_PROVEEDOR: ENV.API_URL + "/treasury/conciliacion/pagar-proveedor",
+    CONC2_RECAUDAR_CLIENTE: ENV.API_URL + "/treasury/conciliacion/recaudar-cliente",
+    CONC2_BOLSA: ENV.API_URL + "/treasury/conciliacion/bolsa",
+    CONC2_BOLSA_RECLASIFICAR: ENV.API_URL + "/treasury/conciliacion/bolsa/reclasificar",
+    CONC2_AUDITAR: ENV.API_URL + "/treasury/conciliacion/auditar",
+    CONC2_SUGGEST_ACCOUNT: ENV.API_URL + "/treasury/conciliacion/suggest-account",
+    CONC2_CREATE_ACCOUNT: ENV.API_URL + "/treasury/conciliacion/create-account",
+    CONC2_TO_ACCOUNT: ENV.API_URL + "/treasury/conciliacion/to-account",
+    CONC2_JOBS: ENV.API_URL + "/treasury/conciliacion/jobs",
+    CONC2_JOBS_RESUME: ENV.API_URL + "/treasury/conciliacion/jobs/resume",
+    CONC2_ANTICIPO: ENV.API_URL + "/treasury/conciliacion/anticipo",
 
     // ============================================
     // CONTABILIDAD / CONFIGURACIÓN CONTABLE
@@ -210,6 +301,7 @@ export const API_ROUTES = {
     ACCOUNTING_COST_CENTERS_IMPORT: ENV.API_URL + "/accounting/cost-centers/import",
     ACCOUNTING_COA: ENV.API_URL + "/accounting/coa",
     ACCOUNTING_COA_IMPORT: ENV.API_URL + "/accounting/coa/import",
+    ACCOUNTING_COA_IMPORT_TEMPLATE: ENV.API_URL + "/accounting/coa/import-template",
     ACCOUNTING_BOOTSTRAP: ENV.API_URL + "/accounting/bootstrap",
     ACCOUNTING_BOOTSTRAP_TEST_DATA: ENV.API_URL + "/accounting/bootstrap-test-data",
     ACCOUNTING_PERMISSIONS: ENV.API_URL + "/accounting/permissions",
@@ -224,6 +316,7 @@ export const API_ROUTES = {
     // CONTABILIDAD — Comprobantes (libro mayor / diario)
     // ============================================
     LEDGER_ENTRIES: ENV.API_URL + "/ledger/entries",
+    LEDGER_ENTRIES_EXPORT: ENV.API_URL + "/ledger/entries/export",
     LEDGER_ENTRY_BY_ID: (id: string) => ENV.API_URL + `/ledger/entries/${id}`,
     LEDGER_ENTRY_POST: (id: string) => ENV.API_URL + `/ledger/entries/${id}/post`,
     LEDGER_ENTRY_ANNUL: (id: string) => ENV.API_URL + `/ledger/entries/${id}/annul`,
@@ -248,6 +341,16 @@ export const API_ROUTES = {
     LEDGER_ADJ_AMORTIZE: ENV.API_URL + "/ledger/adjustments/amortize-deferrals",
     LEDGER_ADJ_PROVISION: ENV.API_URL + "/ledger/adjustments/provision-monthly",
     LEDGER_ADJ_EXCHANGE: ENV.API_URL + "/ledger/adjustments/exchange-revaluation",
+    LEDGER_INTEGRITY: ENV.API_URL + "/ledger/integrity",
+    LEDGER_BUDGET: ENV.API_URL + "/ledger/budget",
+    LEDGER_BUDGET_EXECUTION: ENV.API_URL + "/ledger/budget/execution",
+    LEDGER_BUDGET_BY_ID: (id: string) => ENV.API_URL + `/ledger/budget/${id}`,
+    LEDGER_NOTES: ENV.API_URL + "/ledger/notes",
+    LEDGER_NOTES_SEED: ENV.API_URL + "/ledger/notes/seed",
+    LEDGER_NOTE_BY_ID: (id: string) => ENV.API_URL + `/ledger/notes/${id}`,
+    LEDGER_CONCILIACION_FISCAL: ENV.API_URL + "/ledger/conciliacion-fiscal",
+    LEDGER_TRM: ENV.API_URL + "/ledger/trm",
+    LEDGER_TRM_AT: ENV.API_URL + "/ledger/trm/at",
 
     // ============================================
     // ACTIVOS FIJOS
@@ -303,6 +406,11 @@ export const API_ROUTES = {
     NOMINA_BY_ID: (nominaId: string) => ENV.API_URL + `/nomina/${nominaId}`,
     NOMINA_CERT_EMPLEADOS: ENV.API_URL + "/nomina/certificados/empleados",
     NOMINA_CERT_FORM220: ENV.API_URL + "/nomina/certificados/form220",
+    NOMINA_PILA_PREVIEW: ENV.API_URL + "/nomina/pila/preview",
+    NOMINA_PILA_GENERAR: ENV.API_URL + "/nomina/pila/generar",
+    NOMINA_PILA_HISTORIAL: ENV.API_URL + "/nomina/pila/historial",
+    NOMINA_PILA_BY_PERIODO: (periodo: string) => ENV.API_URL + `/nomina/pila/${periodo}`,
+    NOMINA_PILA_DOWNLOAD: (periodo: string) => ENV.API_URL + `/nomina/pila/${periodo}/download`,
 
     // ============================================
     // LOGGER (auditoría por tenant)
@@ -313,6 +421,16 @@ export const API_ROUTES = {
     // ESTADÍSTICAS (dashboard tipo Power BI)
     // ============================================
     COMPANY_STATISTICS: ENV.API_URL + "/company/statistics",
+
+    // Inventario (existencias, kardex, bodegas)
+    INVENTORY_WAREHOUSES: ENV.API_URL + "/inventory/warehouses",
+    INVENTORY_WAREHOUSE_BY_ID: (id: string) => ENV.API_URL + `/inventory/warehouses/${id}`,
+    INVENTORY_STOCK: ENV.API_URL + "/inventory/stock",
+    INVENTORY_VALORIZADO: ENV.API_URL + "/inventory/valorizado",
+    INVENTORY_KARDEX: (itemId: string) => ENV.API_URL + `/inventory/kardex/${itemId}`,
+    INVENTORY_AJUSTE: ENV.API_URL + "/inventory/movements/ajuste",
+    INVENTORY_TRASLADO: ENV.API_URL + "/inventory/movements/traslado",
+    INVENTORY_SALDOS_INICIALES: ENV.API_URL + "/inventory/saldos-iniciales",
 
     // Analítica financiera (libro mayor, con filtro ?from&to)
     ANALYTICS_EXECUTIVE: ENV.API_URL + "/analytics/executive-summary",
@@ -339,6 +457,12 @@ export const API_ROUTES = {
     REPORT_RECAUDO_FORMA_PAGO: ENV.API_URL + "/reports/recaudo-forma-pago",
     REPORT_EMBUDO_COTIZACIONES: ENV.API_URL + "/reports/embudo-cotizaciones",
 
+    /** Pista de auditoría estructurada (quién/cuándo/qué) con filtros. */
+    AUDIT: ENV.API_URL + "/audit",
+    /** Soportes adjuntos por documento (entidad + id). */
+    ATTACHMENTS: (entidad: string, entidadId: string) => ENV.API_URL + `/attachments/${entidad}/${entidadId}`,
+    ATTACHMENT_BY_ID: (id: string) => ENV.API_URL + `/attachments/${id}`,
+
     // ============================================
     // SUPERADMIN (panel /admin)
     // ============================================
@@ -349,6 +473,8 @@ export const API_ROUTES = {
     ADMIN_PASSWORD_RESET: ENV.API_URL + "/admin/auth/password/reset",
     ADMIN_ME: ENV.API_URL + "/admin/auth/me",
     ADMIN_SIGNOUT: ENV.API_URL + "/admin/auth/signout",
+    ADMIN_CONTADORES: ENV.API_URL + "/admin/contadores",
+    ADMIN_CONTADOR_BY_ID: (id: string) => ENV.API_URL + `/admin/contadores/${id}`,
     ADMIN_COMPANIES: ENV.API_URL + "/admin/companies",
     ADMIN_COMPANY_DETAIL: (companyId: string) => ENV.API_URL + `/admin/companies/${companyId}`,
     ADMIN_COMPANY_SUBSCRIPTION: (companyId: string) => ENV.API_URL + `/admin/companies/${companyId}/subscription`,
@@ -379,6 +505,7 @@ export const API_ROUTES = {
     DIAN_CREDENTIAL_RESPONSIBLE: (id: string) => ENV.API_URL + `/v1/dian/credentials/${id}/responsible`,
     DIAN_CREDENTIAL_VALIDATE: (id: string) => ENV.API_URL + `/v1/dian/credentials/${id}/validate`,
     DIAN_CREDENTIAL_BY_ID: (id: string) => ENV.API_URL + `/v1/dian/credentials/${id}`,
+    DIAN_STATUS: ENV.API_URL + "/v1/dian/status",
 
     DIAN_SYNC: ENV.API_URL + "/v1/dian/sync",
     DIAN_SYNC_BY_ID: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}`,
@@ -386,15 +513,34 @@ export const API_ROUTES = {
     DIAN_SYNC_DOCUMENTS: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/documents`,
     DIAN_SYNC_DOWNLOAD_PDFS: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/download-pdfs`,
     DIAN_SYNC_ENRICH: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/enrich`,
+    DIAN_SYNC_RETRY_PDFS: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/retry-pdfs`,
+    DIAN_SYNC_CANCEL: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/cancel`,
+    DIAN_IMPORT_EXCEL: ENV.API_URL + "/v1/dian/import-excel",
 
     DIAN_DOCUMENT_PDF: (id: string) => ENV.API_URL + `/v1/dian/documents/${id}/pdf`,
 
     DIAN_EVENTS: ENV.API_URL + "/v1/dian/events",
     DIAN_LOGS: ENV.API_URL + "/v1/dian/logs",
 
+    DIAN_RECONCILE: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/reconcile`,
+    DIAN_RECONCILE_SUMMARY: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/reconciliation-summary`,
+    DIAN_RECONCILIATIONS: ENV.API_URL + "/v1/dian/reconciliations",
+    DIAN_RECONCILIATION_IMPORT: (id: string) => ENV.API_URL + `/v1/dian/reconciliations/${id}/import`,
+    DIAN_RECONCILIATION_IMPORT_BULK: ENV.API_URL + "/v1/dian/reconciliations/import-bulk",
+    DIAN_RECONCILE_SALES: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/reconcile-sales`,
+    DIAN_RECONCILE_SALES_SUMMARY: (id: string) => ENV.API_URL + `/v1/dian/sync/${id}/sales-reconciliation-summary`,
+    DIAN_SALES_RECONCILIATIONS: ENV.API_URL + "/v1/dian/sales-reconciliations",
+    DIAN_SALES_RECONCILIATION_IMPORT: (id: string) => ENV.API_URL + `/v1/dian/sales-reconciliations/${id}/import`,
+    DIAN_SALES_RECONCILIATION_IMPORT_BULK: ENV.API_URL + "/v1/dian/sales-reconciliations/import-bulk",
+    PURCHASE_SET_KIND: (id: string) => ENV.API_URL + `/purchase/${id}/kind`,
+
     // Asistente virtual TEC (IA)
     TEC_MESSAGE: ENV.API_URL + "/v1/tec/message",
     TEC_SEND_BY_EMAIL: ENV.API_URL + "/v1/tec/send-by-email",
     TEC_CONVERSATIONS: ENV.API_URL + "/v1/tec/conversations",
     TEC_CONVERSATION_BY_ID: (id: string) => ENV.API_URL + `/v1/tec/conversation/${id}`,
+
+    TAX_CALENDAR: ENV.API_URL + "/tax/calendar",
+    TAX_PROFILE: ENV.API_URL + "/tax/profile",
+    TAX_DEADLINES: ENV.API_URL + "/tax/deadlines",
 };

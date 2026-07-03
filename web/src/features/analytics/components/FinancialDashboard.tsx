@@ -43,8 +43,8 @@ import ProjectionChart from "./ProjectionChart";
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 const COLORS = {
-    primary: "rgba(59, 130, 246, 0.9)",
-    teal: "rgba(20, 184, 166, 0.9)",
+    primary: "rgba(96, 153, 172, 0.92)",
+    teal: "rgba(90, 159, 180, 0.92)",
     success: "rgba(34, 197, 94, 0.9)",
     warning: "rgba(234, 179, 8, 0.9)",
     danger: "rgba(239, 68, 68, 0.9)",
@@ -123,7 +123,7 @@ const FinancialDashboard: React.FC<Props> = ({ tab, range }) => {
             datasets: [
                 { type: "bar" as const, label: "Ingresos", data: sIngresos, backgroundColor: COLORS.success, borderRadius: 4, order: 2 },
                 { type: "bar" as const, label: "Costo + gasto", data: pl.map((r) => r.costo + r.gastoOperativo), backgroundColor: COLORS.warning, borderRadius: 4, order: 3 },
-                { type: "line" as const, label: "Utilidad neta", data: sUtilidad, borderColor: COLORS.primary, backgroundColor: "rgba(59,130,246,0.1)", tension: 0.3, order: 1 },
+                { type: "line" as const, label: "Utilidad neta", data: sUtilidad, borderColor: COLORS.primary, backgroundColor: "rgba(96, 153, 172, 0.12)", tension: 0.3, order: 1 },
             ],
         };
 
@@ -136,8 +136,8 @@ const FinancialDashboard: React.FC<Props> = ({ tab, range }) => {
                     <KpiCard label="Ingresos" value={ms(e?.ingresos ?? 0)} icon="ri-line-chart-line" accent="#22c55e" delta={e?.deltas?.ingresos} spark={sIngresos} />
                     <KpiCard label="Costo de ventas" value={ms(e?.costoVentas ?? 0)} icon="ri-shopping-bag-3-line" accent="#f59e0b" spark={sCosto} />
                     <KpiCard label="Gastos" value={ms(e?.gastos ?? 0)} icon="ri-wallet-3-line" accent="#a855f7" delta={e?.deltas?.gastos} deltaInvert spark={sGastos} />
-                    <KpiCard label="Utilidad neta" value={ms(e?.utilidadNeta ?? 0)} icon="ri-funds-line" accent="#3b82f6" delta={e?.deltas?.utilidadNeta} hint={`Margen ${e?.margenNeto ?? 0}%`} spark={sUtilidad} negative={(e?.utilidadNeta ?? 0) < 0} />
-                    <KpiCard label="Caja y bancos" value={ms(e?.caja ?? 0)} icon="ri-bank-line" accent="#14b8a6" />
+                    <KpiCard label="Utilidad neta" value={ms(e?.utilidadNeta ?? 0)} icon="ri-funds-line" accent="#6099ac" delta={e?.deltas?.utilidadNeta} hint={`Margen ${e?.margenNeto ?? 0}%`} spark={sUtilidad} negative={(e?.utilidadNeta ?? 0) < 0} />
+                    <KpiCard label="Caja y bancos" value={ms(e?.caja ?? 0)} icon="ri-bank-line" accent="#5a9fb4" />
                     <KpiCard label="Por cobrar" value={ms(e?.cxc ?? 0)} icon="ri-arrow-left-down-line" accent="#0ea5e9" />
                     <KpiCard label="Por pagar" value={ms(e?.cxp ?? 0)} icon="ri-arrow-right-up-line" accent="#ef4444" />
                     <KpiCard label="Capital de trabajo" value={ms(e?.capitalTrabajo ?? 0)} icon="ri-scales-3-line" accent="#6366f1" negative={(e?.capitalTrabajo ?? 0) < 0} />
@@ -261,7 +261,7 @@ const FinancialDashboard: React.FC<Props> = ({ tab, range }) => {
         datasets: [
             { type: "bar" as const, label: "Cobros esperados", data: (cp?.proyeccion ?? []).map((m) => m.entradas), backgroundColor: COLORS.success, borderRadius: 4 },
             { type: "bar" as const, label: "Pagos esperados", data: (cp?.proyeccion ?? []).map((m) => m.salidas), backgroundColor: COLORS.danger, borderRadius: 4 },
-            { type: "line" as const, label: "Saldo proyectado", data: (cp?.proyeccion ?? []).map((m) => m.saldoFinal), borderColor: COLORS.primary, backgroundColor: "rgba(59,130,246,0.1)", tension: 0.3, fill: true },
+            { type: "line" as const, label: "Saldo proyectado", data: (cp?.proyeccion ?? []).map((m) => m.saldoFinal), borderColor: COLORS.primary, backgroundColor: "rgba(96, 153, 172, 0.12)", tension: 0.3, fill: true },
         ],
     };
 

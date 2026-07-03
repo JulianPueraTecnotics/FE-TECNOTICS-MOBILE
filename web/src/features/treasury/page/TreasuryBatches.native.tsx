@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import { DsModuleScreen } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -12,7 +12,6 @@ import { BATCH_STATUS, formatCOP, formatDate } from "../treasury.shared";
 
 export default function TreasuryBatchesNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [batches, setBatches] = useState<PaymentBatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -99,19 +98,14 @@ export default function TreasuryBatchesNative() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Lotes de pago</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Descarga ACH, marca envío y concilia pagos</Text>
-      </View>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-      >
-        {loading ? (
-          <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>Cargando...</Text>
-        ) : batches.length === 0 ? (
+    <DsModuleScreen
+      title="Lotes de pago"
+      subtitle="Descarga ACH, marca envío y concilia pagos"
+      loading={loading}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+    >
+        {batches.length === 0 ? (
           <Text style={{ color: colors.textMuted, textAlign: "center", padding: 24 }}>
             Sin lotes. Genera uno desde Pagos a proveedores.
           </Text>
@@ -147,15 +141,10 @@ export default function TreasuryBatchesNative() {
             );
           })
         )}
-      </ScrollView>
-    </View>
+    </DsModuleScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10 },
 });

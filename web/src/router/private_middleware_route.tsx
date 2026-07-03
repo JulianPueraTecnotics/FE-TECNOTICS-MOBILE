@@ -1,8 +1,7 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { PATHS } from "./paths.contants";
 import { useContext } from "react";
 import { AuthContext } from "../store/auth.context";
-import { canAccessPath, getHomePathForRole } from "./routeAccess";
 
 /**
  * Rutas privadas: cualquier sesión válida (empresa, admin o subusuario).
@@ -22,22 +21,17 @@ const PrivateMiddlewareRoute = ({
     adminOnly?: boolean;
 }) => {
     const { user } = useContext(AuthContext);
-    const location = useLocation();
-
     if (!user) {
         return <Navigate to={PATHS.LOGIN} />;
     }
     if (adminOnly && user.role !== "super_admin") {
-        return <Navigate to={getHomePathForRole(user.role)} replace />;
+        return <Navigate to={PATHS.DASHBOARD} replace />;
     }
     if (!adminOnly && user.role === "super_admin") {
         return <Navigate to={PATHS.ADMIN_HOME} replace />;
     }
     if (companyOnly && user.role === "user") {
         return <Navigate to={PATHS.DASHBOARD} replace />;
-    }
-    if (!canAccessPath(user.role, location.pathname)) {
-        return <Navigate to={getHomePathForRole(user.role)} replace />;
     }
     return children;
 };

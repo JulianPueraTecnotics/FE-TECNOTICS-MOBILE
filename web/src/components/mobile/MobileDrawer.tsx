@@ -4,7 +4,8 @@ import { AuthContext } from "../../store/auth.context";
 import { useTheme } from "../../store/theme.context";
 import { PATHS } from "../../router/paths.contants";
 import NavMenu from "../shared/nav/NavMenu";
-import logo from "../../assets/brand.png";
+import { appLogoSrc } from "../../assets/app-logo";
+import { APP_BRAND_NAME } from "../../utils/global";
 import "../shared/sidebar/index.css";
 import "../shared/nav/NavMenu.css";
 import "./mobile-shell.css";
@@ -46,7 +47,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) => {
             >
                 <div className="mobile-drawer__header">
                     <div className="mobile-drawer__brand">
-                        <img src={logo} alt="Tecnotics" />
+                        <img src={appLogoSrc} alt={APP_BRAND_NAME} className="app-logo" />
                     </div>
                     <div className="mobile-drawer__actions">
                         <button
@@ -148,6 +149,12 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose }) => {
                                     <NavLink to={PATHS.ADMIN_ADMINS} className="sidebar__menu-link" onClick={handleNavClick}>
                                         <i className="ri-shield-user-line" aria-hidden />
                                         <span>Administradores</span>
+                                    </NavLink>
+                                </li>
+                                <li className="sidebar__menu-item">
+                                    <NavLink to={PATHS.ADMIN_CONTADORES} className="sidebar__menu-link" onClick={handleNavClick}>
+                                        <i className="ri-user-star-line" aria-hidden />
+                                        <span>Contadores</span>
                                     </NavLink>
                                 </li>
                             </ul>

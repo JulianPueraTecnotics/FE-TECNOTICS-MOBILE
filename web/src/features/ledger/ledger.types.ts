@@ -1,4 +1,4 @@
-export type JournalType = "CC" | "CE" | "RC" | "FV" | "NC" | "AP" | "CL" | "DEP" | "NOM";
+export type JournalType = "CC" | "CE" | "RC" | "FV" | "NC" | "AP" | "CL" | "DEP" | "NOM" | "EXT";
 export type JournalStatus = "borrador" | "contabilizado" | "anulado";
 
 export const JOURNAL_TYPE_LABELS: Record<JournalType, string> = {
@@ -11,6 +11,7 @@ export const JOURNAL_TYPE_LABELS: Record<JournalType, string> = {
     CL: "Cierre",
     DEP: "Depreciación",
     NOM: "Nómina",
+    EXT: "Movimiento banco",
 };
 
 export const JOURNAL_STATUS_LABELS: Record<JournalStatus, string> = {

@@ -142,6 +142,10 @@ export default function MobilePrivateDrawer({ visible, onClose }: Props) {
                   <Ionicons name="shield-outline" size={20} color={colors.accent} />
                   <Text style={[styles.linkText, { color: colors.primaryText }]}>Administradores</Text>
                 </Pressable>
+                <Pressable style={styles.link} onPress={() => go(PATHS.ADMIN_CONTADORES)}>
+                  <Ionicons name="person-outline" size={20} color={colors.accent} />
+                  <Text style={[styles.linkText, { color: colors.primaryText }]}>Contadores</Text>
+                </Pressable>
               </View>
             ) : (
               <NativeNavMenu onNavigate={onClose} />

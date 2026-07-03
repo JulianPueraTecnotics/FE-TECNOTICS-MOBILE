@@ -1,16 +1,12 @@
 import React from 'react';
-import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock';
-import './UnsavedChangesModal.css';
+import { AppModal } from '../../../components/design-system';
 
 interface UnsavedChangesModalProps {
   isOpen: boolean;
   title?: string;
   message?: string;
-  /** Guardar el borrador (localStorage) y cerrar el modal. */
   onSaveDraft: () => void;
-  /** Descartar los datos y cerrar el modal. */
   onDiscard: () => void;
-  /** Volver al formulario sin cerrar. */
   onKeepEditing: () => void;
 }
 
@@ -22,37 +18,33 @@ const UnsavedChangesModal: React.FC<UnsavedChangesModalProps> = ({
   onDiscard,
   onKeepEditing,
 }) => {
-  useBodyScrollLock(isOpen);
-
   if (!isOpen) return null;
 
   return (
-    <div className="unsaved-overlay" onClick={onKeepEditing}>
-      <div
-        className="unsaved-container"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="unsaved-title"
-      >
-        <div className="unsaved-icon">
-          <i className="ri-draft-line"></i>
-        </div>
-        <h3 id="unsaved-title" className="unsaved-title">{title}</h3>
-        <p className="unsaved-message">{message}</p>
-        <div className="unsaved-actions">
-          <button type="button" className="unsaved-btn unsaved-btn-keep" onClick={onKeepEditing}>
+    <AppModal
+      compact
+      title={title}
+      titleIcon="ri-draft-line"
+      onClose={onKeepEditing}
+      ariaLabelledBy="unsaved-title"
+      footer={
+        <>
+          <button type="button" className="export-cancel" onClick={onKeepEditing}>
             Seguir editando
           </button>
-          <button type="button" className="unsaved-btn unsaved-btn-discard" onClick={onDiscard}>
+          <button type="button" className="export-cancel export-submit--warning" onClick={onDiscard}>
             Descartar
           </button>
-          <button type="button" className="unsaved-btn unsaved-btn-save" onClick={onSaveDraft}>
+          <button type="button" className="export-submit" onClick={onSaveDraft}>
             Guardar borrador
           </button>
-        </div>
+        </>
+      }
+    >
+      <div className="ds-confirm-body">
+        <p className="ds-confirm-message">{message}</p>
       </div>
-    </div>
+    </AppModal>
   );
 };
 

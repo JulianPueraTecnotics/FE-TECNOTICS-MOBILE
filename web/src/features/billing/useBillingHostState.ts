@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getCompanyWidgetSession } from "../dashboard/service";
-import { PATHS } from "../../router/paths.contants";
 import { AuthContext } from "../../store/auth.context";
 import { ENV } from "../../utils/global";
 import { parseBillingNavigateState, type BillingNavigateState } from "./billing.types";
@@ -33,9 +32,9 @@ export function useBillingHostState() {
   useEffect(() => {
     const s = location.state as BillingNavigateState | null | undefined;
     if (s?.is_nota || s?.recreate_factura_id) {
-      navigate(PATHS.DASHBOARD, { replace: true, state: null });
+      navigate(location.pathname, { replace: true, state: null });
     }
-  }, [location.state, navigate]);
+  }, [location.state, location.pathname, navigate]);
 
   useEffect(() => {
     let ignore = false;
@@ -62,10 +61,11 @@ export function useBillingHostState() {
           simbaToken: authSession.simba_token,
           feUrl: ENV.FE_URL,
           userId: user?.id,
-          theme: "compact",
+          theme: "clean",
           isNotaOption: isNota?.option,
           isNotaRef: isNota?.ref,
           recreateFromFacturaId: recreateFacturaId,
+          onNotaSubmitted: () => setIsNota(undefined),
         }
       : null;
 

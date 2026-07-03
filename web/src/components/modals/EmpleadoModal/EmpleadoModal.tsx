@@ -5,7 +5,7 @@ import SearchableSelect, { type SearchableSelectOption } from "../../shared/Sear
 import departamentos from "../../../utils/departamentos.json";
 import municipios from "../../../utils/municipios.json";
 import paises from "../../../utils/paises.json";
-import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
+import { AppDrawer, FilterField, FieldControl } from "../../../components/design-system";
 import {
     CLASE_RIESGO_ARL_OPTIONS,
     FORMA_PAGO_OPTIONS,
@@ -58,8 +58,6 @@ const EmpleadoModal: React.FC<EmpleadoModalProps> = ({ isOpen, onClose, onSucces
     const isEditMode = !!empleado;
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState<EmpleadoInput>(emptyForm);
-
-    useBodyScrollLock(isOpen);
 
     useEffect(() => {
         if (empleado) {
@@ -176,95 +174,97 @@ const EmpleadoModal: React.FC<EmpleadoModalProps> = ({ isOpen, onClose, onSucces
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay nomina-drawer" role="dialog" aria-modal="true" aria-labelledby="empleado-modal-title">
-            <div className="modal-container nomina-drawer-panel">
-                <div className="modal-header">
-                    <h2 id="empleado-modal-title">{isEditMode ? "Editar empleado" : "Nuevo empleado"}</h2>
-                    <button className="modal-close" onClick={onClose} disabled={loading}>
-                        <i className="ri-close-line"></i>
+        <AppDrawer
+            wide
+            title={isEditMode ? "Editar empleado" : "Nuevo empleado"}
+            titleIcon={isEditMode ? "ri-edit-line" : "ri-user-add-line"}
+            onClose={onClose}
+            closeDisabled={loading}
+            ariaLabelledBy="empleado-modal-title"
+            footer={
+                <>
+                    <button type="button" className="export-cancel" onClick={onClose} disabled={loading}>
+                        Cancelar
                     </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="modal-body">
-                    {/* Identificación */}
+                    <button type="submit" form="empleado-form" className="export-submit" disabled={loading}>
+                        {loading ? (
+                            <>
+                                <i className="ri-loader-4-line rotating" aria-hidden /> {isEditMode ? "Actualizando…" : "Creando…"}
+                            </>
+                        ) : isEditMode ? (
+                            "Actualizar"
+                        ) : (
+                            "Crear"
+                        )}
+                    </button>
+                </>
+            }
+        >
+            <form id="empleado-form" onSubmit={handleSubmit}>
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-id-card-line"></i> Identificación</h3>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label htmlFor="tipo_documento">Tipo de documento *</label>
-                                <select id="tipo_documento" name="tipo_documento" value={form.tipo_documento} onChange={handleChange} disabled={loading || isEditMode}>
+                        <div className="led-form-grid">
+                            <FilterField label="Tipo de documento *" htmlFor="tipo_documento" icon="ri-id-card-line">
+                                <FieldControl id="tipo_documento" name="tipo_documento" as="select" value={form.tipo_documento} onChange={handleChange} disabled={loading || isEditMode}>
                                     {TIPO_DOCUMENTO_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="numero_documento">Número de documento *</label>
-                                <input id="numero_documento" name="numero_documento" value={form.numero_documento} onChange={handleChange} disabled={loading || isEditMode} inputMode="numeric" placeholder="1234567890" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="primer_nombre">Primer nombre *</label>
-                                <input id="primer_nombre" name="primer_nombre" value={form.primer_nombre} onChange={handleChange} disabled={loading} placeholder="Juan" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="otros_nombres">Otros nombres</label>
-                                <input id="otros_nombres" name="otros_nombres" value={form.otros_nombres} onChange={handleChange} disabled={loading} placeholder="Carlos" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="primer_apellido">Primer apellido *</label>
-                                <input id="primer_apellido" name="primer_apellido" value={form.primer_apellido} onChange={handleChange} disabled={loading} placeholder="Pérez" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="segundo_apellido">Segundo apellido</label>
-                                <input id="segundo_apellido" name="segundo_apellido" value={form.segundo_apellido} onChange={handleChange} disabled={loading} placeholder="Gómez" />
-                            </div>
-                            <div className="form-group full-width">
-                                <label htmlFor="email">Correo electrónico</label>
-                                <input id="email" name="email" type="email" value={form.email} onChange={handleChange} disabled={loading} placeholder="empleado@correo.com" />
-                            </div>
+                                </FieldControl>
+                            </FilterField>
+                            <FilterField label="Número de documento *" htmlFor="numero_documento" icon="ri-barcode-line">
+                                <FieldControl id="numero_documento" name="numero_documento" value={form.numero_documento} onChange={handleChange} disabled={loading || isEditMode} inputMode="numeric" placeholder="1234567890" />
+                            </FilterField>
+                            <FilterField label="Primer nombre *" htmlFor="primer_nombre" icon="ri-user-line">
+                                <FieldControl id="primer_nombre" name="primer_nombre" value={form.primer_nombre} onChange={handleChange} disabled={loading} placeholder="Juan" />
+                            </FilterField>
+                            <FilterField label="Otros nombres" htmlFor="otros_nombres" icon="ri-user-line">
+                                <FieldControl id="otros_nombres" name="otros_nombres" value={form.otros_nombres} onChange={handleChange} disabled={loading} placeholder="Carlos" />
+                            </FilterField>
+                            <FilterField label="Primer apellido *" htmlFor="primer_apellido" icon="ri-user-line">
+                                <FieldControl id="primer_apellido" name="primer_apellido" value={form.primer_apellido} onChange={handleChange} disabled={loading} placeholder="Pérez" />
+                            </FilterField>
+                            <FilterField label="Segundo apellido" htmlFor="segundo_apellido" icon="ri-user-line">
+                                <FieldControl id="segundo_apellido" name="segundo_apellido" value={form.segundo_apellido} onChange={handleChange} disabled={loading} placeholder="Gómez" />
+                            </FilterField>
+                            <FilterField className="led-form-grid__full" label="Correo electrónico" htmlFor="email" icon="ri-mail-line">
+                                <FieldControl id="email" name="email" type="email" value={form.email} onChange={handleChange} disabled={loading} placeholder="empleado@correo.com" />
+                            </FilterField>
                         </div>
                     </div>
 
-                    {/* Datos laborales */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-briefcase-line"></i> Datos laborales</h3>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label htmlFor="tipo_trabajador">Tipo de trabajador *</label>
-                                <select id="tipo_trabajador" name="tipo_trabajador" value={form.tipo_trabajador} onChange={handleChange} disabled={loading}>
+                        <div className="led-form-grid">
+                            <FilterField label="Tipo de trabajador *" htmlFor="tipo_trabajador" icon="ri-briefcase-line">
+                                <FieldControl id="tipo_trabajador" name="tipo_trabajador" as="select" value={form.tipo_trabajador} onChange={handleChange} disabled={loading}>
                                     {TIPO_TRABAJADOR_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="subtipo_trabajador">Subtipo de trabajador *</label>
-                                <select id="subtipo_trabajador" name="subtipo_trabajador" value={form.subtipo_trabajador} onChange={handleChange} disabled={loading}>
+                                </FieldControl>
+                            </FilterField>
+                            <FilterField label="Subtipo de trabajador *" htmlFor="subtipo_trabajador" icon="ri-group-line">
+                                <FieldControl id="subtipo_trabajador" name="subtipo_trabajador" as="select" value={form.subtipo_trabajador} onChange={handleChange} disabled={loading}>
                                     {SUBTIPO_TRABAJADOR_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="tipo_contrato">Tipo de contrato *</label>
-                                <select id="tipo_contrato" name="tipo_contrato" value={form.tipo_contrato} onChange={handleChange} disabled={loading}>
+                                </FieldControl>
+                            </FilterField>
+                            <FilterField label="Tipo de contrato *" htmlFor="tipo_contrato" icon="ri-file-list-line">
+                                <FieldControl id="tipo_contrato" name="tipo_contrato" as="select" value={form.tipo_contrato} onChange={handleChange} disabled={loading}>
                                     {TIPO_CONTRATO_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="sueldo">Sueldo base mensual *</label>
-                                <input id="sueldo" name="sueldo" value={form.sueldo ? String(form.sueldo) : ""} onChange={handleChange} disabled={loading} inputMode="numeric" placeholder="1300000" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="fecha_ingreso">Fecha de ingreso *</label>
-                                <input id="fecha_ingreso" name="fecha_ingreso" type="date" value={form.fecha_ingreso} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="codigo_trabajador">Código de trabajador</label>
-                                <input id="codigo_trabajador" name="codigo_trabajador" value={form.codigo_trabajador} onChange={handleChange} disabled={loading} placeholder="(por defecto el documento)" />
-                            </div>
+                                </FieldControl>
+                            </FilterField>
+                            <FilterField label="Sueldo base mensual *" htmlFor="sueldo" icon="ri-money-dollar-circle-line">
+                                <FieldControl id="sueldo" name="sueldo" value={form.sueldo ? String(form.sueldo) : ""} onChange={handleChange} disabled={loading} inputMode="numeric" placeholder="1300000" />
+                            </FilterField>
+                            <FilterField label="Fecha de ingreso *" htmlFor="fecha_ingreso" icon="ri-calendar-line">
+                                <FieldControl id="fecha_ingreso" name="fecha_ingreso" type="date" value={form.fecha_ingreso} onChange={handleChange} disabled={loading} />
+                            </FilterField>
+                            <FilterField label="Código de trabajador" htmlFor="codigo_trabajador" icon="ri-barcode-line">
+                                <FieldControl id="codigo_trabajador" name="codigo_trabajador" value={form.codigo_trabajador} onChange={handleChange} disabled={loading} placeholder="(por defecto el documento)" />
+                            </FilterField>
                             <div className="checkbox-row">
                                 <input id="alto_riesgo_pension" name="alto_riesgo_pension" type="checkbox" checked={form.alto_riesgo_pension} onChange={handleChange} disabled={loading} />
                                 <label htmlFor="alto_riesgo_pension">Alto riesgo de pensión</label>
@@ -276,110 +276,93 @@ const EmpleadoModal: React.FC<EmpleadoModalProps> = ({ isOpen, onClose, onSucces
                         </div>
                     </div>
 
-                    {/* Lugar de trabajo */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-map-pin-line"></i> Lugar de trabajo</h3>
                         <div className="info-box">
                             <i className="ri-information-line"></i>
                             <p>Opcional. Si lo dejas vacío, se usará la ubicación registrada de la empresa al emitir la nómina.</p>
                         </div>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label htmlFor="lt_pais">País</label>
-                                <SearchableSelect id="lt_pais" options={paisesOptions} value={form.lugar_trabajo?.pais ?? ""} onChange={handleLugarChange("pais")} placeholder="Buscar país..." disabled={loading} aria-label="País" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="lt_depto">Departamento</label>
-                                <SearchableSelect id="lt_depto" options={departamentosOptions} value={form.lugar_trabajo?.departamento_codigo ?? ""} onChange={handleLugarChange("departamento_codigo")} placeholder="Buscar departamento..." disabled={loading} aria-label="Departamento" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="lt_ciudad">Ciudad / Municipio</label>
-                                <SearchableSelect id="lt_ciudad" options={municipiosOptions} value={form.lugar_trabajo?.ciudad_codigo ?? ""} onChange={handleLugarChange("ciudad_codigo")} placeholder="Buscar ciudad..." disabled={loading || !form.lugar_trabajo?.departamento_codigo} aria-label="Ciudad" />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="lt_direccion">Dirección</label>
-                                <input id="lt_direccion" value={form.lugar_trabajo?.direccion ?? ""} onChange={(e) => setForm((prev) => ({ ...prev, lugar_trabajo: { ...(prev.lugar_trabajo ?? { pais: "169", departamento_codigo: "", ciudad_codigo: "", direccion: "" }), direccion: e.target.value } }))} disabled={loading} placeholder="Calle 123 #45-67" />
-                            </div>
+                        <div className="led-form-grid">
+                            <FilterField label="País" htmlFor="lt_pais" icon="ri-global-line">
+                                <SearchableSelect id="lt_pais" embedded options={paisesOptions} value={form.lugar_trabajo?.pais ?? ""} onChange={handleLugarChange("pais")} placeholder="Buscar país..." disabled={loading} aria-label="País" />
+                            </FilterField>
+                            <FilterField label="Departamento" htmlFor="lt_depto" icon="ri-map-2-line">
+                                <SearchableSelect id="lt_depto" embedded options={departamentosOptions} value={form.lugar_trabajo?.departamento_codigo ?? ""} onChange={handleLugarChange("departamento_codigo")} placeholder="Buscar departamento..." disabled={loading} aria-label="Departamento" />
+                            </FilterField>
+                            <FilterField label="Ciudad / Municipio" htmlFor="lt_ciudad" icon="ri-building-2-line">
+                                <SearchableSelect id="lt_ciudad" embedded options={municipiosOptions} value={form.lugar_trabajo?.ciudad_codigo ?? ""} onChange={handleLugarChange("ciudad_codigo")} placeholder="Buscar ciudad..." disabled={loading || !form.lugar_trabajo?.departamento_codigo} aria-label="Ciudad" />
+                            </FilterField>
+                            <FilterField label="Dirección" htmlFor="lt_direccion" icon="ri-map-pin-line">
+                                <FieldControl id="lt_direccion" value={form.lugar_trabajo?.direccion ?? ""} onChange={(e) => setForm((prev) => ({ ...prev, lugar_trabajo: { ...(prev.lugar_trabajo ?? { pais: "169", departamento_codigo: "", ciudad_codigo: "", direccion: "" }), direccion: e.target.value } }))} disabled={loading} placeholder="Calle 123 #45-67" />
+                            </FilterField>
                         </div>
                     </div>
 
-                    {/* Forma de pago */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-bank-card-line"></i> Forma de pago</h3>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label htmlFor="dp_forma">Forma de pago *</label>
-                                <select id="dp_forma" name="forma" value={form.datos_pago?.forma ?? "1"} onChange={handlePagoChange} disabled={loading}>
+                        <div className="led-form-grid">
+                            <FilterField label="Forma de pago *" htmlFor="dp_forma" icon="ri-bank-card-line">
+                                <FieldControl id="dp_forma" name="forma" as="select" value={form.datos_pago?.forma ?? "1"} onChange={handlePagoChange} disabled={loading}>
                                     {FORMA_PAGO_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="dp_metodo">Método de pago *</label>
-                                <select id="dp_metodo" name="metodo" value={form.datos_pago?.metodo ?? "10"} onChange={handlePagoChange} disabled={loading}>
+                                </FieldControl>
+                            </FilterField>
+                            <FilterField label="Método de pago *" htmlFor="dp_metodo" icon="ri-wallet-3-line">
+                                <FieldControl id="dp_metodo" name="metodo" as="select" value={form.datos_pago?.metodo ?? "10"} onChange={handlePagoChange} disabled={loading}>
                                     {METODO_PAGO_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
+                                </FieldControl>
+                            </FilterField>
                             {requiereCuenta && (
                                 <>
-                                    <div className="form-group">
-                                        <label htmlFor="dp_banco">Banco</label>
-                                        <input id="dp_banco" name="banco" value={form.datos_pago?.banco ?? ""} onChange={handlePagoChange} disabled={loading} placeholder="Bancolombia, Davivienda..." />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="dp_tipo_cuenta">Tipo de cuenta</label>
-                                        <select id="dp_tipo_cuenta" name="tipo_cuenta" value={form.datos_pago?.tipo_cuenta ?? ""} onChange={handlePagoChange} disabled={loading}>
+                                    <FilterField label="Banco" htmlFor="dp_banco" icon="ri-bank-line">
+                                        <FieldControl id="dp_banco" name="banco" value={form.datos_pago?.banco ?? ""} onChange={handlePagoChange} disabled={loading} placeholder="Bancolombia, Davivienda..." />
+                                    </FilterField>
+                                    <FilterField label="Tipo de cuenta" htmlFor="dp_tipo_cuenta" icon="ri-wallet-3-line">
+                                        <FieldControl id="dp_tipo_cuenta" name="tipo_cuenta" as="select" value={form.datos_pago?.tipo_cuenta ?? ""} onChange={handlePagoChange} disabled={loading}>
                                             <option value="">— Selecciona —</option>
                                             {TIPO_CUENTA_OPTIONS.map((o) => (
                                                 <option key={o.value} value={o.value}>{o.label}</option>
                                             ))}
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="dp_numero_cuenta">Número de cuenta</label>
-                                        <input id="dp_numero_cuenta" name="numero_cuenta" value={form.datos_pago?.numero_cuenta ?? ""} onChange={handlePagoChange} disabled={loading} inputMode="numeric" placeholder="000-000000-00" />
-                                    </div>
+                                        </FieldControl>
+                                    </FilterField>
+                                    <FilterField label="Número de cuenta" htmlFor="dp_numero_cuenta" icon="ri-bank-card-line">
+                                        <FieldControl id="dp_numero_cuenta" name="numero_cuenta" value={form.datos_pago?.numero_cuenta ?? ""} onChange={handlePagoChange} disabled={loading} inputMode="numeric" placeholder="000-000000-00" />
+                                    </FilterField>
                                 </>
                             )}
                         </div>
                     </div>
 
-                    {/* Seguridad social */}
                     <div className="nomina-section">
                         <h3 className="nomina-section-title"><i className="ri-heart-pulse-line"></i> Seguridad social</h3>
                         <div className="info-box">
                             <i className="ri-information-line"></i>
                             <p>No viaja en el documento de la DIAN; se usa para calcular deducciones, aportes y la PILA.</p>
                         </div>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label htmlFor="ss_eps">EPS (salud)</label>
-                                <input id="ss_eps" name="eps" value={form.seguridad_social?.eps ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Sura, Nueva EPS..." />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="ss_afp">Fondo de pensión (AFP)</label>
-                                <input id="ss_afp" name="afp" value={form.seguridad_social?.afp ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Porvenir, Colfondos..." />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="ss_cesantias">Fondo de cesantías</label>
-                                <input id="ss_cesantias" name="fondo_cesantias" value={form.seguridad_social?.fondo_cesantias ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Protección, Porvenir..." />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="ss_ccf">Caja de compensación (CCF)</label>
-                                <input id="ss_ccf" name="caja_compensacion" value={form.seguridad_social?.caja_compensacion ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Comfama, Compensar..." />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="ss_arl">Clase de riesgo ARL</label>
-                                <select id="ss_arl" name="clase_riesgo_arl" value={form.seguridad_social?.clase_riesgo_arl ?? ""} onChange={handleSeguridadChange} disabled={loading}>
+                        <div className="led-form-grid">
+                            <FilterField label="EPS (salud)" htmlFor="ss_eps" icon="ri-heart-pulse-line">
+                                <FieldControl id="ss_eps" name="eps" value={form.seguridad_social?.eps ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Sura, Nueva EPS..." />
+                            </FilterField>
+                            <FilterField label="Fondo de pensión (AFP)" htmlFor="ss_afp" icon="ri-shield-user-line">
+                                <FieldControl id="ss_afp" name="afp" value={form.seguridad_social?.afp ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Porvenir, Colfondos..." />
+                            </FilterField>
+                            <FilterField label="Fondo de cesantías" htmlFor="ss_cesantias" icon="ri-safe-line">
+                                <FieldControl id="ss_cesantias" name="fondo_cesantias" value={form.seguridad_social?.fondo_cesantias ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Protección, Porvenir..." />
+                            </FilterField>
+                            <FilterField label="Caja de compensación (CCF)" htmlFor="ss_ccf" icon="ri-community-line">
+                                <FieldControl id="ss_ccf" name="caja_compensacion" value={form.seguridad_social?.caja_compensacion ?? ""} onChange={handleSeguridadChange} disabled={loading} placeholder="Comfama, Compensar..." />
+                            </FilterField>
+                            <FilterField label="Clase de riesgo ARL" htmlFor="ss_arl" icon="ri-shield-check-line">
+                                <FieldControl id="ss_arl" name="clase_riesgo_arl" as="select" value={form.seguridad_social?.clase_riesgo_arl ?? ""} onChange={handleSeguridadChange} disabled={loading}>
                                     <option value="">— Selecciona —</option>
                                     {CLASE_RIESGO_ARL_OPTIONS.map((o) => (
                                         <option key={o.value} value={o.value}>{o.label}</option>
                                     ))}
-                                </select>
-                            </div>
+                                </FieldControl>
+                            </FilterField>
                         </div>
                     </div>
 
@@ -390,15 +373,8 @@ const EmpleadoModal: React.FC<EmpleadoModalProps> = ({ isOpen, onClose, onSucces
                         </div>
                     )}
 
-                    <div className="modal-footer">
-                        <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Cancelar</button>
-                        <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? (<><i className="ri-loader-4-line rotating"></i> {isEditMode ? "Actualizando..." : "Creando..."}</>) : isEditMode ? "Actualizar" : "Crear"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+            </form>
+        </AppDrawer>
     );
 };
 

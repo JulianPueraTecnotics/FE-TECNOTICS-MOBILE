@@ -3,11 +3,13 @@
     height: 100dvh;
     right: -100%;
     position: fixed;
-    background: var(--card-bg);
+    background: var(--header-bg);
     z-index: 100;
     transition: all 0.3s ease-in-out;
     padding-top: 0.30rem;
     top: 0;
+    border-right: var(--header-accent-width) solid var(--header-accent);
+    box-shadow: 4px 0 16px rgba(0, 39, 55, 0.06);
 }
 
 .sidebar__open {
@@ -20,55 +22,81 @@
     flex-direction: column;
 }
 
-.sidebar__header {
-    width: 100%;
-    max-height: 58px;
+html.has-app-sidebar .siderbar__container {
     height: 100%;
+    min-height: 0;
+}
+
+.sidebar__header {
+    position: relative;
+    width: 100%;
+    max-height: var(--header-height);
+    min-height: var(--header-height);
+    height: var(--header-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.30rem;
-    margin-bottom: 2rem;
+    padding: 0 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: none;
+}
 
-    .sidebar__brand {
-        max-width: 180px;
+.sidebar__header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--header-accent-width);
+    background-color: var(--header-accent);
+}
 
-        img {
-            width: 100%;
-        }
-    }
+.sidebar__brand {
+    max-width: none;
+    max-height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+}
 
-    .sidebar__header-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+.sidebar__brand-name {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-    .sidebar__theme-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        padding: 0;
-        color: var(--primary-text);
-        border-radius: 8px;
-    }
+.sidebar__brand img {
+    width: 100%;
+    height: auto;
+    max-height: 32px;
+    object-fit: contain;
+}
 
-    .sidebar__theme-toggle:hover {
-        color: var(--primary-color);
-    }
+.sidebar__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-    .sidebar__theme-toggle i {
-        font-size: 20px;
-    }
+.sidebar__theme-toggle {
+    /* hereda estilos de .theme-toggle */
+    padding: 0;
+}
 
-    .sidebar__menu-button {
-        i {
-            font-size: 24px;
-            margin-right: 10px;
-        }
-    }
+.sidebar__menu-button {
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.sidebar__menu-button i {
+    font-size: 20px;
+    margin-right: 0;
 }
 
 .sidebar__column {
@@ -97,10 +125,90 @@
     display: flex;
     gap: 10px;
     color: var(--primary-text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.3;
+    align-items: center;
+}
+
+.sidebar__menu-link i {
+    font-size: 1.1rem;
+    color: var(--header-accent);
+    flex-shrink: 0;
 }
 
 .sidebar__menu-link:hover {
     color: var(--primary-color);
+}
+
+.sidebar__menu-link:hover i {
+    color: var(--header-accent);
+}
+
+.sidebar__navs--company {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.sidebar__company {
+    flex-shrink: 0;
+    padding: 0.75rem 0.35rem 0.65rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border-light);
+    text-align: center;
+}
+
+.sidebar__company-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+    text-align: center;
+}
+
+.sidebar__company-name {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.35;
+    text-align: center;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.sidebar__footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding: 0.65rem 0 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.sidebar__logout {
+    width: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    color: var(--tertiary-color);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__logout:hover {
+    background: rgba(255, 75, 75, 0.08);
+    color: var(--tertiary-color);
+}
+
+.sidebar__logout > i:first-child {
+    color: var(--tertiary-color);
 }
 
 .sidebar__menu-item--trial {
@@ -154,15 +262,32 @@
         /* Anclado a la izquierda, bajo el header */
         left: 0;
         right: auto;
-        top: 54px;
-        width: 264px;
-        max-width: 264px;
-        height: calc(100dvh - 54px);
-        border-right: 1px solid var(--border-light);
-        overflow-y: auto;
-        overflow-x: hidden;
+        top: var(--header-height);
+        width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
+        height: calc(100dvh - var(--header-height));
+        border-right: var(--header-accent-width) solid var(--header-accent);
+        background: var(--bg-subtle);
+        box-shadow: 4px 0 22px rgba(0, 39, 55, 0.09);
+        overflow: hidden;
         transition: none;
         padding-top: 0;
+    }
+
+    html.has-app-sidebar .siderbar__container {
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    html.has-app-sidebar .sidebar__navs {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
     /* En desktop el sidebar de empresa siempre está visible: el toggle no lo oculta */
@@ -179,12 +304,257 @@
     }
 
     html.has-app-sidebar .sidebar__column {
-        padding: 1rem 0.75rem;
+        flex: 1;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem 0.75rem 0.55rem;
     }
 
-    /* Items más compactos y sin caja pesada, estilo navegación lateral */
+    html.has-app-sidebar .sidebar__navs--company {
+        overflow: hidden;
+        padding-bottom: 0;
+    }
+
+    html.has-app-sidebar .sidebar__company {
+        width: 100%;
+        margin: 0 0 0.3rem;
+        padding: 0.6rem 0 0.55rem;
+        box-sizing: border-box;
+    }
+
+    html.has-app-sidebar .sidebar__company-label {
+        font-size: 0.72rem;
+    }
+
+    html.has-app-sidebar .sidebar__company-name {
+        font-size: 0.9rem;
+    }
+
+    html.has-app-sidebar .sidebar__navs--company > .sidebar__menu {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0.25rem 8px 0.75rem 0;
+        margin-right: 0;
+        scrollbar-gutter: stable;
+    }
+
+    html.has-app-sidebar .sidebar__footer {
+        padding: 0.55rem 0 0.75rem;
+        margin-top: auto;
+    }
+
+    html.has-app-sidebar .sidebar__logout {
+        min-height: 44px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        gap: 10px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    html.has-app-sidebar .sidebar__logout > i:first-child {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        font-size: 1.15rem;
+        background: rgba(255, 75, 75, 0.12);
+        color: var(--tertiary-color);
+    }
+
+    html.has-app-sidebar .sidebar__logout:hover > i:first-child {
+        background: rgba(255, 75, 75, 0.18);
+    }
+
+    /* Ítems apilados desde arriba, altura natural (no estirados a pantalla completa) */
     html.has-app-sidebar .sidebar__menu {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
         gap: 4px;
+        padding: 0.25rem 0 0.75rem;
+        justify-content: flex-start;
+        align-content: flex-start;
+    }
+
+    html.has-app-sidebar .sidebar__menu-item {
+        padding: 0;
+        border: none;
+        flex: 0 0 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    html.has-app-sidebar .sidebar__menu-group {
+        flex: 0 0 auto;
+        min-height: 0;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link,
+    html.has-app-sidebar .sidebar__menu-group-toggle {
+        flex: 0 0 auto;
+        min-height: 44px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary-text);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1.35;
+        transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link:hover,
+    html.has-app-sidebar .sidebar__menu-group-toggle:hover {
+        background: rgba(96, 153, 172, 0.1);
+        color: var(--primary-color);
+    }
+
+    /* Enlace o grupo activo */
+    html.has-app-sidebar .sidebar__menu-link.active,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle {
+        background: var(--header-accent);
+        color: #fff;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link.active i,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle i {
+        color: #fff;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link.active:hover,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle:hover {
+        background: #4a8496;
+        color: #fff;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link > i:first-child,
+    html.has-app-sidebar .sidebar__menu-group-toggle > i:first-child {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        font-size: 1.15rem;
+        background: rgba(96, 153, 172, 0.14);
+        color: var(--header-accent);
+    }
+
+    html.has-app-sidebar .sidebar__menu-link.active > i:first-child,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle > i:first-child {
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--header-accent);
+    }
+
+    html.has-app-sidebar .sidebar__menu-caret {
+        color: var(--text-muted);
+        font-size: 1rem;
+        opacity: 0.85;
+    }
+
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle .sidebar__menu-caret {
+        color: rgba(255, 255, 255, 0.9);
+    }
+}
+
+@media (max-width: 767px) {
+    .sidebar,
+    html.has-app-sidebar .sidebar {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        overscroll-behavior: contain;
+    }
+
+    .sidebar .siderbar__container,
+    html.has-app-sidebar .siderbar__container {
+        flex: 1;
+        min-height: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .sidebar .sidebar__header,
+    html.has-app-sidebar .sidebar__header {
+        flex-shrink: 0;
+    }
+
+    /* Menú público / admin: scroll en todo el bloque de navegación */
+    .sidebar .sidebar__navs:not(.sidebar__navs--company),
+    html.has-app-sidebar .sidebar__navs:not(.sidebar__navs--company) {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    /* Menú empresa: empresa arriba, ítems con scroll, cerrar sesión fijo abajo (sin solaparse) */
+    html.has-app-sidebar .sidebar__navs--company {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    html.has-app-sidebar .sidebar__navs--company .sidebar__company {
+        flex-shrink: 0;
+    }
+
+    html.has-app-sidebar .sidebar__navs--company > .sidebar__menu {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding: 0.25rem 8px 0.5rem 0;
+        display: block;
+        height: auto;
+        scrollbar-gutter: stable;
+    }
+
+    html.has-app-sidebar .sidebar__menu > .sidebar__menu-item,
+    html.has-app-sidebar .sidebar__menu > .sidebar__menu-group {
+        flex: none;
+        flex-shrink: 0;
+        min-height: auto;
+        height: auto;
+    }
+
+    .sidebar .sidebar__navs .sidebar__menu {
+        display: block;
+        height: auto;
+        min-height: min-content;
+    }
+
+    .sidebar .sidebar__navs .sidebar__menu-item {
+        flex: none;
+        flex-shrink: 0;
+        min-height: auto;
+    }
+
+    html.has-app-sidebar .sidebar__footer {
+        flex-shrink: 0;
+        margin-top: 0;
+        padding: 0.65rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid var(--border-light);
+        background: var(--header-bg);
     }
 
     html.has-app-sidebar .sidebar__menu-item {
@@ -192,25 +562,27 @@
         border: none;
     }
 
-    html.has-app-sidebar .sidebar__menu-link {
-        padding: 10px 12px;
+    html.has-app-sidebar .sidebar__menu-link,
+    html.has-app-sidebar .sidebar__menu-group-toggle {
+        padding: 8px 11px;
         border-radius: 8px;
-        align-items: center;
     }
 
-    html.has-app-sidebar .sidebar__menu-link:hover {
-        background: var(--bg-subtle);
-    }
-
-    /* Enlace activo resaltado */
-    html.has-app-sidebar .sidebar__menu-link.active {
-        background: var(--accent-teal);
+    html.has-app-sidebar .sidebar__menu-link.active,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle {
+        background: var(--header-accent);
         color: #fff;
     }
 
-    html.has-app-sidebar .sidebar__menu-link.active:hover {
-        background: var(--accent-teal-hover);
+    html.has-app-sidebar .sidebar__menu-link.active i,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle i {
         color: #fff;
+    }
+
+    html.has-app-sidebar .sidebar__menu-link.active > i:first-child,
+    html.has-app-sidebar .sidebar__menu-group.is-active > .sidebar__menu-group-toggle > i:first-child {
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--header-accent);
     }
 }
 
@@ -219,9 +591,14 @@
         padding: 0 0.75rem;
     }
 
-    .sidebar__menu-item {
+    .sidebar__navs:not(.sidebar__navs--company) .sidebar__menu-item {
         padding: 0.75rem 1rem;
         min-height: 48px;
+    }
+
+    html.has-app-sidebar .sidebar__menu-item {
+        padding: 0;
+        min-height: auto;
     }
 
     .sidebar__theme-toggle {
@@ -235,6 +612,21 @@
     }
 }
 
-[data-theme="dark"] .sidebar__brand img {
+[data-theme="dark"] .sidebar__brand img:not(.app-logo) {
     filter: invert(1) grayscale(1);
+}
+
+[data-theme="dark"] html.has-app-sidebar .sidebar {
+    background: color-mix(in srgb, var(--header-bg) 88%, var(--header-accent) 12%);
+    box-shadow: 4px 0 22px rgba(0, 0, 0, 0.32);
+}
+
+[data-theme="dark"] html.has-app-sidebar .sidebar__menu-link > i:first-child,
+[data-theme="dark"] html.has-app-sidebar .sidebar__menu-group-toggle > i:first-child {
+    background: rgba(96, 153, 172, 0.2);
+}
+
+[data-theme="dark"] html.has-app-sidebar .sidebar__menu-link:hover,
+[data-theme="dark"] html.has-app-sidebar .sidebar__menu-group-toggle:hover {
+    background: rgba(96, 153, 172, 0.15);
 }

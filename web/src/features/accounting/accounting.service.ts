@@ -1,5 +1,5 @@
 import { API_ROUTES } from "../../utils/global";
-import type { AccountingConfig, AccountingSequence, CostCenter, CoaAccount, Role, PermissionGroup, BlockedRange, Uvt, RetentionConcept } from "./accounting.types";
+import type { AccountingConfig, AccountingSequence, CostCenter, CoaAccount, CoaTemplateRow, Role, PermissionGroup, BlockedRange, Uvt, RetentionConcept } from "./accounting.types";
 
 const json = (method: string, body?: unknown) => ({
     method,
@@ -35,6 +35,9 @@ export const importCostCenters = async (rows: { codigo: string; descripcion?: st
 export const getCoa = async (page = 1, limit = 50, search = ""): Promise<{ ok: boolean; accounts: CoaAccount[]; pagination: { page: number; totalPages: number; total: number } }> =>
     parse(await fetch(`${API_ROUTES.ACCOUNTING_COA}?page=${page}&limit=${limit}${search ? `&search=${encodeURIComponent(search)}` : ""}`, json("GET")));
 export const importCoa = async (rows: Partial<CoaAccount>[]): Promise<{ ok: boolean; importadas: number }> => parse(await fetch(API_ROUTES.ACCOUNTING_COA_IMPORT, json("POST", { rows })));
+/** Importa el PUC desde la plantilla completa (Código, Nombre, Categoría, Clase, etc.). */
+export const importCoaTemplate = async (rows: CoaTemplateRow[]): Promise<{ ok: boolean; importadas: number; message: string }> =>
+    parse(await fetch(API_ROUTES.ACCOUNTING_COA_IMPORT_TEMPLATE, json("POST", { rows })));
 export const bootstrapAccounting = async (): Promise<{ ok: boolean; puc_creadas: number; cuentas_default_asignadas: number; message: string }> =>
     parse(await fetch(API_ROUTES.ACCOUNTING_BOOTSTRAP, json("POST")));
 export const bootstrapTestData = async (anio?: number): Promise<{ ok: boolean; message: string; summary: Record<string, unknown> }> =>

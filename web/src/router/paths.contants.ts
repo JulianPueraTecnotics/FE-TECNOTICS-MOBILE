@@ -14,8 +14,16 @@ export const PATHS = {
     HOME_PLANS: "/#planes",
 
     //#==== PRIVATE PATHS ====#//
+    /** Inicio: dashboard del dueño (KPIs + calendario tributario DIAN). */
     DASHBOARD: "/dashboard",
+    /** Login del contador (multi-empresa): credenciales → selector de empresa */
+    CONTADOR_LOGIN: "/contador",
+    /** Facturar: el widget de facturación del SDK fe-billing (antes era el inicio). */
+    DASHBOARD_BILLING: "/facturar",
+    /** POS: misma pantalla de facturación que Facturar (ruta separada para el menú). */
+    POS: "/facturar/pos",
     DOCUMENTS: "/documentos",
+    /** Crear factura (nativo: SDK billing; web: redirige a /facturar). */
     DOCUMENT_CREATE: "/documentos/nueva",
     DOCUMENT_DETAIL: "/documentos/:id",
     CLIENTS: "/clientes",
@@ -28,6 +36,8 @@ export const PATHS = {
     /** Módulo de analítica/estadísticas financieras (libro mayor) */
     ANALYTICS: "/estadisticas",
     DIAN_SYNC: "/sincronizacion-dian",
+    DIAN_RECONCILE: "/conciliacion-dian",
+    DIAN_RECONCILE_SALES: "/conciliacion-dian-emitidas",
     NOMINA_EMPLEADOS: "/nomina-empleados",
     MY_PROFILE: "/mi-perfil",
     /** Configuración de empresa (facturación, documentos, eventos, usuarios, contable) */
@@ -65,17 +75,33 @@ export const PATHS = {
     TREASURY_LOTES: "/tesoreria/lotes",
     /** Configuración de bancos de la empresa (cuentas origen) */
     TREASURY_BANCOS: "/tesoreria/bancos",
-    /** Conciliación bancaria (extracto vs libros) */
+    /** Conciliación bancaria — módulo nuevo (matching automático ingresos/egresos) */
     TREASURY_CONCILIACION: "/tesoreria/conciliacion",
+    /** Importar extracto (CSV/XLSX con mapeo de columnas, cualquier banco) */
+    TREASURY_IMPORT_EXTRACTO: "/tesoreria/importar-extracto",
+    /** Cartera por cliente (saldos y pagos aplicados) */
+    TREASURY_CARTERA: "/tesoreria/cartera",
+    /** Saldos por proveedor (cuentas por pagar) */
+    TREASURY_CXP: "/tesoreria/saldos-proveedor",
+    /** Bolsa de pagos sin asignar (reclasificar 22050501) */
+    TREASURY_BOLSA: "/tesoreria/bolsa-pagos",
+    /** Conciliación asistida anterior (fuera del menú, accesible por URL) */
+    TREASURY_CONCILIAR_BANCO: "/tesoreria/conciliar-banco",
+    /** Pantalla vieja extracto-vs-libros (fuera del menú, accesible por URL) */
+    TREASURY_RECON_LEGACY: "/tesoreria/conciliacion-extracto",
     // Contabilidad. Origen: Causación/Tesorería (PUC, cierres, comprobantes)
     ACCOUNTING: "/contabilidad",
     /** Activos fijos (ficha, depreciación línea recta, baja/venta) */
     FIXED_ASSETS: "/contabilidad/activos-fijos",
 
+    /** Inventario (kardex, existencias, bodegas, costeo promedio). Secciones por ?sec= */
+    INVENTORY: "/inventario",
+
     //#==== SUPERADMIN PANEL (mismo login/navbar, links adaptados) ====#//
     /** Home del panel = listado de empresas */
     ADMIN_HOME: "/admin",
     ADMIN_ADMINS: "/admin/administradores",
+    ADMIN_CONTADORES: "/admin/contadores",
     ADMIN_PLANS: "/admin/planes",
     ADMIN_COMPANY_DETAIL: (companyId: string) => `/admin/empresas/${companyId}`,
 };

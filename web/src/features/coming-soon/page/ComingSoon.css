@@ -25,7 +25,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: var(--primary-color);
+    background: var(--primary-color-bg, var(--primary-color));
     color: #fff;
 }
 

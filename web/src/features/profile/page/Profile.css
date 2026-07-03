@@ -3,7 +3,7 @@
     padding: 2rem;
     max-width: 1800px;
     margin: 0 auto;
-    min-height: calc(100dvh - 54px);
+    min-height: calc(100dvh - var(--header-height));
 }
 
 .profile-container {
@@ -297,17 +297,17 @@
     width: 100%;
 }
 
-.btn-primary {
+.profile-page .btn-primary {
     width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 18px 32px;
+    padding: 18px 32px !important;
     border-radius: 24px;
     font-weight: 600;
     font-size: 1rem;
-    background: var(--accent-teal);
+    background-color: var(--header-accent) !important;
     color: #fff;
     border: none;
     cursor: pointer;
@@ -315,11 +315,11 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.btn-primary:hover:not(:disabled) {
-    background: var(--accent-teal-hover);
+.profile-page .btn-primary:hover:not(:disabled) {
+    background-color: #4a8496 !important;
 }
 
-.btn-primary:disabled {
+.profile-page .btn-primary:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
@@ -534,17 +534,7 @@
 }
 
 .billing-reports-radios {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.billing-reports-radio {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-weight: 600;
-    color: var(--primary-text);
+    margin-top: 0.35rem;
 }
 
 .billing-reports-hint {
@@ -624,31 +614,15 @@
 }
 
 .billing-reports-checklist {
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
+    margin-top: 0.35rem;
 }
 
-.billing-reports-check {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.55rem 0.65rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
+.billing-reports-checklist .ds-check-card {
+    position: relative;
 }
 
-.billing-reports-check input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-}
-
-.billing-reports-check span {
-    color: var(--primary-text);
-    font-weight: 600;
-    overflow-wrap: anywhere;
+.prefix-nomina-toggle-wrap {
+    margin-bottom: 0.85rem;
 }
 
 .billing-reports-empty {
@@ -965,22 +939,6 @@
     color: var(--text-muted);
     margin: 0 0 1rem 0;
     line-height: 1.45;
-}
-
-.prefix-nomina-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    margin: 0 0 1rem 0;
-    cursor: pointer;
-    user-select: none;
-}
-
-.prefix-nomina-toggle input {
-    width: 1rem;
-    height: 1rem;
-    cursor: pointer;
 }
 
 .prefix-add-desc code {

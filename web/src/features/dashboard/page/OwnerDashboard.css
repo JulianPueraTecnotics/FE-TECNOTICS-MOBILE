@@ -1,0 +1,565 @@
+/* Shell: ocupa todo el área embebida bajo el header */
+.owner-dash-shell {
+    width: 100%;
+    min-height: calc(100dvh - var(--header-height));
+    padding: 0;
+    background: var(--page-bg);
+}
+
+.owner-dash {
+    width: 100%;
+    max-width: none;
+    min-height: calc(100dvh - var(--header-height));
+    margin: 0;
+    padding: 1.25rem 1.5rem 2rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.owner-dash__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.owner-dash__head h1 {
+    font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+    font-weight: 700;
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.owner-dash__sub {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted);
+    font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+}
+
+.owner-dash__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--header-accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.125rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.owner-dash__cta:hover {
+    background: #4a8496;
+}
+
+/* ── Selector de período (Hoy / Mes / Trimestre / Semestre / Año) ── */
+.owner-dash__periodos {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.owner-chip {
+    border: 1px solid var(--border-light);
+    background: var(--card-bg);
+    color: var(--tertiary-color);
+    border-radius: 999px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.owner-chip:hover {
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+}
+
+.owner-chip--active {
+    background: var(--accent-teal);
+    border-color: var(--accent-teal);
+    color: #fff;
+}
+
+/* ── Tira de KPIs ── */
+.owner-dash__strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0;
+}
+
+.kpi-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    min-width: 0;
+    box-shadow: 0 1px 3px rgba(0, 39, 55, 0.04);
+}
+
+.kpi-mini__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.kpi-mini > div {
+    min-width: 0;
+}
+
+.kpi-mini__label {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kpi-mini strong {
+    display: block;
+    font-size: clamp(0.95rem, 1.8vw, 1.125rem);
+    color: var(--primary-text);
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Sección DIAN ── */
+.owner-dash__section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.35rem 1.5rem;
+    margin-bottom: 0;
+    box-shadow: 0 1px 4px rgba(0, 39, 55, 0.04);
+}
+
+.owner-dash__section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.owner-dash__section-head h2 {
+    font-size: clamp(1.05rem, 2vw, 1.2rem);
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+}
+
+.owner-dash__section-head h2 i {
+    color: var(--header-accent);
+}
+
+.owner-dash__hint {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    background: rgba(96, 153, 172, 0.1);
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+}
+
+.owner-dash__loading,
+.owner-dash__empty {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    padding: 0.5rem 0;
+}
+
+/* ── Vencimientos ── */
+.owner-dash__deadlines {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+    gap: 0.75rem;
+}
+
+.deadline-card {
+    --deadline-accent: var(--header-accent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+}
+
+.deadline-card--vencido { --deadline-accent: #dc2626; }
+.deadline-card--critico { --deadline-accent: #ea580c; }
+.deadline-card--por_vencer { --deadline-accent: #b45309; }
+.deadline-card--al_dia { --deadline-accent: #059669; }
+
+.deadline-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    min-width: 0;
+}
+
+.deadline-card__icon {
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    color: var(--deadline-accent);
+    background: color-mix(in srgb, var(--deadline-accent) 12%, transparent);
+    border-radius: 8px;
+}
+
+.deadline-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.deadline-card__badge {
+    flex-shrink: 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+.deadline-card__badge--vencido {
+    background: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+}
+
+.deadline-card__badge--critico {
+    background: rgba(234, 88, 12, 0.12);
+    color: #ea580c;
+}
+
+.deadline-card__badge--por_vencer {
+    background: rgba(217, 119, 6, 0.12);
+    color: #b45309;
+}
+
+.deadline-card__badge--al_dia {
+    background: rgba(5, 150, 105, 0.12);
+    color: #059669;
+}
+
+.deadline-card__est {
+    color: var(--text-muted);
+    font-style: normal;
+}
+
+.deadline-card__oblig {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--primary-text);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.deadline-card__periodo {
+    margin: 0.15rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.deadline-card__foot {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-top: 0.45rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    min-width: 0;
+}
+
+.deadline-card__fecha {
+    color: var(--primary-text);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.deadline-card__sep {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.deadline-card__dias {
+    font-weight: 600;
+    color: var(--deadline-accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (min-width: 1100px) {
+    .owner-dash__deadlines {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+[data-theme="dark"] .deadline-card {
+    background: var(--card-bg);
+    border-color: var(--border-light);
+}
+
+[data-theme="dark"] .deadline-card__badge--vencido {
+    background: rgba(220, 38, 38, 0.18);
+    color: #f87171;
+}
+
+[data-theme="dark"] .deadline-card__badge--critico {
+    background: rgba(234, 88, 12, 0.18);
+    color: #fb923c;
+}
+
+[data-theme="dark"] .deadline-card__badge--por_vencer {
+    background: rgba(217, 119, 6, 0.18);
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .deadline-card__badge--al_dia {
+    background: rgba(5, 150, 105, 0.18);
+    color: #6ee7b7;
+}
+
+/* ── Gráficas ── */
+.owner-dash__charts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+    flex: 1;
+}
+
+.chart-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    box-shadow: 0 1px 4px rgba(0, 39, 55, 0.04);
+}
+
+.chart-card h3 {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    font-weight: 600;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+}
+
+.chart-card h3 i {
+    color: var(--header-accent);
+}
+
+.chart-card__canvas {
+    position: relative;
+    height: clamp(240px, 34vh, 340px);
+    flex: 1;
+    min-height: 220px;
+}
+
+.chart-card__canvas--donut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-card__link {
+    margin-top: 0.75rem;
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--header-accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.chart-card__link:hover {
+    text-decoration: underline;
+}
+
+.kpi-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.kpi-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+}
+
+.kpi-row strong {
+    color: var(--primary-text);
+    font-weight: 600;
+    text-align: right;
+}
+
+.kpi-row--total {
+    border-top: 1px dashed var(--border-light);
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+    font-weight: 600;
+}
+
+.kpi-row--total span {
+    color: var(--primary-text);
+}
+
+/* ── Alerta ── */
+.owner-dash__alert {
+    margin-top: 0.875rem;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+}
+
+[data-theme="dark"] .owner-dash__alert {
+    background: #422006;
+    border-color: #713f12;
+    color: #fde68a;
+}
+
+.rotating {
+    animation: owner-dash-spin 1s linear infinite;
+}
+
+@keyframes owner-dash-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Tablet ── */
+@media (min-width: 768px) {
+    .owner-dash {
+        padding: 1.25rem 1.75rem 2rem;
+    }
+
+    .owner-dash__charts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .chart-card--wide {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ── Desktop ancho ── */
+@media (min-width: 1200px) {
+    .owner-dash__strip {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+/* ── KPIs en filas intermedias ── */
+@media (max-width: 1199px) {
+    .owner-dash__strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .owner-dash {
+        padding: 1rem 1rem 1.5rem;
+        gap: 1rem;
+    }
+
+    .owner-dash__strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .owner-dash__head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .owner-dash__cta {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .owner-dash {
+        padding: 0.875rem 0.75rem 1.25rem;
+    }
+
+    .owner-dash__strip {
+        grid-template-columns: 1fr;
+    }
+
+    .owner-dash__deadlines {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card__canvas {
+        height: 220px;
+        min-height: 200px;
+    }
+
+    .owner-dash__section {
+        padding: 1rem 1.125rem;
+    }
+}

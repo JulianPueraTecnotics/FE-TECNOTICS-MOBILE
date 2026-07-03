@@ -12,15 +12,17 @@ import {
 } from "react-native";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NativeExportInvoicesModal from "../../../components/native/list/NativeExportInvoicesModal.native";
+import TemplateRecurrenceModalNative from "../../../components/native/documents/TemplateRecurrenceModal.native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
 import { PATHS } from "../../../router/paths.contants";
 import { getAllInvoices } from "../../../services/invoices.service";
 import { createRemision } from "../../../services/remisiones.service";
 import { setInvoiceTemplate } from "../../../services/plantillas.service";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { useRealtime } from "../../../hooks/useRealtime";
+import { RealtimeEvents } from "../../../services/socket";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { TipoDocElectronico, type Factura, type RecurrenceType } from "../../../types";
 import { FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
@@ -48,7 +50,6 @@ const TIPO_OPTIONS = [
 
 export default function DocumentsNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -72,6 +73,9 @@ export default function DocumentsNative() {
 
   const [exportOpen, setExportOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [templateOf, setTemplateOf] = useState<Factura | null>(null);
+  const [sortKey, setSortKey] = useState<"fecha" | "total" | "cliente">("fecha");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const hasActiveFilters = useMemo(
     () => [filterTipo, committedPrefijo, committedCliente, committedTotal, filterEstado].some((v) => v.trim()),
@@ -108,6 +112,34 @@ export default function DocumentsNative() {
   useEffect(() => {
     void loadInvoices();
   }, [page, filterTipo, committedPrefijo, committedCliente, committedTotal, filterEstado]);
+
+  useRealtime(RealtimeEvents.INVOICE_CHANGED, () => {
+    if (page === 1) void loadInvoices();
+  });
+
+  const sortedFacturas = useMemo(() => {
+    const list = [...facturas];
+    list.sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "fecha") {
+        cmp = String(a.fecha_emision ?? "").localeCompare(String(b.fecha_emision ?? ""));
+      } else if (sortKey === "total") {
+        cmp = (a.total ?? 0) - (b.total ?? 0);
+      } else {
+        cmp = formatDocumentClient(a).localeCompare(formatDocumentClient(b));
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return list;
+  }, [facturas, sortKey, sortDir]);
+
+  const toggleSort = (key: typeof sortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDir("desc");
+    }
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setCommittedPrefijo(filterPrefijo), FILTER_DEBOUNCE_MS);
@@ -159,11 +191,13 @@ export default function DocumentsNative() {
     setPage(1);
   };
 
-  const handleSaveTemplate = async (factura: Factura) => {
-    setBusyId(factura._id);
+  const handleSaveTemplate = async (recurrence: RecurrenceType) => {
+    if (!templateOf) return;
+    setBusyId(templateOf._id);
     try {
-      await setInvoiceTemplate(factura._id, { is_template: true, recurrence: "none" as RecurrenceType });
+      await setInvoiceTemplate(templateOf._id, { is_template: true, recurrence });
       successToast("Factura guardada como plantilla");
+      setTemplateOf(null);
     } catch (error) {
       errorToast(error instanceof Error ? error.message : "No se pudo guardar la plantilla");
     } finally {
@@ -183,50 +217,69 @@ export default function DocumentsNative() {
     }
   };
 
-  if (loading) return <LoadingScreen />;
+  if (loading) {
+    return (
+      <DsModuleScreen
+        title="Facturas"
+        subtitle="Gestiona facturas, notas crédito y débito"
+        loading
+      />
+    );
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: colors.primary }]}>Facturas</Text>
-          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            Gestiona facturas, notas crédito y débito
-          </Text>
-        </View>
-      </View>
+    <>
+      <DsModuleScreen
+        title="Facturas"
+        subtitle="Gestiona facturas, notas crédito y débito"
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          void loadInvoices();
+        }}
+        noScroll
+        toolbar={
+          <>
+            <DsButton
+              label="Filtros"
+              variant="secondary"
+              icon="filter-outline"
+              compact
+              onPress={() => setFiltersOpen((o) => !o)}
+              style={hasActiveFilters ? { borderColor: colors.headerAccent } : undefined}
+            />
+            <DsButton
+              label="Excel"
+              variant="secondary"
+              icon="document-outline"
+              compact
+              onPress={() => setExportOpen(true)}
+            />
+            <DsButton label="Nueva" icon="add" compact onPress={() => navigate(PATHS.DOCUMENT_CREATE)} />
+          </>
+        }
+      >
 
-      <View style={[styles.toolbar, { borderBottomColor: colors.border }]}>
-        <Pressable
-          style={[styles.toolBtn, { borderColor: colors.border, backgroundColor: colors.bgSubtle }]}
-          onPress={() => setFiltersOpen((o) => !o)}
-        >
-          <Ionicons name="filter-outline" size={18} color={colors.accent} />
-          <Text style={[styles.toolText, { color: colors.primaryText }]}>Filtros</Text>
-          {hasActiveFilters ? <View style={[styles.dot, { backgroundColor: colors.accent }]} /> : null}
-        </Pressable>
-        <Pressable
-          style={[styles.toolBtn, { borderColor: colors.border, backgroundColor: colors.bgSubtle }]}
-          onPress={() => setExportOpen(true)}
-        >
-          <Ionicons name="document-outline" size={18} color={colors.accent} />
-          <Text style={[styles.toolText, { color: colors.primaryText }]}>Excel</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.primaryBtn, { backgroundColor: colors.accent }]}
-          onPress={() => navigate(PATHS.DOCUMENT_CREATE)}
-        >
-          <Ionicons name="add" size={20} color="#fff" />
-          <Text style={styles.primaryBtnText}>Nueva</Text>
-        </Pressable>
-      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8, maxHeight: 40 }}>
+        {(["fecha", "cliente", "total"] as const).map((k) => (
+          <Pressable
+            key={k}
+            onPress={() => toggleSort(k)}
+            style={[styles.chip, sortKey === k ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border, borderWidth: 1, marginRight: 8 }]}
+          >
+            <Text style={{ color: sortKey === k ? "#fff" : colors.primaryText, fontSize: 12 }}>
+              {k === "fecha" ? "Fecha" : k === "cliente" ? "Cliente" : "Total"} {sortKey === k ? (sortDir === "asc" ? "↑" : "↓") : ""}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
 
       {filtersOpen ? (
         <View style={[styles.filters, { backgroundColor: colors.bgSubtle, borderBottomColor: colors.border }]}>
           <Text style={[styles.filterLabel, { color: colors.textMuted }]}>Tipo documento</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow}>
             <Pressable
-              style={[styles.chip, !filterTipo ? { backgroundColor: colors.accent } : { borderColor: colors.border }]}
+              style={[styles.chip, !filterTipo ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
               onPress={() => { setFilterTipo(""); updateFilter("tipo_documento", ""); }}
             >
               <Text style={{ color: !filterTipo ? "#fff" : colors.primaryText, fontSize: 12 }}>Todos</Text>
@@ -234,7 +287,7 @@ export default function DocumentsNative() {
             {TIPO_OPTIONS.map((o) => (
               <Pressable
                 key={o.value}
-                style={[styles.chip, filterTipo === o.value ? { backgroundColor: colors.accent } : { borderColor: colors.border }]}
+                style={[styles.chip, filterTipo === o.value ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
                 onPress={() => { setFilterTipo(o.value); updateFilter("tipo_documento", o.value); }}
               >
                 <Text style={{ color: filterTipo === o.value ? "#fff" : colors.primaryText, fontSize: 12 }}>{o.label}</Text>
@@ -261,7 +314,7 @@ export default function DocumentsNative() {
           <Text style={[styles.filterLabel, { color: colors.textMuted }]}>Estado</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow}>
             <Pressable
-              style={[styles.chip, !filterEstado ? { backgroundColor: colors.accent } : { borderColor: colors.border }]}
+              style={[styles.chip, !filterEstado ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
               onPress={() => { setFilterEstado(""); updateFilter("status", ""); }}
             >
               <Text style={{ color: !filterEstado ? "#fff" : colors.primaryText, fontSize: 12 }}>Todos</Text>
@@ -269,7 +322,7 @@ export default function DocumentsNative() {
             {STATUS_OPTIONS.map((o) => (
               <Pressable
                 key={o.value}
-                style={[styles.chip, filterEstado === o.value ? { backgroundColor: colors.accent } : { borderColor: colors.border }]}
+                style={[styles.chip, filterEstado === o.value ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
                 onPress={() => { setFilterEstado(o.value); updateFilter("status", o.value); }}
               >
                 <Text style={{ color: filterEstado === o.value ? "#fff" : colors.primaryText, fontSize: 12 }}>{o.label}</Text>
@@ -279,14 +332,14 @@ export default function DocumentsNative() {
 
           {hasActiveFilters ? (
             <Pressable onPress={clearFilters}>
-              <Text style={[styles.clearLink, { color: colors.accent }]}>Limpiar filtros</Text>
+              <Text style={[styles.clearLink, { color: colors.headerAccent }]}>Limpiar filtros</Text>
             </Pressable>
           ) : null}
         </View>
       ) : null}
 
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -294,18 +347,18 @@ export default function DocumentsNative() {
               setRefreshing(true);
               void loadInvoices();
             }}
-            tintColor={colors.accent}
+            tintColor={colors.headerAccent}
           />
         }
       >
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={handlePageChange} />
 
         {fetching && facturas.length === 0 ? (
-          <ActivityIndicator color={colors.accent} style={{ marginTop: 24 }} />
+          <ActivityIndicator color={colors.headerAccent} style={{ marginTop: 24 }} />
         ) : facturas.length === 0 ? (
           <Text style={[styles.empty, { color: colors.textMuted }]}>No hay facturas para mostrar</Text>
         ) : (
-          facturas.map((factura) => {
+          sortedFacturas.map((factura) => {
             const tipo = getDocumentTipoInfo(factura);
             const status = getDocumentStatus(factura);
             const isBusy = busyId === factura._id;
@@ -346,16 +399,16 @@ export default function DocumentsNative() {
                     style={[styles.actionBtn, { borderColor: colors.border }]}
                     onPress={() => navigate(`/documentos/${factura._id}`)}
                   >
-                    <Ionicons name="eye-outline" size={16} color={colors.accent} />
-                    <Text style={[styles.actionText, { color: colors.accent }]}>Ver</Text>
+                    <Ionicons name="eye-outline" size={16} color={colors.headerAccent} />
+                    <Text style={[styles.actionText, { color: colors.headerAccent }]}>Ver</Text>
                   </Pressable>
                   <Pressable
                     style={[styles.actionBtn, { borderColor: colors.border, opacity: isBusy ? 0.6 : 1 }]}
                     disabled={isBusy}
-                    onPress={() => void handleSaveTemplate(factura)}
+                    onPress={() => setTemplateOf(factura)}
                   >
-                    <Ionicons name="bookmark-outline" size={16} color={colors.accent} />
-                    <Text style={[styles.actionText, { color: colors.accent }]}>Plantilla</Text>
+                    <Ionicons name="bookmark-outline" size={16} color={colors.headerAccent} />
+                    <Text style={[styles.actionText, { color: colors.headerAccent }]}>Plantilla</Text>
                   </Pressable>
                   <Pressable
                     style={[styles.actionBtn, { borderColor: colors.border, opacity: isBusy ? 0.6 : 1 }]}
@@ -363,11 +416,11 @@ export default function DocumentsNative() {
                     onPress={() => void handleRemision(factura._id)}
                   >
                     {isBusy ? (
-                      <ActivityIndicator size="small" color={colors.accent} />
+                      <ActivityIndicator size="small" color={colors.headerAccent} />
                     ) : (
-                      <Ionicons name="car-outline" size={16} color={colors.accent} />
+                      <Ionicons name="car-outline" size={16} color={colors.headerAccent} />
                     )}
-                    <Text style={[styles.actionText, { color: colors.accent }]}>Remisión</Text>
+                    <Text style={[styles.actionText, { color: colors.headerAccent }]}>Remisión</Text>
                   </Pressable>
                 </View>
               </View>
@@ -377,6 +430,7 @@ export default function DocumentsNative() {
 
         <NativePagination page={page} totalPages={totalPages} loading={fetching} onChange={handlePageChange} />
       </ScrollView>
+      </DsModuleScreen>
 
       <NativeExportInvoicesModal
         visible={exportOpen}
@@ -384,7 +438,13 @@ export default function DocumentsNative() {
         defaultCliente={committedCliente}
         defaultStatus={filterEstado}
       />
-    </View>
+      <TemplateRecurrenceModalNative
+        visible={!!templateOf}
+        onClose={() => setTemplateOf(null)}
+        onConfirm={(r) => void handleSaveTemplate(r)}
+        loading={!!templateOf && busyId === templateOf._id}
+      />
+    </>
   );
 }
 

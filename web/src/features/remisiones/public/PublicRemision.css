@@ -1,6 +1,6 @@
 .pubr {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #f1f5f9;
+    font-family: inherit;
+    background: var(--bg-subtle);
     min-height: 100dvh;
     padding: 2rem 1rem;
     display: flex;
@@ -14,10 +14,10 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: #64748b;
+    color: var(--text-muted);
     text-align: center;
     padding: 2rem;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: inherit;
 }
 
 .pubr-state i {
@@ -27,36 +27,37 @@
 
 .pubr-state h1 {
     margin: 0;
-    color: #1f2937;
+    color: var(--primary-color);
 }
 
 .pubr-doc {
-    background: #fff;
+    background: var(--card-bg);
     width: 100%;
     max-width: 860px;
     border-radius: 14px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 39, 55, 0.1);
     padding: 2rem 2.25rem;
+    border: 1px solid var(--border-light);
 }
 
 .pubr-head {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 3px solid #0f766e;
+    border-bottom: 3px solid var(--header-accent);
     padding-bottom: 1rem;
 }
 
 .pubr-title {
     margin: 0;
-    color: #0f766e;
+    color: var(--header-accent);
     font-size: 1.7rem;
     font-weight: 800;
 }
 
 .pubr-number {
     margin: 2px 0 0;
-    color: #6b7280;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
@@ -69,12 +70,12 @@
 }
 
 .pubr-badge--signed {
-    background: #dcfce7;
+    background: rgba(22, 163, 74, 0.14);
     color: #16a34a;
 }
 
 .pubr-badge--pending {
-    background: #fef3c7;
+    background: rgba(245, 158, 11, 0.14);
     color: #b45309;
 }
 
@@ -88,27 +89,28 @@
 .pubr-card {
     flex: 1;
     min-width: 220px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-light);
     border-radius: 10px;
     padding: 0.9rem 1.1rem;
+    background: var(--card-bg);
 }
 
 .pubr-card h4 {
     margin: 0 0 0.5rem;
     font-size: 0.72rem;
     text-transform: uppercase;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 .pubr-card-big {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--primary-color);
 }
 
 .pubr-card-row {
     font-size: 0.85rem;
-    color: #374151;
+    color: var(--primary-text);
     margin-top: 3px;
 }
 
@@ -119,7 +121,7 @@
 }
 
 .pubr-table thead th {
-    background: #0f766e;
+    background: var(--header-accent);
     color: #fff;
     font-size: 0.72rem;
     text-transform: uppercase;
@@ -134,8 +136,8 @@
 
 .pubr-table tbody td {
     padding: 0.65rem 0.5rem;
-    border-bottom: 1px solid #eef2f7;
-    color: #1f2937;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--primary-text);
     vertical-align: top;
 }
 
@@ -144,7 +146,7 @@
 }
 
 .pubr-it-desc {
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.78rem;
     margin-top: 2px;
 }
@@ -152,9 +154,9 @@
 .pubr-notas {
     margin-top: 1rem;
     font-size: 0.85rem;
-    color: #374151;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    color: var(--primary-text);
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.28);
     border-radius: 8px;
     padding: 0.7rem 0.9rem;
 }
@@ -166,8 +168,8 @@
     gap: 0.9rem;
     margin-top: 1.75rem;
     padding: 1.1rem 1.25rem;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: rgba(22, 163, 74, 0.08);
+    border: 1px solid rgba(22, 163, 74, 0.22);
     border-radius: 12px;
 }
 
@@ -183,40 +185,30 @@
 .pubr-signed p {
     margin: 2px 0 0;
     font-size: 0.85rem;
-    color: #374151;
+    color: var(--primary-text);
 }
 
 /* Área de firma */
 .pubr-sign-area {
     margin-top: 1.75rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-light);
 }
 
 .pubr-sign-area h3 {
     margin: 0 0 0.25rem;
-    color: #0f766e;
+    color: var(--header-accent);
 }
 
 .pubr-sign-hint {
     margin: 0 0 0.9rem;
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 0.88rem;
 }
 
-.pubr-sign-name {
-    width: 100%;
+.pubr-sign-name-field {
     max-width: 360px;
-    padding: 0.65rem 0.85rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 0.95rem;
     margin-bottom: 0.75rem;
-}
-
-.pubr-sign-name:focus {
-    outline: none;
-    border-color: #0f766e;
 }
 
 .pubr-sign-actions {
@@ -230,7 +222,7 @@
     display: flex;
     justify-content: flex-end;
     margin-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-light);
     padding-top: 1.25rem;
 }
 
@@ -238,36 +230,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 10px 22px;
     border-radius: 24px;
     font-weight: 600;
     font-size: 0.92rem;
-    cursor: pointer;
-    border: none;
-}
-
-.pubr-btn--primary {
-    background: #0f766e;
-    color: #fff;
-}
-
-.pubr-btn--primary:hover:not(:disabled) {
-    background: #115e59;
-}
-
-.pubr-btn--ghost {
-    background: #fff;
-    color: #0f766e;
-    border: 2px solid #cbd5e1;
-}
-
-.pubr-btn--ghost:hover:not(:disabled) {
-    border-color: #0f766e;
-}
-
-.pubr-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 .rotating {
@@ -284,9 +249,11 @@
     .pubr-doc {
         padding: 1.25rem;
     }
+
     .pubr-sign-actions {
         flex-direction: column-reverse;
     }
+
     .pubr-btn {
         width: 100%;
         justify-content: center;

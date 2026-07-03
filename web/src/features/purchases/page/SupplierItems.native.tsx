@@ -3,18 +3,15 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import ParametrizeModalNative from "../../../components/native/purchases/ParametrizeModal.native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
 import { accountCode } from "../purchases.shared";
@@ -35,7 +32,6 @@ const STATUS_OPTIONS = [
 
 export default function SupplierItemsNative() {
   const colors = useThemeColors();
-  const insets = useNativePrivateInsets();
   const [items, setItems] = useState<SupplierItem[]>([]);
   const [pendientes, setPendientes] = useState(0);
   const [aiEnabled, setAiEnabled] = useState(false);
@@ -105,77 +101,52 @@ export default function SupplierItemsNative() {
     setRefreshKey((k) => k + 1);
   };
 
-  if (loading) return <LoadingScreen />;
-
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Parametrización de productos</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-          Cuentas contables y retención por producto de cada proveedor.{" "}
-          {aiEnabled ? "La IA sugiere automáticamente." : "IA no configurada (manual)."}
-        </Text>
-      </View>
-
-      <View style={[styles.toolbar, { borderBottomColor: colors.border }]}>
-        <View style={[styles.searchBox, { backgroundColor: colors.bgSubtle, borderColor: colors.border }]}>
-          <Ionicons name="search-outline" size={18} color={colors.textMuted} />
-          <TextInput
-            style={[styles.searchInput, { color: colors.primaryText }]}
-            placeholder="Buscar producto, NIT..."
-            placeholderTextColor={colors.textMuted}
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
-      </View>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ maxHeight: 48, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }}
-        contentContainerStyle={styles.filters}
+    <>
+      <DsModuleScreen
+        title="Parametrización de productos"
+        subtitle={`Cuentas contables y retención por producto de cada proveedor. ${aiEnabled ? "La IA sugiere automáticamente." : "IA no configurada (manual)."}`}
+        loading={loading}
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          setRefreshKey((k) => k + 1);
+        }}
+        toolbar={<DsSearchField value={search} onChangeText={setSearch} placeholder="Buscar producto, NIT..." />}
       >
-        {STATUS_OPTIONS.map((opt) => (
-          <Pressable
-            key={opt.value || "all"}
-            style={[
-              styles.chip,
-              status === opt.value
-                ? { backgroundColor: colors.accent }
-                : { borderColor: colors.border, borderWidth: 1 },
-            ]}
-            onPress={() => setStatus(opt.value)}
-          >
-            <Text style={{ color: status === opt.value ? "#fff" : colors.primaryText, fontSize: 13 }}>
-              {opt.label}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginBottom: 12 }}
+          contentContainerStyle={styles.filters}
+        >
+          {STATUS_OPTIONS.map((opt) => (
+            <Pressable
+              key={opt.value || "all"}
+              style={[
+                styles.chip,
+                status === opt.value
+                  ? { backgroundColor: colors.headerAccent }
+                  : { borderColor: colors.border, borderWidth: 1 },
+              ]}
+              onPress={() => setStatus(opt.value)}
+            >
+              <Text style={{ color: status === opt.value ? "#fff" : colors.primaryText, fontSize: 13 }}>
+                {opt.label}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        {pendientes > 0 ? (
+          <View style={[styles.banner, { backgroundColor: "#fef3c7" }]}>
+            <Ionicons name="warning-outline" size={18} color="#d97706" />
+            <Text style={{ color: "#92400e", fontSize: 13 }}>
+              <Text style={{ fontWeight: "700" }}>{pendientes}</Text> producto(s) sin parametrizar.
             </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+          </View>
+        ) : null}
 
-      {pendientes > 0 ? (
-        <View style={[styles.banner, { backgroundColor: "#fef3c7", borderBottomColor: colors.border }]}>
-          <Ionicons name="warning-outline" size={18} color="#d97706" />
-          <Text style={{ color: "#92400e", fontSize: 13 }}>
-            <Text style={{ fontWeight: "700" }}>{pendientes}</Text> producto(s) sin parametrizar.
-          </Text>
-        </View>
-      ) : null}
-
-      <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              setRefreshKey((k) => k + 1);
-            }}
-            tintColor={colors.accent}
-          />
-        }
-      >
         {items.length === 0 ? (
           <View style={styles.emptyWrap}>
             <Ionicons name="pricetag-outline" size={40} color={colors.textMuted} />
@@ -203,7 +174,7 @@ export default function SupplierItemsNative() {
                       {it.params?.retefuente ? `${it.params.retefuente}%` : "—"}
                     </Text>
                     {hasAi ? (
-                      <Text style={[styles.aiHint, { color: colors.accent }]}>
+                      <Text style={[styles.aiHint, { color: colors.headerAccent }]}>
                         IA: {it.ai_suggestion?.cuenta_gasto_costo?.codigo ?? "—"} (conf. {it.ai_suggestion?.confianza ?? "—"})
                       </Text>
                     ) : it.ai_error ? (
@@ -224,23 +195,23 @@ export default function SupplierItemsNative() {
                       disabled={busy}
                     >
                       {busy ? (
-                        <ActivityIndicator size="small" color={colors.accent} />
+                        <ActivityIndicator size="small" color={colors.headerAccent} />
                       ) : (
                         <>
-                          <Ionicons name="sparkles-outline" size={16} color={colors.accent} />
-                          <Text style={{ color: colors.accent, fontSize: 12 }}>Sugerir IA</Text>
+                          <Ionicons name="sparkles-outline" size={16} color={colors.headerAccent} />
+                          <Text style={{ color: colors.headerAccent, fontSize: 12 }}>Sugerir IA</Text>
                         </>
                       )}
                     </Pressable>
                   ) : null}
                   {hasAi ? (
                     <Pressable
-                      style={[styles.actionBtn, { borderColor: colors.accent }]}
+                      style={[styles.actionBtn, { borderColor: colors.headerAccent }]}
                       onPress={() => void applyAi(it)}
                       disabled={busy}
                     >
-                      <Ionicons name="checkmark-circle-outline" size={16} color={colors.accent} />
-                      <Text style={{ color: colors.accent, fontSize: 12 }}>Aplicar IA</Text>
+                      <Ionicons name="checkmark-circle-outline" size={16} color={colors.headerAccent} />
+                      <Text style={{ color: colors.headerAccent, fontSize: 12 }}>Aplicar IA</Text>
                     </Pressable>
                   ) : null}
                   <Pressable
@@ -255,7 +226,7 @@ export default function SupplierItemsNative() {
             );
           })
         )}
-      </ScrollView>
+      </DsModuleScreen>
 
       <ParametrizeModalNative
         visible={!!editing}
@@ -263,42 +234,23 @@ export default function SupplierItemsNative() {
         onClose={() => setEditing(null)}
         onSave={saveManual}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 22, fontWeight: "700" },
-  subtitle: { fontSize: 13, marginTop: 4, lineHeight: 18 },
-  toolbar: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  searchInput: { flex: 1, fontSize: 14 },
-  filters: { paddingHorizontal: 16, paddingVertical: 8, gap: 8, alignItems: "center" },
+  filters: { gap: 8, alignItems: "center" },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8 },
   banner: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    marginBottom: 12,
   },
   emptyWrap: { alignItems: "center", paddingVertical: 40, gap: 12 },
   empty: { textAlign: "center", fontSize: 14, paddingHorizontal: 24 },
-  card: { borderWidth: 1, borderRadius: SHELL_RADIUS.menuItem, padding: 14, marginBottom: 10, gap: 10 },
+  card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10, gap: 10 },
   cardTop: { flexDirection: "row", gap: 10 },
   code: { fontSize: 15, fontWeight: "700" },
   desc: { fontSize: 13, marginTop: 2 },

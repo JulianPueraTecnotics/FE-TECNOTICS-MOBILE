@@ -83,19 +83,21 @@ export default function NativeNavMenu({ onNavigate }: Props) {
         style={[
           styles.link,
           isChild ? styles.linkChild : null,
-          active ? { backgroundColor: colors.bgSubtle } : null,
+          active
+            ? { backgroundColor: colors.headerAccent }
+            : { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border },
         ]}
         onPress={() => go(item.path!)}
       >
         <Ionicons
           name={remixToIonicon(item.icon)}
           size={isChild ? 18 : 20}
-          color={active ? colors.accent : colors.textMuted}
+          color={active ? "#fff" : colors.textMuted}
         />
         <Text
           style={[
             styles.linkText,
-            { color: active ? colors.primary : colors.primaryText },
+            { color: active ? "#fff" : colors.primaryText },
             active ? styles.linkTextActive : null,
           ]}
         >

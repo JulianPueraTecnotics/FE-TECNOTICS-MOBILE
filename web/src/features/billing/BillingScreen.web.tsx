@@ -6,10 +6,11 @@ export default function BillingScreenWeb({
   simbaToken,
   feUrl,
   userId,
-  theme = "compact",
+  theme = "clean",
   isNotaOption,
   isNotaRef,
   recreateFromFacturaId,
+  onNotaSubmitted,
 }: BillingScreenProps) {
   const is_nota =
     isNotaOption && isNotaRef?.trim()
@@ -23,6 +24,7 @@ export default function BillingScreenWeb({
       <BillingComponent
         theme={theme}
         is_nota={is_nota}
+        onNotaSubmitted={onNotaSubmitted}
         recreate_from_factura_id={recreateFromFacturaId?.trim() || undefined}
       />
     </TecnoticsProvider>

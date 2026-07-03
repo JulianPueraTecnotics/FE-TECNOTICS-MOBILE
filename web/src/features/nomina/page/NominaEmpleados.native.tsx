@@ -3,22 +3,25 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useSearchParams } from "react-router-dom";
 import EmpleadoModalNative from "../../../components/native/nomina/EmpleadoModal.native";
+import EmpleadoImportModalNative from "../../../components/native/nomina/EmpleadoImportModal.native";
 import NominaDetailModalNative from "../../../components/native/nomina/NominaDetailModal.native";
 import NominaEmitModalNative from "../../../components/native/nomina/NominaEmitModal.native";
+import NominaPilaPanelNative from "../components/NominaPilaPanel.native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
+import { DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { deleteEmpleado, getAllEmpleados, type Empleado } from "../../../services/empleados.service";
+import { deleteEmpleado, getAllEmpleados, getAllEmpleadosFull, type Empleado } from "../../../services/empleados.service";
 import {
   getEmpleadosConNomina,
   getNominaLotes,
@@ -38,14 +41,21 @@ import {
   statusLabel,
   type NominaTab,
 } from "../nomina.shared";
+import { FILTER_DEBOUNCE_MS, useDebouncedValue } from "../../../utils/useDebouncedValue";
 
 const PAGE_SIZE = 20;
 const thisYear = new Date().getFullYear();
 
+function parseNominaTab(sec: string | null): NominaTab {
+  if (sec === "nomina" || sec === "pila" || sec === "certificados") return sec;
+  return "empleados";
+}
+
 export default function NominaEmpleadosNative() {
   const colors = useThemeColors();
   const insets = useNativePrivateInsets();
-  const [tab, setTab] = useState<NominaTab>("empleados");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tab, setTab] = useState<NominaTab>(() => parseNominaTab(searchParams.get("sec")));
   const [refreshing, setRefreshing] = useState(false);
 
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
@@ -55,6 +65,9 @@ export default function NominaEmpleadosNative() {
   const [empModal, setEmpModal] = useState(false);
   const [editEmp, setEditEmp] = useState<Empleado | null>(null);
   const [empRefresh, setEmpRefresh] = useState(0);
+  const [empSearch, setEmpSearch] = useState("");
+  const debouncedEmpSearch = useDebouncedValue(empSearch, FILTER_DEBOUNCE_MS);
+  const [empImportOpen, setEmpImportOpen] = useState(false);
 
   const [lotes, setLotes] = useState<LoteResumen[]>([]);
   const [nomLoading, setNomLoading] = useState(true);
@@ -77,15 +90,32 @@ export default function NominaEmpleadosNative() {
   const loadEmpleados = useCallback(async () => {
     setEmpLoading(true);
     try {
-      const res = await getAllEmpleados(empPage, PAGE_SIZE);
-      setEmpleados(res.items);
-      setEmpTotal(res.total);
+      const q = debouncedEmpSearch.trim().toLowerCase();
+      if (q) {
+        const all = await getAllEmpleadosFull();
+        const filtered = all.filter(
+          (e) =>
+            empleadoNombre(e).toLowerCase().includes(q) ||
+            String(e.numero_documento).includes(q),
+        );
+        const start = (empPage - 1) * PAGE_SIZE;
+        setEmpleados(filtered.slice(start, start + PAGE_SIZE));
+        setEmpTotal(filtered.length);
+      } else {
+        const res = await getAllEmpleados(empPage, PAGE_SIZE);
+        setEmpleados(res.items);
+        setEmpTotal(res.total);
+      }
     } catch (e) {
       errorToast(e instanceof Error ? e.message : "Error al cargar empleados");
     } finally {
       setEmpLoading(false);
     }
-  }, [empPage, empRefresh]);
+  }, [empPage, empRefresh, debouncedEmpSearch]);
+
+  useEffect(() => {
+    setEmpPage(1);
+  }, [debouncedEmpSearch]);
 
   const loadLotes = useCallback(async () => {
     setNomLoading(true);
@@ -193,32 +223,48 @@ export default function NominaEmpleadosNative() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.pageBg }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.primary }]}>Nómina y empleados</Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>Empleados, nómina electrónica y certificados</Text>
-      </View>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-        {NOMINA_TABS.map((t) => (
-          <Pressable
-            key={t.key}
-            onPress={() => setTab(t.key)}
-            style={[styles.tab, tab === t.key ? { borderColor: colors.accent, backgroundColor: colors.bgSubtle } : { borderColor: "transparent" }]}
-          >
-            <Text style={{ color: tab === t.key ? colors.primary : colors.textMuted, fontWeight: "600" }}>{t.label}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
+    <>
+      <DsModuleScreen
+        title="Nómina y empleados"
+        subtitle="Empleados, nómina electrónica y certificados"
+        noScroll
+        refreshing={refreshing}
+        onRefresh={onRefresh}
       >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+          {NOMINA_TABS.map((t) => (
+            <Pressable
+              key={t.key}
+              onPress={() => {
+                setTab(t.key);
+                setSearchParams((prev) => {
+                  const p = new URLSearchParams(prev);
+                  p.set("sec", t.key);
+                  return p;
+                });
+              }}
+              style={[
+                styles.tab,
+                tab === t.key
+                  ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent }
+                  : { borderColor: colors.border },
+              ]}
+            >
+              <Text style={{ color: tab === t.key ? "#fff" : colors.textMuted, fontWeight: "600" }}>{t.label}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}
+        >
         {tab === "empleados" ? (
           <>
-            <View style={{ flexDirection: "row", gap: 8, marginBottom: 12 }}>
+            <DsSearchField value={empSearch} onChangeText={setEmpSearch} placeholder="Buscar nombre o documento…" />
+            <View style={{ flexDirection: "row", gap: 8, marginBottom: 12, marginTop: 8 }}>
               <LedgerPrimaryBtn label="Nuevo empleado" onPress={() => { setEditEmp(null); setEmpModal(true); }} />
+              <LedgerPrimaryBtn label="Importar CSV" variant="secondary" onPress={() => setEmpImportOpen(true)} />
             </View>
             {empLoading ? (
               <ActivityIndicator />
@@ -286,12 +332,14 @@ export default function NominaEmpleadosNative() {
           </>
         ) : null}
 
+        {tab === "pila" ? <NominaPilaPanelNative /> : null}
+
         {tab === "certificados" ? (
           <>
             <Text style={{ color: colors.textMuted, marginBottom: 8 }}>Año gravable: {certAnio}</Text>
             <View style={{ flexDirection: "row", gap: 8, marginBottom: 12 }}>
               {[thisYear, thisYear - 1].map((y) => (
-                <Pressable key={y} onPress={() => setCertAnio(y)} style={[styles.chip, { borderColor: certAnio === y ? colors.accent : colors.border }]}>
+                <Pressable key={y} onPress={() => setCertAnio(y)} style={[styles.chip, { borderColor: certAnio === y ? colors.headerAccent : colors.border }]}>
                   <Text style={{ color: colors.primaryText }}>{y}</Text>
                 </Pressable>
               ))}
@@ -311,7 +359,8 @@ export default function NominaEmpleadosNative() {
             )}
           </>
         ) : null}
-      </ScrollView>
+        </ScrollView>
+      </DsModuleScreen>
 
       <EmpleadoModalNative
         visible={empModal}
@@ -326,17 +375,21 @@ export default function NominaEmpleadosNative() {
         onSaved={() => { setEmitOpen(false); setPlantilla(null); setNomRefresh((k) => k + 1); }}
       />
       <NominaDetailModalNative visible={!!detailId} nominaId={detailId} onClose={() => setDetailId(null)} />
-    </View>
+      <EmpleadoImportModalNative
+        visible={empImportOpen}
+        onClose={() => setEmpImportOpen(false)}
+        onSuccess={() => {
+          setEmpImportOpen(false);
+          setEmpRefresh((k) => k + 1);
+        }}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 20, fontWeight: "700" },
-  sub: { fontSize: 13, marginTop: 4 },
   tabs: { paddingHorizontal: 12, gap: 8, paddingVertical: 8 },
-  tab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
+  tab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, borderWidth: 1, marginRight: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10 },
   chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
 });

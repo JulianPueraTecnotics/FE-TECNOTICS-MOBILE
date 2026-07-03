@@ -13,7 +13,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
-import LoadingScreen from "../../../router/LoadingScreen";
+import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
 import { PATHS } from "../../../router/paths.contants";
 import { getAllClients, searchClients } from "../../../services/clients.service";
 import { getAllItems, searchItems } from "../../../services/items.service";
@@ -241,22 +241,26 @@ export default function QuoteEditorNative() {
     }
   };
 
-  if (bootLoading) return <LoadingScreen />;
+  if (bootLoading) {
+    return <DsModuleScreen title={isEdit ? "Editar cotización" : "Nueva cotización"} loading />;
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.pageBg }}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => navigate(PATHS.SALES_COTIZACIONES)} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.accent} />
-        </Pressable>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: colors.primary }]}>{isEdit ? "Editar cotización" : "Nueva cotización"}</Text>
-        </View>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.paddingBottom + 100 }]}
-        keyboardShouldPersistTaps="handled"
+    <>
+      <DsModuleScreen
+        title={isEdit ? "Editar cotización" : "Nueva cotización"}
+        headerActions={
+          <Pressable onPress={() => navigate(PATHS.SALES_COTIZACIONES)} hitSlop={8}>
+            <Ionicons name="arrow-back" size={22} color={colors.headerAccent} />
+          </Pressable>
+        }
+        footer={
+          <View style={[styles.footer, { borderTopColor: colors.border, paddingBottom: insets.paddingBottom + 8, backgroundColor: colors.cardBg }]}>
+            <DsButton label="Guardar" variant="secondary" onPress={() => handleSave(false)} loading={submitting} style={{ flex: 1 }} />
+            <DsButton label="Guardar y enviar" onPress={() => handleSave(true)} loading={submitting} style={{ flex: 1 }} />
+          </View>
+        }
+        contentStyle={{ gap: 12, paddingBottom: 8 }}
       >
         <View style={[styles.card, getSoftCardShadow(colors), { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
           <Text style={[styles.sectionTitle, { color: colors.primary }]}>Cliente</Text>
@@ -264,7 +268,7 @@ export default function QuoteEditorNative() {
             style={[styles.selectBtn, { borderColor: colors.border, backgroundColor: colors.bgSubtle }]}
             onPress={() => setClientModalOpen(true)}
           >
-            <Ionicons name="person-outline" size={18} color={colors.accent} />
+            <Ionicons name="person-outline" size={18} color={colors.headerAccent} />
             <Text style={[styles.selectText, { color: colors.primaryText }]}>
               {selectedClient ? `${selectedClient.name}` : "Seleccionar cliente"}
             </Text>
@@ -283,7 +287,7 @@ export default function QuoteEditorNative() {
         <View style={[styles.card, getSoftCardShadow(colors), { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
           <View style={styles.rowBetween}>
             <Text style={[styles.sectionTitle, { color: colors.primary }]}>Ítems</Text>
-            <Pressable onPress={() => setItemModalOpen(true)} style={[styles.addBtn, { backgroundColor: colors.accent }]}>
+            <Pressable onPress={() => setItemModalOpen(true)} style={[styles.addBtn, { backgroundColor: colors.headerAccent }]}>
               <Ionicons name="add" size={18} color="#fff" />
               <Text style={styles.addBtnText}>Agregar</Text>
             </Pressable>
@@ -314,7 +318,7 @@ export default function QuoteEditorNative() {
               <Pressable
                 key={pf}
                 onPress={() => setPaymentForm(pf)}
-                style={[styles.chip, paymentForm === pf ? { backgroundColor: colors.accent } : { borderColor: colors.border, borderWidth: 1 }]}
+                style={[styles.chip, paymentForm === pf ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border, borderWidth: 1 }]}
               >
                 <Text style={{ color: paymentForm === pf ? "#fff" : colors.primaryText, fontWeight: "600" }}>{pf}</Text>
               </Pressable>
@@ -325,7 +329,7 @@ export default function QuoteEditorNative() {
               <Pressable
                 key={pm}
                 onPress={() => setPaymentMethod(pm)}
-                style={[styles.chip, paymentMethod === pm ? { backgroundColor: colors.accent } : { borderColor: colors.border, borderWidth: 1 }]}
+                style={[styles.chip, paymentMethod === pm ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border, borderWidth: 1 }]}
               >
                 <Text style={{ color: paymentMethod === pm ? "#fff" : colors.primaryText, fontSize: 13 }}>{pm}</Text>
               </Pressable>
@@ -360,20 +364,7 @@ export default function QuoteEditorNative() {
           <Text style={{ color: colors.textMuted }}>IVA: {formatCOP(totals.iva)}</Text>
           <Text style={{ fontWeight: "700", color: colors.primary, fontSize: 18, marginTop: 4 }}>Total: {formatCOP(totals.total)}</Text>
         </View>
-      </ScrollView>
-
-      <View style={[styles.footer, { borderTopColor: colors.border, paddingBottom: insets.paddingBottom + 8, backgroundColor: colors.cardBg }]}>
-        <Pressable
-          style={[styles.footerBtn, { borderColor: colors.border }]}
-          onPress={() => handleSave(false)}
-          disabled={submitting}
-        >
-          {submitting ? <ActivityIndicator color={colors.accent} /> : <Text style={{ color: colors.primaryText, fontWeight: "600" }}>Guardar</Text>}
-        </Pressable>
-        <Pressable style={[styles.footerBtn, { backgroundColor: colors.accent }]} onPress={() => handleSave(true)} disabled={submitting}>
-          <Text style={{ color: "#fff", fontWeight: "700" }}>Guardar y enviar</Text>
-        </Pressable>
-      </View>
+      </DsModuleScreen>
 
       <Modal visible={clientModalOpen} animationType="slide" onRequestClose={() => setClientModalOpen(false)}>
         <View style={{ flex: 1, backgroundColor: colors.pageBg, paddingTop: insets.paddingTop }}>
@@ -392,7 +383,7 @@ export default function QuoteEditorNative() {
             style={[styles.input, { margin: 16, borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
           />
           {clientLoading ? (
-            <ActivityIndicator color={colors.accent} style={{ marginTop: 24 }} />
+            <ActivityIndicator color={colors.headerAccent} style={{ marginTop: 24 }} />
           ) : (
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}>
               {clientResults.map((c) => (
@@ -433,12 +424,12 @@ export default function QuoteEditorNative() {
               <TextInput value={manualPrice} onChangeText={setManualPrice} placeholder="Precio" keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} style={[styles.input, { flex: 1, borderColor: colors.border, color: colors.primaryText }]} />
               <TextInput value={manualQty} onChangeText={setManualQty} placeholder="Cant." keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} style={[styles.input, { width: 72, borderColor: colors.border, color: colors.primaryText }]} />
             </View>
-            <Pressable onPress={addManualItem} style={[styles.addBtn, { backgroundColor: colors.accent, alignSelf: "flex-start" }]}>
+            <Pressable onPress={addManualItem} style={[styles.addBtn, { backgroundColor: colors.headerAccent, alignSelf: "flex-start" }]}>
               <Text style={styles.addBtnText}>Agregar manual</Text>
             </Pressable>
           </View>
           {itemLoading ? (
-            <ActivityIndicator color={colors.accent} />
+            <ActivityIndicator color={colors.headerAccent} />
           ) : (
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}>
               {itemResults.map((item) => (
@@ -455,15 +446,11 @@ export default function QuoteEditorNative() {
           )}
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 8 },
-  backBtn: { padding: 4 },
-  title: { fontSize: 18, fontWeight: "700" },
-  content: { padding: 16, gap: 12 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14 },
   sectionTitle: { fontSize: 15, fontWeight: "700", marginBottom: 8 },
   selectBtn: { flexDirection: "row", alignItems: "center", gap: 8, borderWidth: 1, borderRadius: SHELL_RADIUS.input, padding: 12 },
@@ -477,7 +464,6 @@ const styles = StyleSheet.create({
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8 },
   totalsBox: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginTop: 4 },
   footer: { flexDirection: "row", gap: 10, paddingHorizontal: 16, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth },
-  footerBtn: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 12, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
   modalHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
   pickRow: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, padding: 12, marginBottom: 8 },
 });
