@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -13,9 +14,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigate } from "react-router-dom";
 import AccentStrip from "./AccentStrip.native";
 import { getDrawerShadow, SHELL_RADIUS } from "./shellStyles.native";
-import ThemeBrandLogo from "../shared/ThemeBrandLogo.native";
+import appIcon from "../../assets/app-icon";
 import ThemeSwitch from "../shared/ThemeSwitch.native";
 import { PATHS } from "../../router/paths.contants";
+import { APP_BRAND_NAME } from "../../utils/global";
 import { AuthContext } from "../../store/auth.context";
 import { useThemeColors } from "../../theme/useThemeColors";
 
@@ -24,7 +26,7 @@ interface PublicMobileDrawerProps {
   onClose: () => void;
 }
 
-const DRAWER_WIDTH = Math.min(Dimensions.get("window").width * 0.82, 320);
+const DRAWER_WIDTH = Dimensions.get("window").width;
 
 const PublicMobileDrawer: React.FC<PublicMobileDrawerProps> = ({ visible, onClose }) => {
   const insets = useSafeAreaInsets();
@@ -75,7 +77,16 @@ const PublicMobileDrawer: React.FC<PublicMobileDrawerProps> = ({ visible, onClos
           </View>
 
           <View style={[styles.drawerHeader, { borderBottomColor: colors.border }]}>
-            <ThemeBrandLogo style={styles.brand} />
+            <Pressable
+              style={styles.brand}
+              onPress={() => go(PATHS.HOME)}
+              accessibilityLabel="Ir al inicio"
+            >
+              <Image source={appIcon} style={styles.brandIcon} resizeMode="contain" />
+              <Text style={[styles.brandName, { color: colors.primary }]} numberOfLines={1}>
+                {APP_BRAND_NAME}
+              </Text>
+            </Pressable>
             <View style={styles.drawerHeaderActions}>
               <ThemeSwitch />
               <Pressable
@@ -161,7 +172,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
   },
-  brand: { width: 130, height: 40, flex: 1 },
+  brand: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1 },
+  brandIcon: { width: 38, height: 38, borderRadius: 8, flexShrink: 0 },
+  brandName: { fontSize: 17, fontWeight: "700", letterSpacing: -0.2, flexShrink: 1 },
   drawerHeaderActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   closeBtn: {
     width: 40,

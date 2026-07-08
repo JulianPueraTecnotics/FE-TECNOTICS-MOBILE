@@ -4,11 +4,26 @@ import * as Linking from "expo-linking";
 import { Platform } from "react-native";
 import { ENV } from "../../../utils/global";
 
-/** Clave pública Turnstile — misma regla que el portal (test key si no hay env). */
-export const TURNSTILE_SITE_KEY =
-  (typeof process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY === "string"
+/** Test key universal de Cloudflare (solo desarrollo). */
+const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
+
+/** Site key real de producción (dominio facturacion.tecnotics.co). */
+const TURNSTILE_PROD_SITE_KEY = "0x4AAAAAADscyaRwyG5tyfte";
+
+const envSiteKey =
+  typeof process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY === "string"
     ? process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY.trim()
-    : "") || "1x00000000000000000000AA";
+    : "";
+
+/**
+ * Clave pública Turnstile. Prioridad:
+ *  1. Variable de entorno (inyectada por eas.json/.env).
+ *  2. En builds publicados (no __DEV__): SIEMPRE la clave real de producción.
+ *  3. Solo en desarrollo: test key universal de Cloudflare.
+ * Así una app publicada en iOS/Android nunca queda con el captcha de prueba.
+ */
+export const TURNSTILE_SITE_KEY =
+  envSiteKey || (__DEV__ ? TURNSTILE_TEST_SITE_KEY : TURNSTILE_PROD_SITE_KEY);
 
 /** Deep link de retorno compatible con Expo Go y builds nativos. */
 export function resolveTurnstileRedirectUrl(): string {
