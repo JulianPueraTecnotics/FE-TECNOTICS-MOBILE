@@ -2,17 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
+import { DsField, DsModuleScreen, DsSideModal } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
@@ -365,7 +362,7 @@ export default function DianSyncNative() {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.tabs}
-        style={{ borderBottomColor: colors.border, borderBottomWidth: StyleSheet.hairlineWidth }}
+        style={{ flexGrow: 0, height: 52, borderBottomColor: colors.border, borderBottomWidth: StyleSheet.hairlineWidth }}
       >
         {(["sync", "documents", "events", "logs"] as Tab[]).map((t) => (
           <Pressable
@@ -546,71 +543,77 @@ export default function DianSyncNative() {
       </ScrollView>
     </DsModuleScreen>
 
-      <Modal visible={credModal} animationType="slide" transparent onRequestClose={() => setCredModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: colors.cardBg }]}>
-            <Text style={[styles.cardTitle, { color: colors.primary }]}>Credencial DIAN</Text>
-            <Text style={{ color: colors.textMuted, fontSize: 13, marginBottom: 8 }}>
-              Pega la URL de acceso del portal DIAN (token PK/RK).
-            </Text>
-            <TextInput
-              value={accessUrl}
-              onChangeText={setAccessUrl}
-              placeholder="https://..."
-              placeholderTextColor={colors.textMuted}
-              style={[styles.input, { borderColor: colors.border, color: colors.primaryText }]}
-              autoCapitalize="none"
-            />
-            <TextInput
-              value={credLabel}
-              onChangeText={setCredLabel}
-              placeholder="Etiqueta (opcional)"
-              placeholderTextColor={colors.textMuted}
-              style={[styles.input, { borderColor: colors.border, color: colors.primaryText, marginTop: 8 }]}
-            />
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-              <LedgerPrimaryBtn label="Cancelar" variant="secondary" onPress={() => setCredModal(false)} />
-              <LedgerPrimaryBtn label="Guardar" onPress={onAddCred} loading={busy === "cred"} />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <DsSideModal
+        visible={credModal}
+        onClose={() => setCredModal(false)}
+        title="Credencial DIAN"
+        icon="key-outline"
+        onSubmit={onAddCred}
+        submitLabel="Guardar"
+        submitting={busy === "cred"}
+        closeDisabled={busy === "cred"}
+      >
+        <Text style={{ color: colors.textMuted, fontSize: 13 }}>
+          Pega la URL de acceso del portal DIAN (token PK/RK).
+        </Text>
+        <DsField
+          label="URL de acceso"
+          icon="link-outline"
+          value={accessUrl}
+          onChangeText={setAccessUrl}
+          placeholder="https://..."
+          autoCapitalize="none"
+        />
+        <DsField
+          label="Etiqueta (opcional)"
+          icon="pricetag-outline"
+          value={credLabel}
+          onChangeText={setCredLabel}
+          placeholder="Etiqueta"
+        />
+      </DsSideModal>
 
-      <Modal visible={syncModal} animationType="slide" transparent onRequestClose={() => setSyncModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: colors.cardBg }]}>
-            <Text style={[styles.cardTitle, { color: colors.primary }]}>Nueva sincronización</Text>
-            <LedgerChipRow>
-              {credentials.map((c) => (
-                <LedgerChip
-                  key={c._id}
-                  label={c.label || c.nit}
-                  active={syncCredId === c._id}
-                  onPress={() => setSyncCredId(c._id)}
-                />
-              ))}
-            </LedgerChipRow>
-            <TextInput value={fromDate} onChangeText={setFromDate} placeholder="Desde YYYY-MM-DD" style={[styles.input, { borderColor: colors.border, color: colors.primaryText, marginTop: 8 }]} />
-            <TextInput value={toDate} onChangeText={setToDate} placeholder="Hasta YYYY-MM-DD" style={[styles.input, { borderColor: colors.border, color: colors.primaryText, marginTop: 8 }]} />
-            <LedgerChipRow>
-              {(Object.keys(DIAN_GROUP_LABELS) as DianSyncGroup[]).map((g) => (
-                <LedgerChip key={g} label={DIAN_GROUP_LABELS[g]} active={group === g} onPress={() => setGroup(g)} />
-              ))}
-            </LedgerChipRow>
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-              <LedgerPrimaryBtn label="Cancelar" variant="secondary" onPress={() => setSyncModal(false)} />
-              <LedgerPrimaryBtn label="Iniciar" onPress={onStartSync} loading={busy === "sync"} />
-            </View>
-          </View>
+      <DsSideModal
+        visible={syncModal}
+        onClose={() => setSyncModal(false)}
+        title="Nueva sincronización"
+        icon="sync-outline"
+        onSubmit={onStartSync}
+        submitLabel="Iniciar"
+        submitting={busy === "sync"}
+        closeDisabled={busy === "sync"}
+      >
+        <View style={{ gap: 6 }}>
+          <Text style={[styles.fieldLabel, { color: colors.primaryText }]}>Credencial</Text>
+          <LedgerChipRow>
+            {credentials.map((c) => (
+              <LedgerChip
+                key={c._id}
+                label={c.label || c.nit}
+                active={syncCredId === c._id}
+                onPress={() => setSyncCredId(c._id)}
+              />
+            ))}
+          </LedgerChipRow>
         </View>
-      </Modal>
+        <DsField label="Desde (AAAA-MM-DD)" icon="calendar-outline" value={fromDate} onChangeText={setFromDate} placeholder="2026-01-01" />
+        <DsField label="Hasta (AAAA-MM-DD)" icon="calendar-outline" value={toDate} onChangeText={setToDate} placeholder="2026-01-31" />
+        <View style={{ gap: 6 }}>
+          <Text style={[styles.fieldLabel, { color: colors.primaryText }]}>Grupo</Text>
+          <LedgerChipRow>
+            {(Object.keys(DIAN_GROUP_LABELS) as DianSyncGroup[]).map((g) => (
+              <LedgerChip key={g} label={DIAN_GROUP_LABELS[g]} active={group === g} onPress={() => setGroup(g)} />
+            ))}
+          </LedgerChipRow>
+        </View>
+      </DsSideModal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  tabs: { paddingHorizontal: 12, gap: 8, paddingVertical: 8 },
+  tabs: { paddingHorizontal: 12, gap: 8, paddingVertical: 8, alignItems: "center" },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -624,7 +627,5 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardTitle: { fontSize: 16, fontWeight: "700", marginBottom: 10 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "flex-end" },
-  modalBox: { padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16, maxHeight: "85%" },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 10, paddingVertical: 10, fontSize: 14 },
+  fieldLabel: { fontSize: 13, fontWeight: "600" },
 });

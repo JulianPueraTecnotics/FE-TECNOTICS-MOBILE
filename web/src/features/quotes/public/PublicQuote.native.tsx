@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useParams } from "react-router-dom";
+import { DsField, DsSideModal } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -123,30 +121,26 @@ export default function PublicQuoteNative() {
         ) : null}
       </View>
 
-      <Modal visible={showApprove} transparent animationType="fade" onRequestClose={() => setShowApprove(false)}>
-        <View style={styles.overlay}>
-          <View style={[styles.modal, { backgroundColor: colors.cardBg }]}>
-            <Text style={[styles.modalTitle, { color: colors.primary }]}>Aprobar cotización</Text>
-            <Text style={{ color: colors.textMuted, marginBottom: 12 }}>Ingresa el código que recibiste por correo.</Text>
-            <TextInput
-              style={[styles.input, { color: colors.primary, borderColor: colors.border }]}
-              placeholder="Código"
-              placeholderTextColor={colors.textMuted}
-              value={code}
-              onChangeText={setCode}
-              autoCapitalize="characters"
-            />
-            <View style={styles.modalActions}>
-              <Pressable onPress={() => setShowApprove(false)} style={[styles.btn, { borderColor: colors.border }]}>
-                <Text style={{ color: colors.textMuted }}>Cancelar</Text>
-              </Pressable>
-              <Pressable onPress={handleApprove} disabled={approving} style={[styles.btn, { backgroundColor: colors.accent }]}>
-                <Text style={{ color: "#fff", fontWeight: "600" }}>{approving ? "…" : "Aprobar"}</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <DsSideModal
+        visible={showApprove}
+        onClose={() => setShowApprove(false)}
+        title="Aprobar cotización"
+        icon="checkmark-circle-outline"
+        onSubmit={() => void handleApprove()}
+        submitLabel="Aprobar"
+        submitting={approving}
+        closeDisabled={approving}
+      >
+        <Text style={{ color: colors.textMuted }}>Ingresa el código que recibiste por correo.</Text>
+        <DsField
+          label="Código de aprobación"
+          icon="key-outline"
+          placeholder="Código"
+          value={code}
+          onChangeText={setCode}
+          autoCapitalize="characters"
+        />
+      </DsSideModal>
     </ScrollView>
   );
 }
@@ -157,10 +151,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: "700" },
   line: { borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 10 },
   actions: { gap: 10, marginTop: 16 },
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", padding: 24 },
-  modal: { borderRadius: 12, padding: 20 },
-  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16, letterSpacing: 2 },
-  modalActions: { flexDirection: "row", gap: 10, marginTop: 16 },
-  btn: { flex: 1, paddingVertical: 12, borderRadius: SHELL_RADIUS.button, alignItems: "center", borderWidth: 1 },
 });

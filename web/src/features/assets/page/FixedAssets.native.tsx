@@ -1,17 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { LedgerField, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
-import { DsButton, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
+import { DsButton, DsModuleScreen, DsSearchField, DsSideModal } from "../../../components/design-system-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -288,66 +284,58 @@ export default function FixedAssetsNative() {
         )}
       </DsModuleScreen>
 
-      <Modal visible={modal !== null} animationType="slide" onRequestClose={() => setModal(null)}>
-        <ScrollView
-          style={{ flex: 1, backgroundColor: colors.pageBg, paddingTop: 48 }}
-          contentContainerStyle={{ padding: 16 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 16 }}>
-            <Text style={{ fontSize: 18, fontWeight: "700", color: colors.primary }}>
-              {modal === "new" ? "Nuevo activo" : "Editar activo"}
-            </Text>
-            <Pressable onPress={() => setModal(null)}>
-              <Text style={{ color: colors.headerAccent, fontWeight: "600" }}>Cerrar</Text>
-            </Pressable>
-          </View>
-          <LedgerField label="Código" value={form.codigo} onChangeText={(v) => setF("codigo", v)} />
-          <LedgerField label="Nombre" value={form.nombre} onChangeText={(v) => setF("nombre", v)} />
-          <LedgerField label="Categoría" value={form.categoria} onChangeText={(v) => setF("categoria", v)} />
-          <LedgerField label="Fecha adquisición" value={form.fecha_adquisicion} onChangeText={(v) => setF("fecha_adquisicion", v)} />
-          <LedgerField label="Costo" value={form.costo} onChangeText={(v) => setF("costo", v)} keyboardType="numeric" />
-          <LedgerField label="Valor residual" value={form.valor_residual} onChangeText={(v) => setF("valor_residual", v)} keyboardType="numeric" />
-          <LedgerField label="Vida útil (meses)" value={form.vida_util_meses} onChangeText={(v) => setF("vida_util_meses", v)} keyboardType="numeric" />
-          <LedgerField label="Cuenta activo" value={form.cuenta_activo} onChangeText={(v) => setF("cuenta_activo", v)} />
-          <LedgerField label="Cuenta dep. acumulada" value={form.cuenta_depreciacion_acumulada} onChangeText={(v) => setF("cuenta_depreciacion_acumulada", v)} />
-          <LedgerField label="Cuenta gasto depreciación" value={form.cuenta_gasto_depreciacion} onChangeText={(v) => setF("cuenta_gasto_depreciacion", v)} />
-          <LedgerPrimaryBtn label="Guardar" onPress={save} loading={saving} />
-        </ScrollView>
-      </Modal>
+      <DsSideModal
+        visible={modal !== null}
+        onClose={() => setModal(null)}
+        title={modal === "new" ? "Nuevo activo" : "Editar activo"}
+        icon="cube-outline"
+        onSubmit={() => void save()}
+        submitLabel="Guardar"
+        submitting={saving}
+        closeDisabled={saving}
+      >
+        <LedgerField label="Código" icon="barcode-outline" value={form.codigo} onChangeText={(v) => setF("codigo", v)} />
+        <LedgerField label="Nombre" icon="cube-outline" value={form.nombre} onChangeText={(v) => setF("nombre", v)} />
+        <LedgerField label="Categoría" icon="pricetags-outline" value={form.categoria} onChangeText={(v) => setF("categoria", v)} />
+        <LedgerField label="Fecha adquisición" icon="calendar-outline" value={form.fecha_adquisicion} onChangeText={(v) => setF("fecha_adquisicion", v)} />
+        <LedgerField label="Costo" icon="cash-outline" value={form.costo} onChangeText={(v) => setF("costo", v)} keyboardType="numeric" />
+        <LedgerField label="Valor residual" icon="cash-outline" value={form.valor_residual} onChangeText={(v) => setF("valor_residual", v)} keyboardType="numeric" />
+        <LedgerField label="Vida útil (meses)" icon="time-outline" value={form.vida_util_meses} onChangeText={(v) => setF("vida_util_meses", v)} keyboardType="numeric" />
+        <LedgerField label="Cuenta activo" icon="folder-outline" value={form.cuenta_activo} onChangeText={(v) => setF("cuenta_activo", v)} />
+        <LedgerField label="Cuenta dep. acumulada" icon="folder-outline" value={form.cuenta_depreciacion_acumulada} onChangeText={(v) => setF("cuenta_depreciacion_acumulada", v)} />
+        <LedgerField label="Cuenta gasto depreciación" icon="folder-outline" value={form.cuenta_gasto_depreciacion} onChangeText={(v) => setF("cuenta_gasto_depreciacion", v)} />
+      </DsSideModal>
 
-      <Modal visible={!!disposeOf} animationType="slide" transparent onRequestClose={() => setDisposeOf(null)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: colors.cardBg }]}>
-            <Text style={{ fontWeight: "700", fontSize: 16, color: colors.primary, marginBottom: 8 }}>
-              Baja o venta — {disposeOf?.codigo}
-            </Text>
-            <View style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
-              {(["venta", "baja"] as const).map((t) => (
-                <Pressable
-                  key={t}
-                  onPress={() => setDisp((p) => ({ ...p, tipo: t }))}
-                  style={[styles.chip, { borderColor: disp.tipo === t ? colors.headerAccent : colors.border }]}
-                >
-                  <Text style={{ color: colors.primaryText }}>{t === "venta" ? "Venta" : "Baja"}</Text>
-                </Pressable>
-              ))}
-            </View>
-            <LedgerField label="Fecha" value={disp.fecha} onChangeText={(v) => setDisp((p) => ({ ...p, fecha: v }))} />
-            {disp.tipo === "venta" ? (
-              <LedgerField label="Valor venta" value={disp.ventaValor} onChangeText={(v) => setDisp((p) => ({ ...p, ventaValor: v }))} keyboardType="numeric" />
-            ) : (
-              <LedgerField label="Motivo" value={disp.motivo} onChangeText={(v) => setDisp((p) => ({ ...p, motivo: v }))} />
-            )}
-            <LedgerField label="Cuenta contrapartida" value={disp.cuentaContrapartida} onChangeText={(v) => setDisp((p) => ({ ...p, cuentaContrapartida: v }))} />
-            <LedgerField label="Cuenta resultado *" value={disp.cuentaResultado} onChangeText={(v) => setDisp((p) => ({ ...p, cuentaResultado: v }))} />
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-              <LedgerPrimaryBtn label="Cancelar" variant="secondary" onPress={() => setDisposeOf(null)} />
-              <LedgerPrimaryBtn label="Confirmar" onPress={submitDispose} loading={disposing} />
-            </View>
-          </View>
+      <DsSideModal
+        visible={!!disposeOf}
+        onClose={() => setDisposeOf(null)}
+        title={`Baja o venta — ${disposeOf?.codigo ?? ""}`}
+        icon="remove-circle-outline"
+        onSubmit={() => void submitDispose()}
+        submitLabel="Confirmar"
+        submitting={disposing}
+        closeDisabled={disposing}
+      >
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          {(["venta", "baja"] as const).map((t) => (
+            <Pressable
+              key={t}
+              onPress={() => setDisp((p) => ({ ...p, tipo: t }))}
+              style={[styles.chip, { borderColor: disp.tipo === t ? colors.headerAccent : colors.border, backgroundColor: disp.tipo === t ? colors.bgSubtle : colors.cardBg }]}
+            >
+              <Text style={{ color: colors.primaryText }}>{t === "venta" ? "Venta" : "Baja"}</Text>
+            </Pressable>
+          ))}
         </View>
-      </Modal>
+        <LedgerField label="Fecha" icon="calendar-outline" value={disp.fecha} onChangeText={(v) => setDisp((p) => ({ ...p, fecha: v }))} />
+        {disp.tipo === "venta" ? (
+          <LedgerField label="Valor venta" icon="cash-outline" value={disp.ventaValor} onChangeText={(v) => setDisp((p) => ({ ...p, ventaValor: v }))} keyboardType="numeric" />
+        ) : (
+          <LedgerField label="Motivo" icon="document-text-outline" value={disp.motivo} onChangeText={(v) => setDisp((p) => ({ ...p, motivo: v }))} />
+        )}
+        <LedgerField label="Cuenta contrapartida" icon="folder-outline" value={disp.cuentaContrapartida} onChangeText={(v) => setDisp((p) => ({ ...p, cuentaContrapartida: v }))} />
+        <LedgerField label="Cuenta resultado" icon="folder-outline" value={disp.cuentaResultado} onChangeText={(v) => setDisp((p) => ({ ...p, cuentaResultado: v }))} />
+      </DsSideModal>
     </>
   );
 }
@@ -355,6 +343,4 @@ export default function FixedAssetsNative() {
 const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 12 },
   chip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "flex-end" },
-  modalBox: { padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
 });

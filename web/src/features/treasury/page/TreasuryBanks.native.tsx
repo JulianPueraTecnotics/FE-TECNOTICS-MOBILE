@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { DsButton, DsModuleScreen, DsSideModal } from "../../../components/design-system-native";
 import { LedgerField, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
@@ -136,27 +136,28 @@ export default function TreasuryBanksNative() {
         )}
       </DsModuleScreen>
 
-      <Modal visible={modalOpen} animationType="slide" onRequestClose={() => setModalOpen(false)}>
-        <ScrollView style={{ flex: 1, backgroundColor: colors.pageBg, paddingTop: 48 }} contentContainerStyle={{ padding: 16 }}>
-          <Text style={{ fontSize: 18, fontWeight: "700", color: colors.primary, marginBottom: 12 }}>{editing ? "Editar banco" : "Nuevo banco"}</Text>
-          <LedgerField label="Banco *" value={form.nombre_banco} onChangeText={(v) => set("nombre_banco", v)} />
-          <LedgerField label="Número cuenta *" value={form.numero_cuenta} onChangeText={(v) => set("numero_cuenta", v)} />
-          <View style={{ flexDirection: "row", gap: 8, marginVertical: 8 }}>
-            {(["corriente", "ahorros"] as const).map((t) => (
-              <Pressable key={t} onPress={() => setForm((f) => ({ ...f, tipo_cuenta: t }))} style={[styles.chip, { borderColor: form.tipo_cuenta === t ? colors.headerAccent : colors.border }]}>
-                <Text style={{ color: colors.primaryText }}>{t === "corriente" ? "Corriente" : "Ahorros"}</Text>
-              </Pressable>
-            ))}
-          </View>
-          <LedgerField label="Identificador ACH" value={form.identificador} onChangeText={(v) => set("identificador", v)} />
-          <LedgerField label="Validación ACH" value={form.validacion_id} onChangeText={(v) => set("validacion_id", v)} />
-          <LedgerField label="Descripción lote" value={form.descripcion_lote} onChangeText={(v) => set("descripcion_lote", v)} />
-          <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-            <LedgerPrimaryBtn label="Cancelar" variant="secondary" onPress={() => setModalOpen(false)} />
-            <LedgerPrimaryBtn label="Guardar" onPress={save} loading={saving} />
-          </View>
-        </ScrollView>
-      </Modal>
+      <DsSideModal
+        visible={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Editar banco" : "Nuevo banco"}
+        icon="business-outline"
+        closeDisabled={saving}
+        submitting={saving}
+        onSubmit={() => void save()}
+      >
+        <LedgerField label="Banco *" value={form.nombre_banco} onChangeText={(v) => set("nombre_banco", v)} icon="business-outline" />
+        <LedgerField label="Número cuenta *" value={form.numero_cuenta} onChangeText={(v) => set("numero_cuenta", v)} icon="card-outline" />
+        <View style={{ flexDirection: "row", gap: 8, marginVertical: 8 }}>
+          {(["corriente", "ahorros"] as const).map((t) => (
+            <Pressable key={t} onPress={() => setForm((f) => ({ ...f, tipo_cuenta: t }))} style={[styles.chip, { borderColor: form.tipo_cuenta === t ? colors.headerAccent : colors.border, backgroundColor: form.tipo_cuenta === t ? `${colors.headerAccent}12` : colors.cardBg }]}>
+              <Text style={{ color: colors.primaryText }}>{t === "corriente" ? "Corriente" : "Ahorros"}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <LedgerField label="Identificador ACH" value={form.identificador} onChangeText={(v) => set("identificador", v)} icon="finger-print-outline" />
+        <LedgerField label="Validación ACH" value={form.validacion_id} onChangeText={(v) => set("validacion_id", v)} icon="shield-checkmark-outline" />
+        <LedgerField label="Descripción lote" value={form.descripcion_lote} onChangeText={(v) => set("descripcion_lote", v)} icon="document-text-outline" />
+      </DsSideModal>
     </>
   );
 }

@@ -2,17 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
+import { DsField, DsSideModal } from "../../design-system-native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import {
   buscarTerceros,
@@ -206,129 +204,110 @@ export default function ConciliacionManualModalNative({
     onClose();
   };
 
+  const footer = (
+    <>
+      {tipoFactura === "venta" ? (
+        <Pressable
+          style={[styles.btnGhost, { borderColor: colors.border }]}
+          onPress={() => void aplicarAnticipo()}
+          disabled={applying}
+        >
+          <Text style={{ color: colors.primaryText }}>Anticipo</Text>
+        </Pressable>
+      ) : null}
+      <Pressable
+        style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, opacity: applying || !cuadra ? 0.6 : 1 }]}
+        onPress={() => void aplicarManual()}
+        disabled={applying || !cuadra}
+      >
+        {applying ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.btnPrimaryText}>Conciliar</Text>
+        )}
+      </Pressable>
+    </>
+  );
+
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={close}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={close} disabled={applying}>
-            <Ionicons name="close" size={24} color={colors.primaryText} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>
-            Conciliar manual ({movimientos.length} mov.)
-          </Text>
-          <View style={{ width: 24 }} />
-        </View>
+    <DsSideModal
+      visible={visible}
+      onClose={close}
+      title={`Conciliar manual (${movimientos.length} mov.)`}
+      icon="git-compare-outline"
+      closeDisabled={applying}
+      footer={footer}
+    >
+      <Text style={[styles.hint, { color: colors.textMuted }]}>
+        Pago: {formatCOP(sumaMov)} · Seleccionado: {formatCOP(sumaDocsSel)}
+        {retencionManual > 0 ? ` · Retención ${formatCOP(retencionManual)}` : ""}
+      </Text>
+      <Text style={{ color: cuadra ? "#059669" : "#dc2626", fontWeight: "600", marginBottom: 8 }}>
+        {cuadra ? "✓ Cuadra" : `Diferencia ${formatCOP(Math.abs(sumaMov + retencionManual - sumaDocsSel))}`}
+      </Text>
 
-        <ScrollView contentContainerStyle={styles.body}>
-          <Text style={[styles.hint, { color: colors.textMuted }]}>
-            Pago: {formatCOP(sumaMov)} · Seleccionado: {formatCOP(sumaDocsSel)}
-            {retencionManual > 0 ? ` · Retención ${formatCOP(retencionManual)}` : ""}
-          </Text>
-          <Text style={{ color: cuadra ? "#059669" : "#dc2626", fontWeight: "600", marginBottom: 8 }}>
-            {cuadra ? "✓ Cuadra" : `Diferencia ${formatCOP(Math.abs(sumaMov + retencionManual - sumaDocsSel))}`}
-          </Text>
+      <DsField
+        label="Tercero (NIT o nombre)"
+        icon="search-outline"
+        value={docNit}
+        onChangeText={(t) => void onTerceroInput(t)}
+        placeholder="Buscar cliente o proveedor"
+      />
 
-          <Text style={[styles.label, { color: colors.textMuted }]}>Tercero (NIT o nombre)</Text>
-          <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-            value={docNit}
-            onChangeText={(t) => void onTerceroInput(t)}
-            placeholder="Buscar cliente o proveedor"
-            placeholderTextColor={colors.textMuted}
-          />
-
-          {tercerosResult.length ? (
-            <View style={[styles.list, { borderColor: colors.border }]}>
-              {tercerosResult.map((t) => (
-                <Pressable key={t.doc} style={styles.listRow} onPress={() => elegirTercero(t)}>
-                  <Text style={{ color: colors.primaryText, fontWeight: "600" }}>{t.nombre}</Text>
-                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>{t.doc}</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : null}
-
-          {loadingDocs ? <ActivityIndicator color={colors.headerAccent} style={{ marginVertical: 12 }} /> : null}
-
-          {docs.map((d) => {
-            const sel = docSel.has(d.id);
-            return (
-              <Pressable
-                key={d.id}
-                onPress={() => toggleDoc(d.id)}
-                style={[
-                  styles.docCard,
-                  getSoftCardShadow(),
-                  {
-                    backgroundColor: sel ? `${colors.headerAccent}12` : colors.cardBg,
-                    borderColor: sel ? colors.headerAccent : colors.border,
-                  },
-                ]}
-              >
-                <View style={styles.docTop}>
-                  <Ionicons
-                    name={sel ? "checkbox" : "square-outline"}
-                    size={20}
-                    color={sel ? colors.headerAccent : colors.textMuted}
-                  />
-                  <Text style={{ color: colors.primaryText, fontWeight: "600", flex: 1 }}>{d.numero}</Text>
-                  <Text style={{ color: colors.primary, fontWeight: "700" }}>{formatCOP(d.saldo)}</Text>
-                </View>
-                <Text style={{ color: colors.textMuted, fontSize: 12, marginLeft: 28 }}>Total doc. {formatCOP(d.total)}</Text>
-              </Pressable>
-            );
-          })}
-
-          {tipoFactura === "venta" && difManual > 0 ? (
-            <View style={[styles.retRow, { borderColor: colors.border }]}>
-              <Text style={{ color: colors.primaryText, flex: 1 }}>Llevar diferencia a retención</Text>
-              <Switch value={aplicarRetencion} onValueChange={setAplicarRetencion} />
-            </View>
-          ) : null}
-        </ScrollView>
-
-        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.cardBg }]}>
-          {tipoFactura === "venta" ? (
-            <Pressable
-              style={[styles.btnGhost, { borderColor: colors.border }]}
-              onPress={() => void aplicarAnticipo()}
-              disabled={applying}
-            >
-              <Text style={{ color: colors.primaryText }}>Anticipo</Text>
+      {tercerosResult.length ? (
+        <View style={[styles.list, { borderColor: colors.border }]}>
+          {tercerosResult.map((t) => (
+            <Pressable key={t.doc} style={[styles.listRow, { borderBottomColor: colors.border }]} onPress={() => elegirTercero(t)}>
+              <Text style={{ color: colors.primaryText, fontWeight: "600" }}>{t.nombre}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 12 }}>{t.doc}</Text>
             </Pressable>
-          ) : null}
-          <Pressable
-            style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, opacity: applying || !cuadra ? 0.6 : 1 }]}
-            onPress={() => void aplicarManual()}
-            disabled={applying || !cuadra}
-          >
-            {applying ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.btnPrimaryText}>Conciliar</Text>
-            )}
-          </Pressable>
+          ))}
         </View>
-      </View>
-    </Modal>
+      ) : null}
+
+      {loadingDocs ? <ActivityIndicator color={colors.headerAccent} style={{ marginVertical: 12 }} /> : null}
+
+      {docs.map((d) => {
+        const sel = docSel.has(d.id);
+        return (
+          <Pressable
+            key={d.id}
+            onPress={() => toggleDoc(d.id)}
+            style={[
+              styles.docCard,
+              getSoftCardShadow(),
+              {
+                backgroundColor: sel ? `${colors.headerAccent}12` : colors.cardBg,
+                borderColor: sel ? colors.headerAccent : colors.border,
+              },
+            ]}
+          >
+            <View style={styles.docTop}>
+              <Ionicons
+                name={sel ? "checkbox" : "square-outline"}
+                size={20}
+                color={sel ? colors.headerAccent : colors.textMuted}
+              />
+              <Text style={{ color: colors.primaryText, fontWeight: "600", flex: 1 }}>{d.numero}</Text>
+              <Text style={{ color: colors.primary, fontWeight: "700" }}>{formatCOP(d.saldo)}</Text>
+            </View>
+            <Text style={{ color: colors.textMuted, fontSize: 12, marginLeft: 28 }}>Total doc. {formatCOP(d.total)}</Text>
+          </Pressable>
+        );
+      })}
+
+      {tipoFactura === "venta" && difManual > 0 ? (
+        <View style={[styles.retRow, { borderColor: colors.border }]}>
+          <Text style={{ color: colors.primaryText, flex: 1 }}>Llevar diferencia a retención</Text>
+          <Switch value={aplicarRetencion} onValueChange={setAplicarRetencion} />
+        </View>
+      ) : null}
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center" },
-  body: { padding: 16, paddingBottom: 24 },
   hint: { fontSize: 13, marginBottom: 4 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6, marginTop: 8 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
   list: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, marginTop: 8, overflow: "hidden" },
   listRow: { padding: 12, borderBottomWidth: StyleSheet.hairlineWidth },
   docCard: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 12, marginTop: 8 },
@@ -340,7 +319,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  footer: { flexDirection: "row", gap: 10, padding: 16, borderTopWidth: StyleSheet.hairlineWidth },
   btnGhost: {
     flex: 1,
     alignItems: "center",

@@ -34,9 +34,10 @@ export const nativeThemeColors: Record<"light" | "dark", NativeThemeColors> = {
     statusBarStyle: "dark",
   },
   dark: {
-    primary: "#58a6ff",
+    // En modo oscuro los textos e íconos "azul claro" se muestran en blanco.
+    primary: "#ffffff",
     primaryText: "#e6edf3",
-    secondary: "#79c0ff",
+    secondary: "#ffffff",
     accent: "#5a9fb4",
     accentHover: "#4a8fa4",
     pageBg: "#0d1117",

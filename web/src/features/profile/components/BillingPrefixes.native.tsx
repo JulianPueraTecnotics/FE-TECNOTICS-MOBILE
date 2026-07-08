@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -8,9 +8,9 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import { DsField } from "../../../components/design-system-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
@@ -91,6 +91,13 @@ export default function BillingPrefixesNative({ embedded = false, onPrefixesChan
     [draftPrefixes]
   );
 
+  // Ref para no re-crear loadProfile cuando el padre pasa un callback inline.
+  // Evita el bucle: loadProfile → onPrefixesChanged → loadData padre → re-render → loadProfile…
+  const onPrefixesChangedRef = useRef(onPrefixesChanged);
+  useEffect(() => {
+    onPrefixesChangedRef.current = onPrefixesChanged;
+  }, [onPrefixesChanged]);
+
   const loadProfile = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
@@ -108,13 +115,14 @@ export default function BillingPrefixesNative({ embedded = false, onPrefixesChan
         }
       }
       setLockedInputs(locked);
-      onPrefixesChanged?.();
+      // Solo notificamos al padre tras recargas por mutación (silent), nunca en la carga inicial.
+      if (silent) onPrefixesChangedRef.current?.();
     } catch (error) {
       errorToast(error instanceof Error ? error.message : "Error al cargar prefijos");
     } finally {
       if (!silent) setLoading(false);
     }
-  }, [onPrefixesChanged]);
+  }, []);
 
   useEffect(() => {
     void loadProfile();
@@ -425,18 +433,16 @@ export default function BillingPrefixesNative({ embedded = false, onPrefixesChan
 
                 {expanded ? (
                   <View style={styles.expanded}>
-                    <Field label="Consecutivos omitidos (opcional)">
-                      <TextInput
-                        style={[styles.input, { backgroundColor: colors.cardBg, borderColor: colors.border, color: colors.primaryText }]}
-                        value={lockedInputs[item.prefix] ?? ""}
-                        onChangeText={(v) =>
-                          setLockedInputs((prev) => ({ ...prev, [item.prefix]: sanitizeLockedInput(v) }))
-                        }
-                        placeholder="Ej: 100, 200"
-                        placeholderTextColor={colors.textMuted}
-                        editable={!savingPrefixes}
-                      />
-                    </Field>
+                    <DsField
+                      label="Consecutivos omitidos (opcional)"
+                      icon="remove-circle-outline"
+                      value={lockedInputs[item.prefix] ?? ""}
+                      onChangeText={(v) =>
+                        setLockedInputs((prev) => ({ ...prev, [item.prefix]: sanitizeLockedInput(v) }))
+                      }
+                      placeholder="Ej: 100, 200"
+                      editable={!savingPrefixes}
+                    />
                   </View>
                 ) : null}
               </View>
@@ -471,30 +477,26 @@ export default function BillingPrefixesNative({ embedded = false, onPrefixesChan
           />
         </View>
 
-        <Field label="Código de prefijo">
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-            value={newPrefixInput}
-            onChangeText={(v) => setNewPrefixInput(v.toUpperCase())}
-            placeholder={newPrefixIsNomina ? "Ej. NE" : "Ej. SETP"}
-            placeholderTextColor={colors.textMuted}
-            maxLength={newPrefixIsNomina ? 5 : 10}
-            editable={prefixActionLoading !== null}
-            autoCapitalize="characters"
-          />
-        </Field>
+        <DsField
+          label="Código de prefijo"
+          icon="pricetag-outline"
+          value={newPrefixInput}
+          onChangeText={(v) => setNewPrefixInput(v.toUpperCase())}
+          placeholder={newPrefixIsNomina ? "Ej. NE" : "Ej. SETP"}
+          maxLength={newPrefixIsNomina ? 5 : 10}
+          editable={prefixActionLoading !== null}
+          autoCapitalize="characters"
+        />
 
-        <Field label="Consecutivo inicial">
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-            value={newPrefixInit}
-            onChangeText={setNewPrefixInit}
-            keyboardType="number-pad"
-            placeholder="1"
-            placeholderTextColor={colors.textMuted}
-            editable={prefixActionLoading !== null}
-          />
-        </Field>
+        <DsField
+          label="Consecutivo inicial"
+          icon="keypad-outline"
+          value={newPrefixInit}
+          onChangeText={setNewPrefixInit}
+          keyboardType="number-pad"
+          placeholder="1"
+          editable={prefixActionLoading !== null}
+        />
 
         {!newPrefixIsNomina ? (
           <>
@@ -543,61 +545,51 @@ export default function BillingPrefixesNative({ embedded = false, onPrefixesChan
               </ScrollView>
             </Field>
 
-            <Field label="Número de resolución DIAN">
-              <TextInput
-                style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                value={newPrefixResolutionCode}
-                onChangeText={setNewPrefixResolutionCode}
-                placeholder="Ej. 18760000001"
-                placeholderTextColor={colors.textMuted}
-                editable={prefixActionLoading !== null}
-              />
-            </Field>
+            <DsField
+              label="Número de resolución DIAN"
+              icon="document-text-outline"
+              value={newPrefixResolutionCode}
+              onChangeText={setNewPrefixResolutionCode}
+              placeholder="Ej. 18760000001"
+              editable={prefixActionLoading !== null}
+            />
 
-            <Field label="Consecutivo final">
-              <TextInput
-                style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                value={newPrefixEnd}
-                onChangeText={setNewPrefixEnd}
-                keyboardType="number-pad"
-                placeholder="999999"
-                placeholderTextColor={colors.textMuted}
-                editable={prefixActionLoading !== null}
-              />
-            </Field>
+            <DsField
+              label="Consecutivo final"
+              icon="keypad-outline"
+              value={newPrefixEnd}
+              onChangeText={setNewPrefixEnd}
+              keyboardType="number-pad"
+              placeholder="999999"
+              editable={prefixActionLoading !== null}
+            />
 
-            <Field label="Fecha inicio (AAAA-MM-DD)">
-              <TextInput
-                style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                value={newPrefixStartDate}
-                onChangeText={setNewPrefixStartDate}
-                placeholder="2024-01-01"
-                placeholderTextColor={colors.textMuted}
-                editable={prefixActionLoading !== null}
-              />
-            </Field>
+            <DsField
+              label="Fecha inicio (AAAA-MM-DD)"
+              icon="calendar-outline"
+              value={newPrefixStartDate}
+              onChangeText={setNewPrefixStartDate}
+              placeholder="2024-01-01"
+              editable={prefixActionLoading !== null}
+            />
 
-            <Field label="Fecha vencimiento (AAAA-MM-DD)">
-              <TextInput
-                style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                value={newPrefixEndDate}
-                onChangeText={setNewPrefixEndDate}
-                placeholder="2026-12-31"
-                placeholderTextColor={colors.textMuted}
-                editable={prefixActionLoading !== null}
-              />
-            </Field>
+            <DsField
+              label="Fecha vencimiento (AAAA-MM-DD)"
+              icon="calendar-outline"
+              value={newPrefixEndDate}
+              onChangeText={setNewPrefixEndDate}
+              placeholder="2026-12-31"
+              editable={prefixActionLoading !== null}
+            />
 
-            <Field label="Consecutivos omitidos (opcional)">
-              <TextInput
-                style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                value={newPrefixLocked}
-                onChangeText={(v) => setNewPrefixLocked(sanitizeLockedInput(v))}
-                placeholder="100, 200"
-                placeholderTextColor={colors.textMuted}
-                editable={prefixActionLoading !== null}
-              />
-            </Field>
+            <DsField
+              label="Consecutivos omitidos (opcional)"
+              icon="remove-circle-outline"
+              value={newPrefixLocked}
+              onChangeText={(v) => setNewPrefixLocked(sanitizeLockedInput(v))}
+              placeholder="100, 200"
+              editable={prefixActionLoading !== null}
+            />
           </>
         ) : null}
 
@@ -655,13 +647,6 @@ const styles = StyleSheet.create({
   expanded: { marginTop: 4 },
   field: { gap: 6 },
   fieldLabel: { fontSize: 12, fontWeight: "600" },
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-  },
   primaryBtn: {
     paddingVertical: 12,
     borderRadius: SHELL_RADIUS.button,

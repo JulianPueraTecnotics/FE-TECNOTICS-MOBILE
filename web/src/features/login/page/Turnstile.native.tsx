@@ -7,70 +7,55 @@ import {
   TURNSTILE_SITE_KEY,
   TURNSTILE_WIDGET_HEIGHT,
 } from "./turnstile.shared";
-import {
-  buildTurnstileWebViewSources,
-  CHROME_MOBILE_UA,
-  type TurnstileWebViewSource,
-} from "./turnstileWebViewSource";
+import { CHROME_MOBILE_UA } from "./turnstileWebViewSource";
 
 interface TurnstileProps {
   onVerify: (token: string) => void;
   onExpire?: () => void;
 }
 
-function toWebViewSource(entry: TurnstileWebViewSource) {
-  if (entry.kind === "uri") {
-    return { uri: entry.uri };
+const FALLBACK_ORIGIN = "https://facturacion.tecnotics.co";
+
+/**
+ * Origen HTTPS registrado en Cloudflare Turnstile. Se usa como `baseUrl` de la
+ * WebView para que el widget se cargue directamente (sin adb reverse, túnel ni
+ * HTML servido por el backend). Prioridad: FE_URL → API_URL → dominio de prod.
+ */
+function resolveTurnstileBaseUrl(): string {
+  const candidates = [ENV.FE_URL, ENV.API_URL];
+  for (const raw of candidates) {
+    const value = raw?.trim().replace(/\/$/, "");
+    if (value && /^https:\/\//i.test(value)) return `${value}/`;
   }
-  return { html: buildTurnstileHtml(TURNSTILE_SITE_KEY), baseUrl: entry.baseUrl };
+  return `${FALLBACK_ORIGIN}/`;
 }
 
 /**
- * Turnstile nativo: Metro (8081) → backend (3001) → HTML inline.
+ * Turnstile nativo: HTML inline cargado sobre el dominio HTTPS de producción.
+ * No depende de adb reverse, túnel ni de que el backend sirva el HTML.
  */
 export default function TurnstileNative({ onVerify, onExpire }: TurnstileProps) {
-  const apiBase = useMemo(() => ENV.API_URL?.trim().replace(/\/$/, "") ?? "", []);
-  const sources = useMemo(() => buildTurnstileWebViewSources(apiBase), [apiBase]);
-  const [sourceIndex, setSourceIndex] = useState(0);
+  const baseUrl = useMemo(() => resolveTurnstileBaseUrl(), []);
+  const html = useMemo(() => buildTurnstileHtml(TURNSTILE_SITE_KEY), []);
   const [phase, setPhase] = useState<"loading" | "ready" | "failed">("loading");
   const [key, setKey] = useState(0);
   const [failHint, setFailHint] = useState("");
   const [statusHint, setStatusHint] = useState("");
 
-  const current = sources[sourceIndex] ?? sources[0];
-  const source = useMemo(() => {
-    if (!current) {
-      return { html: buildTurnstileHtml(TURNSTILE_SITE_KEY), baseUrl: "https://localhost/" };
-    }
-    return toWebViewSource(current);
-  }, [current, key]);
+  useEffect(() => {
+    console.log("[Turnstile] componente montado. baseUrl:", baseUrl, "siteKey:", TURNSTILE_SITE_KEY);
+  }, [baseUrl]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setPhase((p) => {
         if (p !== "loading") return p;
-        setFailHint("Ejecuta: npm run adb-reverse (puertos 8081 y 3001) y recarga la app.");
+        setFailHint("Verifica tu conexión a internet e inténtalo de nuevo.");
         return "failed";
       });
-    }, 38000);
+    }, 30000);
     return () => clearTimeout(timer);
-  }, [key, sourceIndex]);
-
-  const tryNextSource = useCallback(() => {
-    setSourceIndex((idx) => {
-      const next = idx + 1;
-      if (next < sources.length) {
-        setPhase("loading");
-        setFailHint("");
-        setStatusHint("");
-        setKey((k) => k + 1);
-        return next;
-      }
-      setPhase("failed");
-      setFailHint("Sin más modos de carga. Verifica internet y adb reverse.");
-      return idx;
-    });
-  }, [sources.length]);
+  }, [key]);
 
   const onMessage = useCallback(
     (event: WebViewMessageEvent) => {
@@ -80,6 +65,7 @@ export default function TurnstileNative({ onVerify, onExpire }: TurnstileProps) 
           token?: string;
           detail?: string;
         };
+        console.log("[Turnstile] mensaje del captcha:", data);
         if (data.type === "status" && data.detail) {
           setStatusHint(data.detail);
           return;
@@ -92,6 +78,7 @@ export default function TurnstileNative({ onVerify, onExpire }: TurnstileProps) 
         }
         if (data.type === "verify" && data.token) {
           setPhase("ready");
+          console.log("[Turnstile] token recibido:", data.token);
           onVerify(data.token);
           return;
         }
@@ -100,47 +87,29 @@ export default function TurnstileNative({ onVerify, onExpire }: TurnstileProps) 
           return;
         }
         if (data.type === "error") {
-          setFailHint(data.detail || "Error al cargar Turnstile.");
-          if (sourceIndex < sources.length - 1) {
-            tryNextSource();
-            onExpire?.();
-            return;
-          }
           setPhase("failed");
+          setFailHint(data.detail || "No se pudo cargar la verificación de seguridad.");
           onExpire?.();
         }
       } catch {
         /* noop */
       }
     },
-    [onExpire, onVerify, sourceIndex, sources.length, tryNextSource]
+    [onExpire, onVerify]
   );
 
   const onLoadError = useCallback(() => {
-    if (sourceIndex < sources.length - 1) {
-      tryNextSource();
-      return;
-    }
     setPhase("failed");
-    setFailHint("No se pudo cargar ninguna fuente del captcha.");
-  }, [sourceIndex, sources.length, tryNextSource]);
+    setFailHint("No se pudo cargar el captcha. Revisa tu conexión.");
+  }, []);
 
   const retry = useCallback(() => {
-    setSourceIndex(0);
     setPhase("loading");
     setFailHint("");
     setStatusHint("");
     setKey((k) => k + 1);
     onExpire?.();
   }, [onExpire]);
-
-  if (!current) {
-    return (
-      <View style={styles.wrap}>
-        <Text style={styles.errorText}>No hay fuente Turnstile disponible</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.wrap} collapsable={false}>
@@ -161,12 +130,18 @@ export default function TurnstileNative({ onVerify, onExpire }: TurnstileProps) 
       ) : null}
       {phase !== "failed" ? (
         <WebView
-          key={`${current.label}-${key}`}
-          source={source}
+          key={`turnstile-${key}`}
+          source={{ html, baseUrl }}
           style={styles.webview}
           onMessage={onMessage}
-          onError={onLoadError}
+          onLoadStart={() => console.log("[Turnstile] WebView onLoadStart")}
+          onLoadEnd={() => console.log("[Turnstile] WebView onLoadEnd")}
+          onError={(e) => {
+            console.log("[Turnstile] WebView onError:", e.nativeEvent);
+            onLoadError();
+          }}
           onHttpError={(e) => {
+            console.log("[Turnstile] WebView onHttpError:", e.nativeEvent.statusCode, e.nativeEvent.url);
             if (e.nativeEvent.statusCode >= 400) onLoadError();
           }}
           originWhitelist={["*"]}
@@ -189,11 +164,6 @@ export default function TurnstileNative({ onVerify, onExpire }: TurnstileProps) 
               }
             : {})}
         />
-      ) : null}
-      {Platform.OS !== "web" ? (
-        <Text style={styles.debug} numberOfLines={2}>
-          {current.label}
-        </Text>
       ) : null}
     </View>
   );
@@ -232,13 +202,4 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 12, color: "#b91c1c", textAlign: "center", fontWeight: "600" },
   errorHint: { fontSize: 10, color: "#64748b", textAlign: "center", paddingHorizontal: 4 },
   retry: { fontSize: 12, color: "#0077b6", fontWeight: "600", marginTop: 2 },
-  debug: {
-    position: "absolute",
-    bottom: 2,
-    left: 4,
-    right: 4,
-    fontSize: 8,
-    color: "#94a3b8",
-    textAlign: "center",
-  },
 });

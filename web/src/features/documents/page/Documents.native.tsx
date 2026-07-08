@@ -7,14 +7,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NativeExportInvoicesModal from "../../../components/native/list/NativeExportInvoicesModal.native";
 import TemplateRecurrenceModalNative from "../../../components/native/documents/TemplateRecurrenceModal.native";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
+import { DsButton, DsField, DsFilterModal, DsModuleScreen } from "../../../components/design-system-native";
 import { PATHS } from "../../../router/paths.contants";
 import { getAllInvoices } from "../../../services/invoices.service";
 import { createRemision } from "../../../services/remisiones.service";
@@ -25,7 +24,6 @@ import { RealtimeEvents } from "../../../services/socket";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { TipoDocElectronico, type Factura, type RecurrenceType } from "../../../types";
-import { FILTER_DEBOUNCE_MS } from "../../../utils/useDebouncedValue";
 import {
   formatDocumentClient,
   formatDocumentDate,
@@ -62,14 +60,20 @@ export default function DocumentsNative() {
   const [refreshing, setRefreshing] = useState(false);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
+  // Borrador editable dentro del modal de filtros.
   const [filterTipo, setFilterTipo] = useState(searchParams.get("tipo_documento") ?? "");
   const [filterPrefijo, setFilterPrefijo] = useState(searchParams.get("prefijo") ?? "");
   const [filterCliente, setFilterCliente] = useState(searchParams.get("cliente") ?? "");
   const [filterTotal, setFilterTotal] = useState(searchParams.get("total") ?? "");
   const [filterEstado, setFilterEstado] = useState(searchParams.get("status") ?? "");
-  const [committedPrefijo, setCommittedPrefijo] = useState(filterPrefijo);
-  const [committedCliente, setCommittedCliente] = useState(filterCliente);
-  const [committedTotal, setCommittedTotal] = useState(filterTotal);
+  // Filtros aplicados (disparan la consulta), se confirman con "Aplicar filtros".
+  const [applied, setApplied] = useState({
+    tipo: searchParams.get("tipo_documento") ?? "",
+    prefijo: searchParams.get("prefijo") ?? "",
+    cliente: searchParams.get("cliente") ?? "",
+    total: searchParams.get("total") ?? "",
+    estado: searchParams.get("status") ?? "",
+  });
 
   const [exportOpen, setExportOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -78,8 +82,13 @@ export default function DocumentsNative() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const hasActiveFilters = useMemo(
-    () => [filterTipo, committedPrefijo, committedCliente, committedTotal, filterEstado].some((v) => v.trim()),
-    [filterTipo, committedPrefijo, committedCliente, committedTotal, filterEstado]
+    () => [applied.tipo, applied.prefijo, applied.cliente, applied.total, applied.estado].some((v) => v.trim()),
+    [applied]
+  );
+
+  const hasDraftFilters = useMemo(
+    () => [filterTipo, filterPrefijo, filterCliente, filterTotal, filterEstado].some((v) => v.trim()),
+    [filterTipo, filterPrefijo, filterCliente, filterTotal, filterEstado]
   );
 
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -89,11 +98,11 @@ export default function DocumentsNative() {
     else setLoading(true);
     try {
       const response = await getAllInvoices(page, 20, {
-        tipo_documento: filterTipo,
-        prefijo: committedPrefijo,
-        cliente: committedCliente,
-        total: committedTotal,
-        status: filterEstado,
+        tipo_documento: applied.tipo,
+        prefijo: applied.prefijo,
+        cliente: applied.cliente,
+        total: applied.total,
+        status: applied.estado,
       });
       if (response) {
         setFacturas(response.facturas);
@@ -107,11 +116,11 @@ export default function DocumentsNative() {
       setRefreshing(false);
       setHasLoadedOnce(true);
     }
-  }, [page, filterTipo, committedPrefijo, committedCliente, committedTotal, filterEstado, hasLoadedOnce]);
+  }, [page, applied, hasLoadedOnce]);
 
   useEffect(() => {
     void loadInvoices();
-  }, [page, filterTipo, committedPrefijo, committedCliente, committedTotal, filterEstado]);
+  }, [page, applied]);
 
   useRealtime(RealtimeEvents.INVOICE_CHANGED, () => {
     if (page === 1) void loadInvoices();
@@ -141,21 +150,6 @@ export default function DocumentsNative() {
     }
   };
 
-  useEffect(() => {
-    const t = setTimeout(() => setCommittedPrefijo(filterPrefijo), FILTER_DEBOUNCE_MS);
-    return () => clearTimeout(t);
-  }, [filterPrefijo]);
-
-  useEffect(() => {
-    const t = setTimeout(() => setCommittedCliente(filterCliente), FILTER_DEBOUNCE_MS);
-    return () => clearTimeout(t);
-  }, [filterCliente]);
-
-  useEffect(() => {
-    const t = setTimeout(() => setCommittedTotal(filterTotal), FILTER_DEBOUNCE_MS);
-    return () => clearTimeout(t);
-  }, [filterTotal]);
-
   const handlePageChange = (next: number) => {
     const safe = Math.max(1, Math.min(totalPages, next));
     setPage(safe);
@@ -166,16 +160,27 @@ export default function DocumentsNative() {
     });
   };
 
-  const updateFilter = (key: string, value: string) => {
-    setSearchParams((prev) => {
-      const p = new URLSearchParams(prev);
+  const applyFilters = () => {
+    const next = {
+      tipo: filterTipo.trim(),
+      prefijo: filterPrefijo.trim(),
+      cliente: filterCliente.trim(),
+      total: filterTotal.trim(),
+      estado: filterEstado.trim(),
+    };
+    setApplied(next);
+    setPage(1);
+    setSearchParams(() => {
+      const p = new URLSearchParams();
       p.set("page", "1");
-      const v = value.trim();
-      if (!v) p.delete(key);
-      else p.set(key, key === "status" ? v.toUpperCase() : v);
+      if (next.tipo) p.set("tipo_documento", next.tipo);
+      if (next.prefijo) p.set("prefijo", next.prefijo);
+      if (next.cliente) p.set("cliente", next.cliente);
+      if (next.total) p.set("total", next.total);
+      if (next.estado) p.set("status", next.estado.toUpperCase());
       return p;
     });
-    setPage(1);
+    setFiltersOpen(false);
   };
 
   const clearFilters = () => {
@@ -184,11 +189,10 @@ export default function DocumentsNative() {
     setFilterCliente("");
     setFilterTotal("");
     setFilterEstado("");
-    setCommittedPrefijo("");
-    setCommittedCliente("");
-    setCommittedTotal("");
+    setApplied({ tipo: "", prefijo: "", cliente: "", total: "", estado: "" });
     setSearchParams(new URLSearchParams());
     setPage(1);
+    setFiltersOpen(false);
   };
 
   const handleSaveTemplate = async (recurrence: RecurrenceType) => {
@@ -245,7 +249,14 @@ export default function DocumentsNative() {
               variant="secondary"
               icon="filter-outline"
               compact
-              onPress={() => setFiltersOpen((o) => !o)}
+              onPress={() => {
+                setFilterTipo(applied.tipo);
+                setFilterPrefijo(applied.prefijo);
+                setFilterCliente(applied.cliente);
+                setFilterTotal(applied.total);
+                setFilterEstado(applied.estado);
+                setFiltersOpen(true);
+              }}
               style={hasActiveFilters ? { borderColor: colors.headerAccent } : undefined}
             />
             <DsButton
@@ -260,7 +271,12 @@ export default function DocumentsNative() {
         }
       >
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8, maxHeight: 40 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ marginBottom: 8, maxHeight: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+      >
         {(["fecha", "cliente", "total"] as const).map((k) => (
           <Pressable
             key={k}
@@ -273,70 +289,6 @@ export default function DocumentsNative() {
           </Pressable>
         ))}
       </ScrollView>
-
-      {filtersOpen ? (
-        <View style={[styles.filters, { backgroundColor: colors.bgSubtle, borderBottomColor: colors.border }]}>
-          <Text style={[styles.filterLabel, { color: colors.textMuted }]}>Tipo documento</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow}>
-            <Pressable
-              style={[styles.chip, !filterTipo ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
-              onPress={() => { setFilterTipo(""); updateFilter("tipo_documento", ""); }}
-            >
-              <Text style={{ color: !filterTipo ? "#fff" : colors.primaryText, fontSize: 12 }}>Todos</Text>
-            </Pressable>
-            {TIPO_OPTIONS.map((o) => (
-              <Pressable
-                key={o.value}
-                style={[styles.chip, filterTipo === o.value ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
-                onPress={() => { setFilterTipo(o.value); updateFilter("tipo_documento", o.value); }}
-              >
-                <Text style={{ color: filterTipo === o.value ? "#fff" : colors.primaryText, fontSize: 12 }}>{o.label}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          {[
-            { label: "Prefijo / Consecutivo", value: filterPrefijo, set: setFilterPrefijo, key: "prefijo" },
-            { label: "Cliente", value: filterCliente, set: setFilterCliente, key: "cliente" },
-            { label: "Total", value: filterTotal, set: setFilterTotal, key: "total" },
-          ].map((f) => (
-            <View key={f.key}>
-              <Text style={[styles.filterLabel, { color: colors.textMuted }]}>{f.label}</Text>
-              <TextInput
-                style={[styles.filterInput, { backgroundColor: colors.cardBg, borderColor: colors.border, color: colors.primaryText }]}
-                value={f.value}
-                onChangeText={f.set}
-                placeholderTextColor={colors.textMuted}
-              />
-            </View>
-          ))}
-
-          <Text style={[styles.filterLabel, { color: colors.textMuted }]}>Estado</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow}>
-            <Pressable
-              style={[styles.chip, !filterEstado ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
-              onPress={() => { setFilterEstado(""); updateFilter("status", ""); }}
-            >
-              <Text style={{ color: !filterEstado ? "#fff" : colors.primaryText, fontSize: 12 }}>Todos</Text>
-            </Pressable>
-            {STATUS_OPTIONS.map((o) => (
-              <Pressable
-                key={o.value}
-                style={[styles.chip, filterEstado === o.value ? { backgroundColor: colors.headerAccent } : { borderColor: colors.border }]}
-                onPress={() => { setFilterEstado(o.value); updateFilter("status", o.value); }}
-              >
-                <Text style={{ color: filterEstado === o.value ? "#fff" : colors.primaryText, fontSize: 12 }}>{o.label}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          {hasActiveFilters ? (
-            <Pressable onPress={clearFilters}>
-              <Text style={[styles.clearLink, { color: colors.headerAccent }]}>Limpiar filtros</Text>
-            </Pressable>
-          ) : null}
-        </View>
-      ) : null}
 
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
@@ -432,11 +384,85 @@ export default function DocumentsNative() {
       </ScrollView>
       </DsModuleScreen>
 
+      <DsFilterModal
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={applyFilters}
+        onClear={clearFilters}
+        hasActiveFilters={hasDraftFilters}
+        title="Filtrar facturas"
+      >
+        <View style={{ gap: 6 }}>
+          <Text style={[styles.filterLabel, { color: colors.primaryText }]}>Tipo de documento</Text>
+          <View style={styles.chipsWrap}>
+            <Pressable
+              style={[styles.chip, !filterTipo ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent } : { borderColor: colors.border }]}
+              onPress={() => setFilterTipo("")}
+            >
+              <Text style={{ color: !filterTipo ? "#fff" : colors.primaryText, fontSize: 12 }}>Todos</Text>
+            </Pressable>
+            {TIPO_OPTIONS.map((o) => (
+              <Pressable
+                key={o.value}
+                style={[styles.chip, filterTipo === o.value ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent } : { borderColor: colors.border }]}
+                onPress={() => setFilterTipo(o.value)}
+              >
+                <Text style={{ color: filterTipo === o.value ? "#fff" : colors.primaryText, fontSize: 12 }}>{o.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <DsField
+          label="Prefijo / Consecutivo"
+          icon="pricetag-outline"
+          value={filterPrefijo}
+          onChangeText={setFilterPrefijo}
+          placeholder="Ej. FE-1234"
+        />
+        <DsField
+          label="Cliente"
+          icon="person-outline"
+          value={filterCliente}
+          onChangeText={setFilterCliente}
+          placeholder="Nombre o documento"
+        />
+        <DsField
+          label="Total"
+          icon="cash-outline"
+          value={filterTotal}
+          onChangeText={setFilterTotal}
+          placeholder="Valor"
+          keyboardType="numeric"
+        />
+
+        <View style={{ gap: 6 }}>
+          <Text style={[styles.filterLabel, { color: colors.primaryText }]}>Estado</Text>
+          <View style={styles.chipsWrap}>
+            <Pressable
+              style={[styles.chip, !filterEstado ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent } : { borderColor: colors.border }]}
+              onPress={() => setFilterEstado("")}
+            >
+              <Text style={{ color: !filterEstado ? "#fff" : colors.primaryText, fontSize: 12 }}>Todos</Text>
+            </Pressable>
+            {STATUS_OPTIONS.map((o) => (
+              <Pressable
+                key={o.value}
+                style={[styles.chip, filterEstado === o.value ? { backgroundColor: colors.headerAccent, borderColor: colors.headerAccent } : { borderColor: colors.border }]}
+                onPress={() => setFilterEstado(o.value)}
+              >
+                <Text style={{ color: filterEstado === o.value ? "#fff" : colors.primaryText, fontSize: 12 }}>{o.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </DsFilterModal>
+
       <NativeExportInvoicesModal
         visible={exportOpen}
         onClose={() => setExportOpen(false)}
-        defaultCliente={committedCliente}
-        defaultStatus={filterEstado}
+        defaultCliente={applied.cliente}
+        defaultStatus={applied.estado}
       />
       <TemplateRecurrenceModalNative
         visible={!!templateOf}
@@ -480,17 +506,8 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
   },
   primaryBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
-  filters: { padding: 16, gap: 8, borderBottomWidth: StyleSheet.hairlineWidth },
   filterLabel: { fontSize: 12, fontWeight: "600" },
-  filterInput: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  chipsRow: { marginBottom: 6 },
+  chipsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -498,7 +515,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginRight: 8,
   },
-  clearLink: { fontSize: 13, fontWeight: "600", marginTop: 4 },
   empty: { textAlign: "center", marginTop: 32, fontSize: 15 },
   card: {
     borderWidth: 1,

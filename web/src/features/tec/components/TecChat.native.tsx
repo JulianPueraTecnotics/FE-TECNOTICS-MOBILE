@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
-import { useThemeColors } from "../../../theme/useThemeColors";
+import { TEC_COLORS } from "../tec.theme";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import TecAvatar from "../../../assets/Tec_asistente.png";
 import {
@@ -35,7 +35,7 @@ const SUGGESTIONS = [
 type Props = { onClose: () => void };
 
 export default function TecChatNative({ onClose }: Props) {
-  const colors = useThemeColors();
+  const colors = TEC_COLORS;
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<TecMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);

@@ -2,12 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { getCoa } from "../../../features/accounting/accounting.service";
@@ -15,6 +12,7 @@ import { enviarACuenta, sugerirCuentaIA, type MovimientoConc } from "../../../fe
 import { formatCOP } from "../../../features/treasury/treasury.shared";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
+import { DsField, DsSideModal } from "../../design-system-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 
 type Props = {
@@ -113,97 +111,67 @@ export default function ConciliacionCuentaModalNative({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={close}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={close} disabled={applying}>
-            <Ionicons name="close" size={24} color={colors.primaryText} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>Enviar a cuenta</Text>
-          <View style={{ width: 24 }} />
-        </View>
+    <DsSideModal
+      visible={visible}
+      onClose={close}
+      title="Enviar a cuenta"
+      icon="swap-horizontal-outline"
+      closeDisabled={applying}
+      submitting={applying}
+      submitLabel="Aplicar"
+      onSubmit={() => void aplicar()}
+    >
+      <Text style={{ color: colors.textMuted, marginBottom: 12 }}>
+        {movimientos.length} movimiento(s) · Total {formatCOP(suma)}
+      </Text>
 
-        <ScrollView contentContainerStyle={styles.body}>
-          <Text style={{ color: colors.textMuted, marginBottom: 12 }}>
-            {movimientos.length} movimiento(s) · Total {formatCOP(suma)}
-          </Text>
+      <Pressable
+        style={[styles.iaBtn, { borderColor: colors.headerAccent }]}
+        onPress={() => void sugerirIA()}
+        disabled={iaSugiriendo}
+      >
+        {iaSugiriendo ? (
+          <ActivityIndicator color={colors.headerAccent} />
+        ) : (
+          <>
+            <Ionicons name="sparkles-outline" size={18} color={colors.headerAccent} />
+            <Text style={{ color: colors.headerAccent, fontWeight: "600" }}>Sugerir cuenta (IA)</Text>
+          </>
+        )}
+      </Pressable>
 
-          <Pressable
-            style={[styles.iaBtn, { borderColor: colors.headerAccent }]}
-            onPress={() => void sugerirIA()}
-            disabled={iaSugiriendo}
-          >
-            {iaSugiriendo ? (
-              <ActivityIndicator color={colors.headerAccent} />
-            ) : (
-              <>
-                <Ionicons name="sparkles-outline" size={18} color={colors.headerAccent} />
-                <Text style={{ color: colors.headerAccent, fontWeight: "600" }}>Sugerir cuenta (IA)</Text>
-              </>
-            )}
-          </Pressable>
+      <DsField
+        label="Código o nombre PUC"
+        icon="calculator-outline"
+        value={cuentaSearch}
+        onChangeText={(t) => {
+          setCuentaSearch(t);
+          void buscarCuentas(t);
+        }}
+        placeholder="Ej. 510505"
+      />
 
-          <Text style={[styles.label, { color: colors.textMuted }]}>Código o nombre PUC</Text>
-          <TextInput
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-            value={cuentaSearch}
-            onChangeText={(t) => {
-              setCuentaSearch(t);
-              void buscarCuentas(t);
-            }}
-            placeholder="Ej. 510505"
-            placeholderTextColor={colors.textMuted}
-          />
-
-          {cuentaResultados.map((c) => (
-            <Pressable
-              key={c.codigo}
-              onPress={() => setCuentaSel(c)}
-              style={[
-                styles.cuentaRow,
-                {
-                  borderColor: cuentaSel?.codigo === c.codigo ? colors.headerAccent : colors.border,
-                  backgroundColor: cuentaSel?.codigo === c.codigo ? `${colors.headerAccent}12` : colors.cardBg,
-                },
-              ]}
-            >
-              <Text style={{ color: colors.primaryText, fontWeight: "600" }}>{c.codigo}</Text>
-              <Text style={{ color: colors.textMuted, fontSize: 13 }}>{c.nombre}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
-        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.cardBg }]}>
-          <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={close} disabled={applying}>
-            <Text style={{ color: colors.primaryText }}>Cancelar</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, opacity: applying ? 0.6 : 1 }]}
-            onPress={() => void aplicar()}
-            disabled={applying}
-          >
-            {applying ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>Aplicar</Text>}
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+      {cuentaResultados.map((c) => (
+        <Pressable
+          key={c.codigo}
+          onPress={() => setCuentaSel(c)}
+          style={[
+            styles.cuentaRow,
+            {
+              borderColor: cuentaSel?.codigo === c.codigo ? colors.headerAccent : colors.border,
+              backgroundColor: cuentaSel?.codigo === c.codigo ? `${colors.headerAccent}12` : colors.cardBg,
+            },
+          ]}
+        >
+          <Text style={{ color: colors.primaryText, fontWeight: "600" }}>{c.codigo}</Text>
+          <Text style={{ color: colors.textMuted, fontSize: 13 }}>{c.nombre}</Text>
+        </Pressable>
+      ))}
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center" },
-  body: { padding: 16 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6, marginTop: 8 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
   iaBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -215,21 +183,4 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cuentaRow: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, padding: 12, marginTop: 8, gap: 2 },
-  footer: { flexDirection: "row", gap: 10, padding: 16, borderTopWidth: StyleSheet.hairlineWidth },
-  btnGhost: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: SHELL_RADIUS.button,
-    borderWidth: 1,
-  },
-  btnPrimary: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: SHELL_RADIUS.button,
-  },
-  btnPrimaryText: { color: "#fff", fontWeight: "700" },
 });

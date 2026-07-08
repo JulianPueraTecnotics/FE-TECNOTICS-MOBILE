@@ -4,4 +4,7 @@ export { default as DsButton } from "./DsButton.native";
 export { default as DsListPageShell } from "./DsListPageShell.native";
 export { default as DsModuleScreen } from "./DsModuleScreen.native";
 export { default as DsSearchField } from "./DsSearchField.native";
+export { default as DsSideModal } from "./DsSideModal.native";
+export { default as DsField } from "./DsField.native";
+export { default as DsFilterModal } from "./DsFilterModal.native";
 export { DS_TYPO, DS_HEADER_ACCENT_HEIGHT } from "./tokens.native";

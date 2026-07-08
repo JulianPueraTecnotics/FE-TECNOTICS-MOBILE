@@ -136,23 +136,19 @@ export interface CompanyProfileResponse {
     companyDocuments: CompanyDocuments | null;
 }
 
-export const getProfileService = async () => {
-    try {
-        const response = await fetch(API_ROUTES.GET_PROFILE, {
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+export const getProfileService = async (): Promise<CompanyProfileResponse> => {
+    const response = await fetch(API_ROUTES.GET_PROFILE, {
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.message);
-        }
-
-        return data;
-    } catch (error) {
-        return error;
+    if (!response.ok) {
+        throw new Error(data?.message || "Error al cargar el perfil");
     }
+
+    return data as CompanyProfileResponse;
 };

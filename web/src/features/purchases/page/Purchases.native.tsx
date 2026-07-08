@@ -21,7 +21,7 @@ import { formatDateCO } from "../../../utils/format";
 import { useRealtime } from "../../../hooks/useRealtime";
 import { RealtimeEvents } from "../../../services/socket";
 import { deletePurchase, getPurchases, setPurchaseKind, uploadPurchasePdf } from "../purchases.service";
-import { openPurchasePdfNative } from "../purchases.service.native";
+import { openPurchasePdfNative } from "../purchasePdf.native";
 import { DOC_LABELS, formatPurchaseTotal, purchaseKindMeta } from "../purchases.shared";
 import type { Purchase, PurchaseKind } from "../purchases.types";
 

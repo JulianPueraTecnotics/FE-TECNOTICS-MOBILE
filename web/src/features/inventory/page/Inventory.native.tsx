@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSearchParams } from "react-router-dom";
 import { DsModuleScreen } from "../../../components/design-system-native";
@@ -42,6 +42,14 @@ export default function InventoryNative() {
     isInventorySection(initial) ? initial : "existencias",
   );
 
+  // Sincroniza la pestaña activa cuando se navega desde el menú lateral (cambia ?sec=).
+  useEffect(() => {
+    const sec = searchParams.get("sec");
+    if (isInventorySection(sec)) {
+      setSection((prev) => (prev === sec ? prev : sec));
+    }
+  }, [searchParams]);
+
   const pickSection = (key: InventorySection) => {
     setSection(key);
     setSearchParams((prev) => {
@@ -62,7 +70,7 @@ export default function InventoryNative() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={{ maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }}
+        style={{ flexGrow: 0, height: 52, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }}
         contentContainerStyle={styles.tabs}
       >
         {INVENTORY_NAV.map((tab) => (
@@ -91,6 +99,6 @@ export default function InventoryNative() {
 }
 
 const styles = StyleSheet.create({
-  tabs: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+  tabs: { paddingHorizontal: 12, paddingVertical: 8, gap: 8, alignItems: "center" },
   tab: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, marginRight: 8 },
 });

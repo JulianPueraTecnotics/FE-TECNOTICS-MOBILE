@@ -60,7 +60,7 @@ const MobileShell: React.FC = () => {
       <>
         <MobileAuthenticatedHeader onOpenMenu={() => setDrawerOpen(true)} />
         <MobilePrivateDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
-        <MobileBottomNav onOpenMenu={() => setDrawerOpen(true)} />
+        <MobileBottomNav />
       </>
     );
   }

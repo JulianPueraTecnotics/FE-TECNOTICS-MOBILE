@@ -8,10 +8,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useNavigate } from "react-router-dom";
+import { PortalPasswordField, PortalTextField } from "../../../components/shared/PortalField.native";
 import appLogo from "../../../assets/app-logo";
 import { APP_BRAND_NAME } from "../../../utils/global";
 import { AuthContext, type AuthUser } from "../../../store/auth.context";
@@ -33,6 +33,7 @@ export default function ContadorLoginNative() {
   const [phase, setPhase] = useState<Phase>("credentials");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,7 @@ export default function ContadorLoginNative() {
     }
     setLoading(true);
     try {
+      console.log("[ContadorLogin] turnstileToken en estado antes de enviar:", turnstileToken);
       const data = await contadorSignIn(email.trim(), password, turnstileToken);
       setContadorId(data.contador_id);
       if (data.need_twofa) {
@@ -110,10 +112,9 @@ export default function ContadorLoginNative() {
 
         {phase === "twofa" ? (
           <>
-            <TextInput
-              style={[styles.input, { borderColor: colors.border, color: colors.primary }]}
+            <PortalTextField
+              icon="keypad-outline"
               placeholder="Código 2FA"
-              placeholderTextColor={colors.textMuted}
               value={code}
               onChangeText={setCode}
               keyboardType="number-pad"
@@ -156,24 +157,33 @@ export default function ContadorLoginNative() {
               Ingresa y elige la empresa a administrar.
             </Text>
 
-            <TextInput
-              style={[styles.input, { borderColor: colors.border, color: colors.primary }]}
+            <PortalTextField
+              icon="mail-outline"
               placeholder="Correo"
-              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
+              keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
             />
-            <TextInput
-              style={[styles.input, { borderColor: colors.border, color: colors.primary }]}
+            <PortalPasswordField
+              icon="lock-closed-outline"
               placeholder="Contraseña"
-              placeholderTextColor={colors.textMuted}
-              secureTextEntry
               value={password}
               onChangeText={setPassword}
+              showPassword={showPassword}
+              onTogglePassword={() => setShowPassword((s) => !s)}
             />
             <View style={styles.turnstileWrap} collapsable={false}>
-              <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken("")} />
+              <Turnstile
+                onVerify={(token) => {
+                  console.log("[ContadorLogin] captcha onVerify token:", token);
+                  setTurnstileToken(token);
+                }}
+                onExpire={() => {
+                  console.log("[ContadorLogin] captcha onExpire: token limpiado");
+                  setTurnstileToken("");
+                }}
+              />
             </View>
             <Pressable
               onPress={onCredentials}
@@ -205,14 +215,6 @@ const styles = StyleSheet.create({
   brand: { fontSize: 17, fontWeight: "700", marginBottom: 4, textAlign: "center" },
   title: { fontSize: 20, fontWeight: "700", marginBottom: 8, textAlign: "center" },
   subtitle: { fontSize: 14, marginBottom: 16, textAlign: "center" },
-  input: {
-    borderWidth: 1,
-    borderRadius: SHELL_RADIUS.menuItem,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 12,
-    fontSize: 16,
-  },
   turnstileWrap: { width: "100%", minHeight: 140, marginBottom: 8 },
   btn: { paddingVertical: 14, borderRadius: SHELL_RADIUS.button, alignItems: "center", marginTop: 4 },
   btnText: { color: "#fff", fontWeight: "700" },

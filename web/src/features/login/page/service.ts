@@ -51,16 +51,28 @@ export type VerifiedSessionPayload =
       };
 
 export const loginService = async ({ email, password, turnstileToken }: { email: string; password: string; turnstileToken?: string }): Promise<{ message: string; data: CompanyLoginData }> => {
+    const requestBody = { email, password, turnstileToken };
+    console.log("[login] URL:", API_ROUTES.LOGIN);
+    console.log("[login] body enviado:", {
+        email,
+        password: password ? "***" : "",
+        turnstileToken,
+        turnstileTokenLength: turnstileToken?.length ?? 0,
+        hasTurnstileToken: Boolean(turnstileToken),
+    });
+
     const response = await fetch(API_ROUTES.LOGIN, {
         method: "POST",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, turnstileToken }),
+        body: JSON.stringify(requestBody),
     });
 
     const payload = await response.json();
+    console.log("[login] status respuesta:", response.status, response.ok);
+    console.log("[login] payload respuesta:", payload);
 
     if (!response.ok) {
         throw new Error(payload.message ?? "Error al iniciar sesión");

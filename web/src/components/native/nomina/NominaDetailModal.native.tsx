@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { LedgerPrimaryBtn } from "../ledger/LedgerUi.native";
+import { ActivityIndicator, Text, View } from "react-native";
+import { DsSideModal } from "../../design-system-native";
 import { formatCOP, statusLabel } from "../../../features/nomina/nomina.shared";
 import { getNominaById, resyncNominaStatus, type Nomina } from "../../../services/nomina.service";
 import { errorToast, successToast } from "../../shared/toast/toasts";
@@ -52,37 +52,36 @@ export default function NominaDetailModalNative({ visible, nominaId, onClose }: 
   const status = nomina?.systemInfo?.nominaStatus || "PENDING";
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.head, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.primary }]}>Detalle nómina</Text>
-          <Pressable onPress={onClose}>
-            <Text style={{ color: colors.accent, fontWeight: "600" }}>Cerrar</Text>
-          </Pressable>
-        </View>
-        {loading ? (
-          <ActivityIndicator style={{ marginTop: 40 }} />
-        ) : !nomina ? null : (
-          <ScrollView contentContainerStyle={styles.body}>
-            <Text style={{ color: colors.primaryText, fontWeight: "700", fontSize: 16 }}>
-              {ne?.NumeroSecuenciaXML?.Numero || "—"}
-            </Text>
-            <Text style={{ color: colors.textMuted, marginBottom: 12 }}>
-              {[trab?.PrimerNombre, trab?.PrimerApellido].filter(Boolean).join(" ")} · {statusLabel[status] || status}
-            </Text>
-            <Row label="Devengados" value={formatCOP(Number(ne?.DevengadosTotal || 0))} colors={colors} />
-            <Row label="Deducciones" value={formatCOP(Number(ne?.DeduccionesTotal || 0))} colors={colors} />
-            <Row label="Neto" value={formatCOP(Number(ne?.ComprobanteTotal || 0))} colors={colors} bold />
-            {nomina.systemInfo.cune ? (
-              <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 8 }}>CUNE: {nomina.systemInfo.cune}</Text>
-            ) : null}
-            <View style={{ marginTop: 16 }}>
-              <LedgerPrimaryBtn label="Actualizar estado DIAN" variant="secondary" onPress={resync} loading={syncing} />
-            </View>
-          </ScrollView>
-        )}
-      </View>
-    </Modal>
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title="Detalle nómina"
+      icon="document-text-outline"
+      cancelLabel="Cerrar"
+      submitLabel="Actualizar estado DIAN"
+      submitting={syncing}
+      submitDisabled={loading || !nomina}
+      onSubmit={() => void resync()}
+    >
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: 40 }} />
+      ) : !nomina ? null : (
+        <>
+          <Text style={{ color: colors.primaryText, fontWeight: "700", fontSize: 16 }}>
+            {ne?.NumeroSecuenciaXML?.Numero || "—"}
+          </Text>
+          <Text style={{ color: colors.textMuted, marginBottom: 12 }}>
+            {[trab?.PrimerNombre, trab?.PrimerApellido].filter(Boolean).join(" ")} · {statusLabel[status] || status}
+          </Text>
+          <Row label="Devengados" value={formatCOP(Number(ne?.DevengadosTotal || 0))} colors={colors} />
+          <Row label="Deducciones" value={formatCOP(Number(ne?.DeduccionesTotal || 0))} colors={colors} />
+          <Row label="Neto" value={formatCOP(Number(ne?.ComprobanteTotal || 0))} colors={colors} bold />
+          {nomina.systemInfo.cune ? (
+            <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 8 }}>CUNE: {nomina.systemInfo.cune}</Text>
+          ) : null}
+        </>
+      )}
+    </DsSideModal>
   );
 }
 
@@ -94,10 +93,3 @@ function Row({ label, value, bold, colors }: { label: string; value: string; bol
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { flex: 1, paddingTop: 48 },
-  head: { flexDirection: "row", justifyContent: "space-between", padding: 16, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 18, fontWeight: "700" },
-  body: { padding: 16, paddingBottom: 40 },
-});

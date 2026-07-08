@@ -7,9 +7,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import { DsSearchField } from "../../../components/design-system-native";
 import LoadingScreen from "../../../router/LoadingScreen";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -74,12 +74,10 @@ export default function ExistenciasNative() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} tintColor={colors.headerAccent} />}
       contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom + 16 }}
     >
-      <TextInput
+      <DsSearchField
         value={search}
         onChangeText={setSearch}
         placeholder="Buscar ítem, código o bodega…"
-        placeholderTextColor={colors.textMuted}
-        style={[styles.search, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
       />
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginVertical: 12 }}>
@@ -138,7 +136,6 @@ export default function ExistenciasNative() {
 }
 
 const styles = StyleSheet.create({
-  search: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15 },
   chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.menuItem, padding: 14, marginBottom: 10 },
   name: { fontSize: 15, fontWeight: "700", marginBottom: 4 },

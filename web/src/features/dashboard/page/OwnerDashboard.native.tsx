@@ -116,7 +116,7 @@ export default function OwnerDashboardNative() {
 
   const plUlt = pl.slice(-6);
   const plChartGroups = plUlt.map((p) => ({
-    label: periodoLabel(p.year, p.month),
+    label: periodoLabel(p.periodo),
     series: [
       { label: "Ingresos", value: p.ingresos, color: TEAL },
       { label: "Costos+Gastos", value: p.costo + p.gastoOperativo, color: "#ef4444" },

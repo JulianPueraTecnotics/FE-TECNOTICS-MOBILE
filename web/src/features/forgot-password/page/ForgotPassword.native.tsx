@@ -7,11 +7,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useNavigate } from "react-router-dom";
 import PortalOtpInput from "../../../components/shared/PortalOtpInput.native";
+import { PortalPasswordField, PortalTextField } from "../../../components/shared/PortalField.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { PATHS } from "../../../router/paths.contants";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -32,6 +32,8 @@ export default function ForgotPasswordNative() {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [sending, setSending] = useState(false);
   const [resetting, setResetting] = useState(false);
 
@@ -131,12 +133,9 @@ export default function ForgotPasswordNative() {
 
           {step === 1 ? (
             <>
-              <Text style={[styles.label, { color: colors.textMuted }]}>Correo electrónico</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText },
-                ]}
+              <PortalTextField
+                label="Correo electrónico"
+                icon="mail-outline"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -176,25 +175,21 @@ export default function ForgotPasswordNative() {
 
           {step === 3 ? (
             <>
-              <Text style={[styles.label, { color: colors.textMuted }]}>Nueva contraseña</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText },
-                ]}
+              <PortalPasswordField
+                label="Nueva contraseña"
+                icon="lock-closed-outline"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                showPassword={showPassword}
+                onTogglePassword={() => setShowPassword((s) => !s)}
               />
-              <Text style={[styles.label, { color: colors.textMuted }]}>Confirmar contraseña</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText },
-                ]}
+              <PortalPasswordField
+                label="Confirmar contraseña"
+                icon="lock-closed-outline"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                secureTextEntry
+                showPassword={showConfirm}
+                onTogglePassword={() => setShowConfirm((s) => !s)}
               />
               <Pressable onPress={() => setStep(2)}>
                 <Text style={[styles.link, { color: colors.accent }]}>Volver al código</Text>
@@ -247,13 +242,6 @@ const styles = StyleSheet.create({
   },
   stepNum: { fontWeight: "700", fontSize: 14 },
   label: { fontSize: 13, fontWeight: "600" },
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-  },
   btn: {
     borderRadius: SHELL_RADIUS.button,
     paddingVertical: 14,

@@ -1,10 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,7 +11,7 @@ import {
 import { createBatchPayment } from "../../../services/recaudos.service";
 import { errorToast, successToast } from "../../shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { SHELL_RADIUS } from "../../mobile/shellStyles.native";
+import { DsField, DsSideModal } from "../../design-system-native";
 import { AuthContext } from "../../../store/auth.context";
 import { formatCOP } from "../../../utils/format";
 import {
@@ -161,177 +156,137 @@ export default function BatchPaymentModalNative({ visible, invoices, onClose, on
   const clientName = rows[0]?.invoice.client_name;
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: colors.pageBg }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={onClose} disabled={loading}>
-            <Ionicons name="close" size={24} color={colors.primaryText} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>
-            Recaudar {rows.length} facturas
-          </Text>
-          <View style={{ width: 24 }} />
-        </View>
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title={`Recaudar ${rows.length} facturas`}
+      icon="cash-outline"
+      closeDisabled={loading}
+      submitting={loading}
+      submitLabel={`Registrar (${formatCOP(totals.aplicado)})`}
+      onSubmit={() => void handleSubmit()}
+    >
+      {clientName ? (
+        <Text style={[styles.clientLine, { color: colors.primaryText }]}>
+          Cliente: <Text style={{ fontWeight: "700" }}>{clientName}</Text>
+        </Text>
+      ) : null}
 
-        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          {clientName ? (
-            <Text style={[styles.clientLine, { color: colors.primaryText }]}>
-              Cliente: <Text style={{ fontWeight: "700" }}>{clientName}</Text>
-            </Text>
-          ) : null}
-
-          <Text style={[styles.label, { color: colors.textMuted }]}>Retención</Text>
-          <View style={styles.retModeRow}>
-            {(
-              [
-                ["individual", "Individual"],
-                ["general", "General"],
-                ["ninguna", "Sin retención"],
-              ] as const
-            ).map(([mode, label]) => (
-              <Pressable
-                key={mode}
-                style={[styles.chip, retMode === mode ? { backgroundColor: colors.accent } : { borderColor: colors.border }]}
-                onPress={() => setRetMode(mode)}
-              >
-                <Text style={{ color: retMode === mode ? "#fff" : colors.primaryText, fontSize: 11 }}>{label}</Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {usaTotalGlobal ? (
-            <>
-              <Text style={[styles.label, { color: colors.textMuted }]}>
-                Valor total pagado · saldo {formatCOP(saldoTotal)}
-              </Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: colors.cardBg, borderColor: colors.border, color: colors.primaryText }]}
-                value={String(totalPagadoGlobal)}
-                onChangeText={(v) => onChangeTotalGlobal(parseFloat(v) || 0)}
-                keyboardType="decimal-pad"
-                editable={!loading}
-              />
-              <Pressable onPress={() => onChangeTotalGlobal(saldoTotal)} disabled={loading}>
-                <Text style={[styles.link, { color: colors.accent }]}>Pagó el total ({formatCOP(saldoTotal)})</Text>
-              </Pressable>
-            </>
-          ) : null}
-
-          {rows.map((r, idx) => {
-            const c = calcRow(r);
-            return (
-              <View key={r.invoice._id} style={[styles.rowCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
-                <Text style={[styles.rowTitle, { color: colors.primary }]}>{r.invoice.number}</Text>
-                <Text style={[styles.rowMeta, { color: colors.textMuted }]}>Saldo {formatCOP(r.invoice.balance)}</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                  value={String(r.amount)}
-                  onChangeText={(v) => updateRow(idx, { amount: parseFloat(v) || 0 })}
-                  keyboardType="decimal-pad"
-                  placeholder="Valor pagado"
-                  placeholderTextColor={colors.textMuted}
-                  editable={!loading}
-                />
-                {retMode === "individual" ? (
-                  <View style={styles.switchRow}>
-                    <Text style={{ color: colors.primaryText, fontSize: 13 }}>Aplicó retención</Text>
-                    <Switch
-                      value={r.conRetencion}
-                      onValueChange={(v) => updateRow(idx, { conRetencion: v })}
-                      trackColor={{ true: colors.accent }}
-                    />
-                  </View>
-                ) : null}
-                {c.retencion > 0 ? (
-                  <Text style={[styles.retText, { color: "#b45309" }]}>Retención: {formatCOP(c.retencion)}</Text>
-                ) : null}
-              </View>
-            );
-          })}
-
-          <Text style={[styles.label, { color: colors.textMuted }]}>Medio de pago</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {METHODS.map(([value, label]) => (
-              <Pressable
-                key={value}
-                style={[styles.chip, method === value ? { backgroundColor: colors.accent } : { borderColor: colors.border }]}
-                onPress={() => setMethod(value)}
-              >
-                <Text style={{ color: method === value ? "#fff" : colors.primaryText, fontSize: 12 }}>{label}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          <Text style={[styles.label, { color: colors.textMuted }]}>Fecha de pago</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.cardBg, borderColor: colors.border, color: colors.primaryText }]}
-            value={paidAt}
-            onChangeText={setPaidAt}
-            editable={!loading}
-          />
-
-          <Text style={[styles.label, { color: colors.textMuted }]}>Referencia</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.cardBg, borderColor: colors.border, color: colors.primaryText }]}
-            value={reference}
-            onChangeText={setReference}
-            editable={!loading}
-          />
-
-          <View style={[styles.totals, { backgroundColor: colors.bgSubtle }]}>
-            <Text style={{ color: colors.textMuted }}>Efectivo: {formatCOP(totals.efectivo)}</Text>
-            {totals.retencion > 0 ? (
-              <Text style={{ color: "#b45309" }}>Retención: {formatCOP(totals.retencion)}</Text>
-            ) : null}
-            <Text style={{ color: colors.primary, fontWeight: "700" }}>Total aplicado: {formatCOP(totals.aplicado)}</Text>
-          </View>
-
-          <View style={styles.switchRow}>
-            <Text style={{ color: colors.primaryText, flex: 1 }}>Enviar comprobante al cliente</Text>
-            <Switch value={sendReceipt} onValueChange={setSendReceipt} trackColor={{ true: colors.accent }} />
-          </View>
-        </ScrollView>
-
-        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.cardBg }]}>
-          <Pressable style={[styles.btnSecondary, { borderColor: colors.border }]} onPress={onClose} disabled={loading}>
-            <Text style={{ color: colors.primaryText }}>Cancelar</Text>
-          </Pressable>
+      <Text style={[styles.label, { color: colors.primaryText }]}>Retención</Text>
+      <View style={styles.retModeRow}>
+        {(
+          [
+            ["individual", "Individual"],
+            ["general", "General"],
+            ["ninguna", "Sin retención"],
+          ] as const
+        ).map(([mode, label]) => (
           <Pressable
-            style={[styles.btnPrimary, { backgroundColor: colors.accent, opacity: loading ? 0.7 : 1 }]}
-            onPress={() => void handleSubmit()}
-            disabled={loading}
+            key={mode}
+            style={[styles.chip, retMode === mode ? { backgroundColor: colors.accent, borderColor: colors.accent } : { borderColor: colors.border }]}
+            onPress={() => setRetMode(mode)}
           >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.btnPrimaryText}>Registrar ({formatCOP(totals.aplicado)})</Text>
-            )}
+            <Text style={{ color: retMode === mode ? "#fff" : colors.primaryText, fontSize: 11 }}>{label}</Text>
           </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+        ))}
+      </View>
+
+      {usaTotalGlobal ? (
+        <>
+          <DsField
+            label={`Valor total pagado · saldo ${formatCOP(saldoTotal)}`}
+            icon="cash-outline"
+            value={String(totalPagadoGlobal)}
+            onChangeText={(v) => onChangeTotalGlobal(parseFloat(v) || 0)}
+            keyboardType="decimal-pad"
+            editable={!loading}
+          />
+          <Pressable onPress={() => onChangeTotalGlobal(saldoTotal)} disabled={loading}>
+            <Text style={[styles.link, { color: colors.accent }]}>Pagó el total ({formatCOP(saldoTotal)})</Text>
+          </Pressable>
+        </>
+      ) : null}
+
+      {rows.map((r, idx) => {
+        const c = calcRow(r);
+        return (
+          <View key={r.invoice._id} style={[styles.rowCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
+            <Text style={[styles.rowTitle, { color: colors.primary }]}>{r.invoice.number}</Text>
+            <Text style={[styles.rowMeta, { color: colors.textMuted }]}>Saldo {formatCOP(r.invoice.balance)}</Text>
+            <DsField
+              icon="cash-outline"
+              value={String(r.amount)}
+              onChangeText={(v) => updateRow(idx, { amount: parseFloat(v) || 0 })}
+              keyboardType="decimal-pad"
+              placeholder="Valor pagado"
+              editable={!loading}
+            />
+            {retMode === "individual" ? (
+              <View style={styles.switchRow}>
+                <Text style={{ color: colors.primaryText, fontSize: 13 }}>Aplicó retención</Text>
+                <Switch
+                  value={r.conRetencion}
+                  onValueChange={(v) => updateRow(idx, { conRetencion: v })}
+                  trackColor={{ true: colors.accent }}
+                />
+              </View>
+            ) : null}
+            {c.retencion > 0 ? (
+              <Text style={[styles.retText, { color: "#b45309" }]}>Retención: {formatCOP(c.retencion)}</Text>
+            ) : null}
+          </View>
+        );
+      })}
+
+      <Text style={[styles.label, { color: colors.primaryText }]}>Medio de pago</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {METHODS.map(([value, label]) => (
+          <Pressable
+            key={value}
+            style={[styles.chip, method === value ? { backgroundColor: colors.accent, borderColor: colors.accent } : { borderColor: colors.border }]}
+            onPress={() => setMethod(value)}
+          >
+            <Text style={{ color: method === value ? "#fff" : colors.primaryText, fontSize: 12 }}>{label}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      <DsField
+        label="Fecha de pago"
+        icon="calendar-outline"
+        value={paidAt}
+        onChangeText={setPaidAt}
+        editable={!loading}
+      />
+      <DsField
+        label="Referencia"
+        icon="reader-outline"
+        value={reference}
+        onChangeText={setReference}
+        editable={!loading}
+      />
+
+      <View style={[styles.totals, { backgroundColor: colors.cardBg }]}>
+        <Text style={{ color: colors.textMuted }}>Efectivo: {formatCOP(totals.efectivo)}</Text>
+        {totals.retencion > 0 ? (
+          <Text style={{ color: "#b45309" }}>Retención: {formatCOP(totals.retencion)}</Text>
+        ) : null}
+        <Text style={{ color: colors.primary, fontWeight: "700" }}>Total aplicado: {formatCOP(totals.aplicado)}</Text>
+      </View>
+
+      <View style={styles.switchRow}>
+        <Text style={{ color: colors.primaryText, flex: 1 }}>Enviar comprobante al cliente</Text>
+        <Switch value={sendReceipt} onValueChange={setSendReceipt} trackColor={{ true: colors.accent }} />
+      </View>
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center" },
-  body: { padding: 16, gap: 8, paddingBottom: 24 },
   clientLine: { fontSize: 14, marginBottom: 4 },
-  label: { fontSize: 12, fontWeight: "600", marginTop: 4 },
+  label: { fontSize: 13, fontWeight: "600", marginTop: 4 },
   retModeRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, marginRight: 4 },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
   link: { fontSize: 13, fontWeight: "600" },
   rowCard: { borderWidth: 1, borderRadius: 10, padding: 12, gap: 6, marginTop: 4 },
   rowTitle: { fontSize: 15, fontWeight: "700" },
@@ -339,8 +294,4 @@ const styles = StyleSheet.create({
   switchRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   retText: { fontSize: 12, fontWeight: "600" },
   totals: { borderRadius: 10, padding: 12, gap: 4, marginVertical: 8 },
-  footer: { flexDirection: "row", gap: 10, padding: 16, borderTopWidth: StyleSheet.hairlineWidth },
-  btnSecondary: { flex: 1, paddingVertical: 12, borderRadius: SHELL_RADIUS.button, borderWidth: 1, alignItems: "center" },
-  btnPrimary: { flex: 2, paddingVertical: 12, borderRadius: SHELL_RADIUS.button, alignItems: "center" },
-  btnPrimaryText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 });

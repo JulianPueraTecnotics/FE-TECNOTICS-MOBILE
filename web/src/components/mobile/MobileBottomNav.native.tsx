@@ -1,16 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useContext } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../store/auth.context";
 import { PATHS } from "../../router/paths.contants";
 import { useThemeColors } from "../../theme/useThemeColors";
+import TecAvatar from "../../assets/Tec_asistente.png";
+import { openTec } from "../../features/tec/tec-open-store";
 import { BOTTOM_NAV_HEIGHT } from "./nativeShell.constants";
-
-type Props = {
-  onOpenMenu: () => void;
-};
+import { getSoftCardShadow } from "./shellStyles.native";
 
 const VENTAS_PREFIXES = [
   PATHS.DOCUMENTS,
@@ -66,7 +65,28 @@ function BottomTab({ label, icon, active, onPress }: TabProps) {
   );
 }
 
-export default function MobileBottomNav({ onOpenMenu }: Props) {
+function TecCenterButton() {
+  const colors = useThemeColors();
+  return (
+    <View style={styles.centerSlot}>
+      <Pressable
+        onPress={openTec}
+        accessibilityRole="button"
+        accessibilityLabel="Abrir asistente TEC"
+        style={[
+          styles.tecBtn,
+          getSoftCardShadow(colors),
+          { backgroundColor: "#fff", borderColor: colors.headerAccent },
+        ]}
+      >
+        <Image source={TecAvatar} style={styles.tecAvatar} />
+      </Pressable>
+      <Text style={[styles.tecLabel, { color: colors.textMuted }]}>TEC</Text>
+    </View>
+  );
+}
+
+export default function MobileBottomNav() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const navigate = useNavigate();
@@ -106,7 +126,6 @@ export default function MobileBottomNav({ onOpenMenu }: Props) {
           active={pathname === PATHS.ADMIN_ADMINS}
           onPress={() => navigate(PATHS.ADMIN_ADMINS)}
         />
-        <BottomTab label="Menú" icon="menu-outline" active={false} onPress={onOpenMenu} />
       </View>
     );
   }
@@ -141,6 +160,7 @@ export default function MobileBottomNav({ onOpenMenu }: Props) {
         active={ventasActive}
         onPress={() => navigate(PATHS.DOCUMENTS)}
       />
+      <TecCenterButton />
       <BottomTab
         label="Compras"
         icon="bag-outline"
@@ -153,7 +173,6 @@ export default function MobileBottomNav({ onOpenMenu }: Props) {
         active={contabActive}
         onPress={() => navigate(PATHS.ACCOUNTING)}
       />
-      <BottomTab label="Más" icon="menu-outline" active={false} onPress={onOpenMenu} />
     </View>
   );
 }
@@ -188,4 +207,16 @@ const styles = StyleSheet.create({
   },
   tabLabel: { fontSize: 10, fontWeight: "500" },
   tabLabelActive: { fontWeight: "700" },
+  centerSlot: { flex: 1, alignItems: "center", justifyContent: "flex-start" },
+  tecBtn: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 3,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -28,
+  },
+  tecAvatar: { width: 48, height: 48, borderRadius: 24 },
+  tecLabel: { fontSize: 10, fontWeight: "700", marginTop: 2 },
 });

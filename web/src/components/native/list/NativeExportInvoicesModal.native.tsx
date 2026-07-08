@@ -1,19 +1,15 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { errorToast, successToast } from "../../shared/toast/toasts";
 import { exportInvoicesExcel } from "../../../services/invoices.service";
 import { downloadBlobFile } from "../../../utils/downloadBlob";
 import { useThemeColors } from "../../../theme/useThemeColors";
+import { DsField, DsSideModal } from "../../design-system-native";
 import { SHELL_RADIUS } from "../../mobile/shellStyles.native";
 
 type Props = {
@@ -74,151 +70,97 @@ export default function NativeExportInvoicesModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title="Exportar Facturas a Excel"
+      icon="document-outline"
+      closeDisabled={exporting}
+      submitting={exporting}
+      submitLabel="Descargar Excel"
+      onSubmit={() => void handleExport()}
+    >
+      <View style={styles.modeRow}>
         <Pressable
-          style={[styles.modal, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-          onPress={(e) => e.stopPropagation()}
+          style={[
+            styles.modeBtn,
+            mode === "range"
+              ? { backgroundColor: colors.accent, borderColor: colors.accent }
+              : { borderColor: colors.border },
+          ]}
+          onPress={() => setMode("range")}
         >
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.primary }]}>Exportar Facturas a Excel</Text>
-            <Pressable onPress={onClose} disabled={exporting}>
-              <Ionicons name="close" size={24} color={colors.textMuted} />
-            </Pressable>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={styles.modeRow}>
-              <Pressable
-                style={[
-                  styles.modeBtn,
-                  mode === "range"
-                    ? { backgroundColor: colors.accent, borderColor: colors.accent }
-                    : { borderColor: colors.border },
-                ]}
-                onPress={() => setMode("range")}
-              >
-                <Text style={{ color: mode === "range" ? "#fff" : colors.primaryText, fontWeight: "600" }}>
-                  Rango de fechas
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.modeBtn,
-                  mode === "month"
-                    ? { backgroundColor: colors.accent, borderColor: colors.accent }
-                    : { borderColor: colors.border },
-                ]}
-                onPress={() => setMode("month")}
-              >
-                <Text style={{ color: mode === "month" ? "#fff" : colors.primaryText, fontWeight: "600" }}>
-                  Por mes
-                </Text>
-              </Pressable>
-            </View>
-
-            {mode === "range" ? (
-              <>
-                <Text style={[styles.label, { color: colors.textMuted }]}>Fecha inicio (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                  value={startDate}
-                  onChangeText={setStartDate}
-                  placeholder="2026-01-01"
-                  placeholderTextColor={colors.textMuted}
-                />
-                <Text style={[styles.label, { color: colors.textMuted }]}>Fecha final (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                  value={endDate}
-                  onChangeText={setEndDate}
-                  placeholder="2026-01-31"
-                  placeholderTextColor={colors.textMuted}
-                />
-              </>
-            ) : (
-              <>
-                <Text style={[styles.label, { color: colors.textMuted }]}>Mes (YYYY-MM)</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-                  value={month}
-                  onChangeText={setMonth}
-                  placeholder="2026-06"
-                  placeholderTextColor={colors.textMuted}
-                />
-              </>
-            )}
-
-            <Text style={[styles.label, { color: colors.textMuted }]}>Cliente (opcional)</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-              value={cliente}
-              onChangeText={setCliente}
-              placeholder="Nombre o documento"
-              placeholderTextColor={colors.textMuted}
-            />
-
-            <Text style={[styles.label, { color: colors.textMuted }]}>Estado (opcional)</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText }]}
-              value={status}
-              onChangeText={setStatus}
-              placeholder="APPROVED, REJECTED, SENT"
-              placeholderTextColor={colors.textMuted}
-              autoCapitalize="characters"
-            />
-
-            <Text style={[styles.note, { color: colors.textMuted }]}>
-              El servidor puede limitar exportaciones muy grandes para mantener el Excel manejable.
-            </Text>
-          </ScrollView>
-
-          <View style={styles.actions}>
-            <Pressable style={[styles.cancelBtn, { borderColor: colors.border }]} onPress={onClose} disabled={exporting}>
-              <Text style={{ color: colors.primaryText, fontWeight: "600" }}>Cancelar</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.exportBtn, { backgroundColor: colors.accent, opacity: exporting ? 0.7 : 1 }]}
-              onPress={() => void handleExport()}
-              disabled={exporting}
-            >
-              {exporting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Ionicons name="document-outline" size={18} color="#fff" />
-                  <Text style={styles.exportText}>Descargar Excel</Text>
-                </>
-              )}
-            </Pressable>
-          </View>
+          <Text style={{ color: mode === "range" ? "#fff" : colors.primaryText, fontWeight: "600" }}>
+            Rango de fechas
+          </Text>
         </Pressable>
-      </Pressable>
-    </Modal>
+        <Pressable
+          style={[
+            styles.modeBtn,
+            mode === "month"
+              ? { backgroundColor: colors.accent, borderColor: colors.accent }
+              : { borderColor: colors.border },
+          ]}
+          onPress={() => setMode("month")}
+        >
+          <Text style={{ color: mode === "month" ? "#fff" : colors.primaryText, fontWeight: "600" }}>
+            Por mes
+          </Text>
+        </Pressable>
+      </View>
+
+      {mode === "range" ? (
+        <>
+          <DsField
+            label="Fecha inicio (YYYY-MM-DD)"
+            icon="calendar-outline"
+            value={startDate}
+            onChangeText={setStartDate}
+            placeholder="2026-01-01"
+          />
+          <DsField
+            label="Fecha final (YYYY-MM-DD)"
+            icon="calendar-outline"
+            value={endDate}
+            onChangeText={setEndDate}
+            placeholder="2026-01-31"
+          />
+        </>
+      ) : (
+        <DsField
+          label="Mes (YYYY-MM)"
+          icon="calendar-outline"
+          value={month}
+          onChangeText={setMonth}
+          placeholder="2026-06"
+        />
+      )}
+
+      <DsField
+        label="Cliente (opcional)"
+        icon="person-outline"
+        value={cliente}
+        onChangeText={setCliente}
+        placeholder="Nombre o documento"
+      />
+      <DsField
+        label="Estado (opcional)"
+        icon="flag-outline"
+        value={status}
+        onChangeText={setStatus}
+        placeholder="APPROVED, REJECTED, SENT"
+        autoCapitalize="characters"
+      />
+
+      <Text style={[styles.note, { color: colors.textMuted }]}>
+        El servidor puede limitar exportaciones muy grandes para mantener el Excel manejable.
+      </Text>
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(15,23,42,0.5)",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modal: {
-    borderRadius: SHELL_RADIUS.menuItem,
-    borderWidth: 1,
-    padding: 18,
-    maxHeight: "88%",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-  title: { fontSize: 18, fontWeight: "700", flex: 1, paddingRight: 8 },
-  modeRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
+  modeRow: { flexDirection: "row", gap: 8 },
   modeBtn: {
     flex: 1,
     paddingVertical: 10,
@@ -226,32 +168,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: "center",
   },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6, marginTop: 4 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    marginBottom: 8,
-  },
   note: { fontSize: 12, lineHeight: 18, marginTop: 8, marginBottom: 4 },
-  actions: { flexDirection: "row", gap: 10, marginTop: 14 },
-  cancelBtn: {
-    flex: 1,
-    paddingVertical: 13,
-    borderRadius: SHELL_RADIUS.button,
-    borderWidth: 1,
-    alignItems: "center",
-  },
-  exportBtn: {
-    flex: 1.4,
-    flexDirection: "row",
-    gap: 6,
-    paddingVertical: 13,
-    borderRadius: SHELL_RADIUS.button,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  exportText: { color: "#fff", fontWeight: "700", fontSize: 14 },
 });

@@ -1,18 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Modal,
-  Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
+import { DsField, DsSideModal } from "../../design-system-native";
 import type { SupplierItem } from "../../../features/purchases/supplierItems.service";
 
 type Props = {
@@ -65,124 +59,42 @@ export default function ParametrizeModalNative({ visible, item, onClose, onSave 
     }
   };
 
-  const inputStyle = [styles.input, { borderColor: colors.border, backgroundColor: colors.cardBg, color: colors.primaryText }];
-
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={() => !saving && onClose()}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={onClose} disabled={saving}>
-            <Ionicons name="close" size={24} color={colors.primaryText} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>Parametrizar — {item.codigo}</Text>
-          <View style={{ width: 24 }} />
-        </View>
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title={`Parametrizar — ${item.codigo}`}
+      icon="options-outline"
+      closeDisabled={saving}
+      submitting={saving}
+      onSubmit={() => void save()}
+    >
+      <Text style={[styles.desc, { color: colors.textMuted }]}>{item.descripcion}</Text>
 
-        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <Text style={[styles.desc, { color: colors.textMuted }]}>{item.descripcion}</Text>
-
-          {item.ai_suggestion ? (
-            <View style={[styles.aiBox, { backgroundColor: colors.bgSubtle }]}>
-              <Text style={{ color: colors.primaryText, fontSize: 13 }}>
-                IA sugiere: gasto {item.ai_suggestion.cuenta_gasto_costo?.codigo ?? "—"}, CxP{" "}
-                {item.ai_suggestion.cuenta_por_pagar?.codigo ?? "—"}, retef{" "}
-                {item.ai_suggestion.retefuente_porcentaje ?? 0}%
-              </Text>
-            </View>
-          ) : null}
-
-          <Field label="Cuenta gasto/costo *" colors={colors}>
-            <TextInput style={inputStyle} value={form.gasto} onChangeText={(v) => setForm((f) => ({ ...f, gasto: v }))} placeholder="513595" placeholderTextColor={colors.textMuted} />
-          </Field>
-          <Field label="Cuenta por pagar *" colors={colors}>
-            <TextInput style={inputStyle} value={form.cxp} onChangeText={(v) => setForm((f) => ({ ...f, cxp: v }))} placeholder="220505" placeholderTextColor={colors.textMuted} />
-          </Field>
-          <Field label="Cuenta IVA" colors={colors}>
-            <TextInput style={inputStyle} value={form.iva} onChangeText={(v) => setForm((f) => ({ ...f, iva: v }))} placeholder="240810" placeholderTextColor={colors.textMuted} />
-          </Field>
-          <Field label="Cuenta retefuente" colors={colors}>
-            <TextInput style={inputStyle} value={form.retefuente_cta} onChangeText={(v) => setForm((f) => ({ ...f, retefuente_cta: v }))} placeholder="236540" placeholderTextColor={colors.textMuted} />
-          </Field>
-          <Field label="Retefuente (%)" colors={colors}>
-            <TextInput style={inputStyle} value={form.retefuente} onChangeText={(v) => setForm((f) => ({ ...f, retefuente: v }))} keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} />
-          </Field>
-          <Text style={[styles.hint, { color: colors.textMuted }]}>
-            El estado pasa a Listo cuando tiene cuenta de gasto y de por pagar.
+      {item.ai_suggestion ? (
+        <View style={[styles.aiBox, { backgroundColor: colors.cardBg }]}>
+          <Text style={{ color: colors.primaryText, fontSize: 13 }}>
+            IA sugiere: gasto {item.ai_suggestion.cuenta_gasto_costo?.codigo ?? "—"}, CxP{" "}
+            {item.ai_suggestion.cuenta_por_pagar?.codigo ?? "—"}, retef{" "}
+            {item.ai_suggestion.retefuente_porcentaje ?? 0}%
           </Text>
-        </ScrollView>
-
-        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.cardBg }]}>
-          <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={onClose} disabled={saving}>
-            <Text style={{ color: colors.primaryText }}>Cancelar</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.btnPrimary, { backgroundColor: colors.accent, opacity: saving ? 0.7 : 1 }]}
-            onPress={() => void save()}
-            disabled={saving}
-          >
-            {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>Guardar</Text>}
-          </Pressable>
         </View>
-      </View>
-    </Modal>
-  );
-}
+      ) : null}
 
-function Field({
-  label,
-  colors,
-  children,
-}: {
-  label: string;
-  colors: ReturnType<typeof useThemeColors>;
-  children: React.ReactNode;
-}) {
-  return (
-    <View style={styles.field}>
-      <Text style={[styles.label, { color: colors.primary }]}>{label}</Text>
-      {children}
-    </View>
+      <DsField label="Cuenta gasto/costo *" icon="wallet-outline" value={form.gasto} onChangeText={(v) => setForm((f) => ({ ...f, gasto: v }))} placeholder="513595" />
+      <DsField label="Cuenta por pagar *" icon="card-outline" value={form.cxp} onChangeText={(v) => setForm((f) => ({ ...f, cxp: v }))} placeholder="220505" />
+      <DsField label="Cuenta IVA" icon="calculator-outline" value={form.iva} onChangeText={(v) => setForm((f) => ({ ...f, iva: v }))} placeholder="240810" />
+      <DsField label="Cuenta retefuente" icon="cut-outline" value={form.retefuente_cta} onChangeText={(v) => setForm((f) => ({ ...f, retefuente_cta: v }))} placeholder="236540" />
+      <DsField label="Retefuente (%)" icon="pricetag-outline" value={form.retefuente} onChangeText={(v) => setForm((f) => ({ ...f, retefuente: v }))} keyboardType="decimal-pad" />
+      <Text style={[styles.hint, { color: colors.textMuted }]}>
+        El estado pasa a Listo cuando tiene cuenta de gasto y de por pagar.
+      </Text>
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center" },
-  body: { padding: 16, gap: 12, paddingBottom: 24 },
   desc: { fontSize: 14, lineHeight: 20 },
   aiBox: { borderRadius: 10, padding: 12 },
-  field: { gap: 6 },
-  label: { fontSize: 13, fontWeight: "600" },
-  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
   hint: { fontSize: 12, lineHeight: 18 },
-  footer: {
-    flexDirection: "row",
-    gap: 10,
-    padding: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  btnGhost: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: SHELL_RADIUS.button,
-    borderWidth: 1,
-  },
-  btnPrimary: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: SHELL_RADIUS.button,
-  },
-  btnPrimaryText: { color: "#fff", fontWeight: "700" },
 });

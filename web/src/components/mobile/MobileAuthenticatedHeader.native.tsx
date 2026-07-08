@@ -6,7 +6,7 @@ import AccentStrip from "./AccentStrip.native";
 import ThemeSwitch from "../shared/ThemeSwitch.native";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { AUTH_HEADER_HEIGHT } from "./nativeShell.constants";
-import { getHeaderShadow, SHELL_RADIUS } from "./shellStyles.native";
+import { getHeaderShadow } from "./shellStyles.native";
 import { resolveMobilePageTitle } from "./mobilePageTitles.native";
 
 type Props = {
@@ -36,11 +36,12 @@ export default function MobileAuthenticatedHeader({ onOpenMenu }: Props) {
         ]}
       >
         <Pressable
-          style={[styles.menuBtn, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
+          style={styles.menuBtn}
           onPress={onOpenMenu}
           accessibilityLabel="Abrir menú"
+          hitSlop={8}
         >
-          <Ionicons name="menu-outline" size={24} color={colors.primaryText} />
+          <Ionicons name="menu-outline" size={26} color={colors.primaryText} />
         </Pressable>
 
         <Text style={[styles.title, { color: colors.primary }]} numberOfLines={1}>
@@ -78,8 +79,6 @@ const styles = StyleSheet.create({
   menuBtn: {
     width: 44,
     height: 44,
-    borderRadius: SHELL_RADIUS.button,
-    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },

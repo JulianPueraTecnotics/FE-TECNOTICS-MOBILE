@@ -7,9 +7,9 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import { DsField } from "../../../components/design-system-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
@@ -183,15 +183,16 @@ export default function ProfileBillingExtrasNative({ onChanged }: { onChanged?: 
           </Text>
         ))}
         <View style={styles.emailRow}>
-          <TextInput
-            style={[styles.input, { flex: 1, borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle }]}
-            value={newEmail}
-            onChangeText={setNewEmail}
-            placeholder="Agregar correo"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <View style={{ flex: 1 }}>
+            <DsField
+              icon="mail-outline"
+              value={newEmail}
+              onChangeText={setNewEmail}
+              placeholder="Agregar correo"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
           <Pressable
             onPress={() => {
               const e = newEmail.trim().toLowerCase();
@@ -211,12 +212,11 @@ export default function ProfileBillingExtrasNative({ onChanged }: { onChanged?: 
       <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
         <Text style={[styles.cardTitle, { color: colors.primary }]}>Habilitación Simba</Text>
         <Text style={[styles.desc, { color: colors.textMuted }]}>SetTestId para FE y POS</Text>
-        <TextInput
-          style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle }]}
+        <DsField
+          icon="key-outline"
           value={simbaSetTestId}
           onChangeText={setSimbaSetTestId}
           placeholder="SetTestId"
-          placeholderTextColor={colors.textMuted}
         />
         <View style={styles.btnRow}>
           {(["fe", "pos"] as const).map((t) => (
@@ -235,19 +235,17 @@ export default function ProfileBillingExtrasNative({ onChanged }: { onChanged?: 
           ))}
         </View>
         <Text style={[styles.desc, { color: colors.textMuted, marginTop: 12 }]}>Nómina electrónica</Text>
-        <TextInput
-          style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle }]}
+        <DsField
+          icon="pricetag-outline"
           value={simbaNominaPrefijo}
           onChangeText={setSimbaNominaPrefijo}
           placeholder="Prefijo nómina"
-          placeholderTextColor={colors.textMuted}
         />
-        <TextInput
-          style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle }]}
+        <DsField
+          icon="lock-closed-outline"
           value={simbaNominaToken}
           onChangeText={setSimbaNominaToken}
           placeholder="Token Simba nómina"
-          placeholderTextColor={colors.textMuted}
           secureTextEntry
         />
         <Pressable
@@ -290,7 +288,6 @@ const styles = StyleSheet.create({
   switchRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   chip: { alignSelf: "flex-start", borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 8, marginRight: 8 },
   emailRow: { flexDirection: "row", gap: 8, alignItems: "center" },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
   iconBtn: { width: 40, height: 40, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   btnRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   actionBtn: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: SHELL_RADIUS.button, alignItems: "center", minWidth: 120 },

@@ -31,12 +31,33 @@ const post = async <T>(url: string, body: unknown): Promise<T> => {
     return (data.data ?? data) as T;
 };
 
-export const contadorSignIn = (
+export const contadorSignIn = async (
   email: string,
   password: string,
   turnstileToken: string
-): Promise<ContadorSignInData> =>
-  post(API_ROUTES.CONTADOR_SIGNIN, { email, password, turnstileToken });
+): Promise<ContadorSignInData> => {
+  console.log("[contador-login] URL:", API_ROUTES.CONTADOR_SIGNIN);
+  console.log("[contador-login] body enviado:", {
+    email,
+    password: password ? "***" : "",
+    turnstileToken,
+    turnstileTokenLength: turnstileToken?.length ?? 0,
+    hasTurnstileToken: Boolean(turnstileToken),
+  });
+
+  const res = await fetch(API_ROUTES.CONTADOR_SIGNIN, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, turnstileToken }),
+  });
+  const data = await res.json();
+  console.log("[contador-login] status respuesta:", res.status, res.ok);
+  console.log("[contador-login] payload respuesta:", data);
+
+  if (!res.ok) throw new Error(data.message || "Error en la solicitud");
+  return (data.data ?? data) as ContadorSignInData;
+};
 
 export const contadorVerify2FA = (email: string, code: string): Promise<ContadorSignInData> =>
     post(API_ROUTES.CONTADOR_VERIFY_2FA, { email, code });

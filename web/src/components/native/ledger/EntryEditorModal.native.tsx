@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,7 +15,8 @@ import { moneyPlain, round2, today } from "../../../features/ledger/ledger.share
 import { errorToast, successToast } from "../../shared/toast/toasts";
 import { SHELL_RADIUS } from "../../mobile/shellStyles.native";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { LedgerField, LedgerPrimaryBtn } from "./LedgerUi.native";
+import { DsSideModal } from "../../design-system-native";
+import { LedgerField } from "./LedgerUi.native";
 
 interface EditLine extends ManualLineInput {
   _k: number;
@@ -138,112 +138,99 @@ export default function EntryEditorModalNative({ visible, entryId, onClose, onSa
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.head, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.primary }]}>
-            {entryId ? "Editar comprobante" : "Nuevo comprobante"}
-          </Text>
-          <Pressable onPress={onClose}>
-            <Text style={{ color: colors.accent, fontWeight: "600" }}>Cerrar</Text>
-          </Pressable>
-        </View>
-
-        {loading ? (
-          <ActivityIndicator style={{ marginTop: 40 }} />
-        ) : (
-          <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-            <Text style={[styles.label, { color: colors.textMuted }]}>Tipo</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
-              {TYPES.map((t) => (
-                <Pressable
-                  key={t}
-                  onPress={() => setTipo(t)}
-                  style={[
-                    styles.typeChip,
-                    {
-                      borderColor: tipo === t ? colors.accent : colors.border,
-                      backgroundColor: tipo === t ? colors.bgSubtle : colors.cardBg,
-                    },
-                  ]}
-                >
-                  <Text style={{ color: colors.primaryText, fontSize: 12 }}>{JOURNAL_TYPE_LABELS[t]}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            <LedgerField label="Fecha (YYYY-MM-DD)" value={fecha} onChangeText={setFecha} />
-            <LedgerField label="Descripción" value={descripcion} onChangeText={setDescripcion} multiline />
-
-            <Text style={[styles.label, { color: colors.textMuted, marginTop: 12 }]}>Líneas</Text>
-            {lines.map((l) => (
-              <View
-                key={l._k}
-                style={[styles.lineCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title={entryId ? "Editar comprobante" : "Nuevo comprobante"}
+      icon="book-outline"
+      closeDisabled={saving}
+      submitting={saving}
+      submitDisabled={!balanced}
+      submitLabel="Guardar comprobante"
+      onSubmit={() => void save()}
+    >
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: 40 }} />
+      ) : (
+        <>
+          <Text style={[styles.label, { color: colors.primaryText }]}>Tipo</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+            {TYPES.map((t) => (
+              <Pressable
+                key={t}
+                onPress={() => setTipo(t)}
+                style={[
+                  styles.typeChip,
+                  {
+                    borderColor: tipo === t ? colors.accent : colors.border,
+                    backgroundColor: tipo === t ? colors.bgSubtle : colors.cardBg,
+                  },
+                ]}
               >
-                <LedgerField label="Cuenta PUC" value={l.cuenta} onChangeText={(v) => setLine(l._k, { cuenta: v })} />
-                {l.cuenta ? (
-                  <Text style={[styles.accHint, { color: colors.textMuted }]}>{accName(l.cuenta) || "—"}</Text>
-                ) : null}
-                <View style={styles.lineRow}>
-                  <LedgerField
-                    label="Débito"
-                    value={String(l.debito || "")}
-                    onChangeText={(v) => setLine(l._k, { debito: Number(v) || 0 })}
-                    keyboardType="numeric"
-                  />
-                  <LedgerField
-                    label="Crédito"
-                    value={String(l.credito || "")}
-                    onChangeText={(v) => setLine(l._k, { credito: Number(v) || 0 })}
-                    keyboardType="numeric"
-                  />
-                </View>
-                <LedgerField
-                  label="Detalle línea"
-                  value={l.descripcion || ""}
-                  onChangeText={(v) => setLine(l._k, { descripcion: v })}
-                />
-                <Pressable onPress={() => removeLine(l._k)}>
-                  <Text style={{ color: "#dc2626", fontSize: 13 }}>Quitar línea</Text>
-                </Pressable>
-              </View>
+                <Text style={{ color: colors.primaryText, fontSize: 12 }}>{JOURNAL_TYPE_LABELS[t]}</Text>
+              </Pressable>
             ))}
-
-            <Pressable onPress={addLine} style={{ marginVertical: 8 }}>
-              <Text style={{ color: colors.accent, fontWeight: "600" }}>+ Agregar línea</Text>
-            </Pressable>
-
-            <View style={[styles.totals, { backgroundColor: colors.bgSubtle }]}>
-              <Text style={{ color: colors.primaryText }}>
-                Débitos: {moneyPlain(totals.d)} · Créditos: {moneyPlain(totals.c)}
-              </Text>
-              <Text style={{ color: balanced ? "#166534" : "#dc2626", fontWeight: "700" }}>
-                {balanced ? "Cuadrado ✓" : `Diferencia: ${moneyPlain(totals.diff)}`}
-              </Text>
-            </View>
-
-            <LedgerPrimaryBtn label="Guardar comprobante" onPress={save} loading={saving} disabled={!balanced} />
           </ScrollView>
-        )}
-      </View>
-    </Modal>
+
+          <LedgerField label="Fecha (YYYY-MM-DD)" value={fecha} onChangeText={setFecha} icon="calendar-outline" />
+          <LedgerField label="Descripción" value={descripcion} onChangeText={setDescripcion} multiline icon="document-text-outline" />
+
+          <Text style={[styles.label, { color: colors.primaryText, marginTop: 12 }]}>Líneas</Text>
+          {lines.map((l) => (
+            <View
+              key={l._k}
+              style={[styles.lineCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
+            >
+              <LedgerField label="Cuenta PUC" value={l.cuenta} onChangeText={(v) => setLine(l._k, { cuenta: v })} icon="calculator-outline" />
+              {l.cuenta ? (
+                <Text style={[styles.accHint, { color: colors.textMuted }]}>{accName(l.cuenta) || "—"}</Text>
+              ) : null}
+              <View style={styles.lineRow}>
+                <LedgerField
+                  label="Débito"
+                  value={String(l.debito || "")}
+                  onChangeText={(v) => setLine(l._k, { debito: Number(v) || 0 })}
+                  keyboardType="numeric"
+                />
+                <LedgerField
+                  label="Crédito"
+                  value={String(l.credito || "")}
+                  onChangeText={(v) => setLine(l._k, { credito: Number(v) || 0 })}
+                  keyboardType="numeric"
+                />
+              </View>
+              <LedgerField
+                label="Detalle línea"
+                value={l.descripcion || ""}
+                onChangeText={(v) => setLine(l._k, { descripcion: v })}
+                icon="create-outline"
+              />
+              <Pressable onPress={() => removeLine(l._k)}>
+                <Text style={{ color: "#dc2626", fontSize: 13 }}>Quitar línea</Text>
+              </Pressable>
+            </View>
+          ))}
+
+          <Pressable onPress={addLine} style={{ marginVertical: 8 }}>
+            <Text style={{ color: colors.accent, fontWeight: "600" }}>+ Agregar línea</Text>
+          </Pressable>
+
+          <View style={[styles.totals, { backgroundColor: colors.cardBg }]}>
+            <Text style={{ color: colors.primaryText }}>
+              Débitos: {moneyPlain(totals.d)} · Créditos: {moneyPlain(totals.c)}
+            </Text>
+            <Text style={{ color: balanced ? "#166534" : "#dc2626", fontWeight: "700" }}>
+              {balanced ? "Cuadrado ✓" : `Diferencia: ${moneyPlain(totals.diff)}`}
+            </Text>
+          </View>
+        </>
+      )}
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, paddingTop: 48 },
-  head: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  title: { fontSize: 18, fontWeight: "700" },
-  body: { padding: 16, paddingBottom: 40 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6 },
+  label: { fontSize: 13, fontWeight: "600", marginBottom: 6 },
   typeChip: {
     paddingHorizontal: 10,
     paddingVertical: 6,

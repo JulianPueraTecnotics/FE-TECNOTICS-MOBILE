@@ -6,7 +6,7 @@ import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { getBatches, markBatchSent, reconcileBatch, sendComprobantes } from "../treasury.service";
-import { downloadBatchFileNative } from "../treasury.service.native";
+import { downloadBatchFileNative } from "../treasuryDownload.native";
 import type { PaymentBatch } from "../treasury.types";
 import { BATCH_STATUS, formatCOP, formatDate } from "../treasury.shared";
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { LedgerChip, LedgerChipRow, LedgerField, LedgerPrimaryBtn } from "../ledger/LedgerUi.native";
+import { StyleSheet, Text } from "react-native";
+import { LedgerChip, LedgerChipRow, LedgerField } from "../ledger/LedgerUi.native";
+import { DsSideModal } from "../../design-system-native";
 import { createTercero, updateTercero } from "../../../features/terceros/terceros.service";
 import { ROLE_LABELS, type Tercero, type TerceroRole } from "../../../features/terceros/terceros.types";
 import { errorToast, successToast } from "../../shared/toast/toasts";
@@ -69,34 +70,29 @@ export default function TerceroModalNative({ visible, tercero, onClose, onSaved 
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.head, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.primary }]}>{tercero ? "Editar tercero" : "Nuevo tercero"}</Text>
-          <Pressable onPress={onClose}><Text style={{ color: colors.accent, fontWeight: "600" }}>Cerrar</Text></Pressable>
-        </View>
-        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <LedgerField label="Nombre *" value={name} onChangeText={setName} />
-          <LedgerField label="NIT / Documento *" value={docNumber} onChangeText={setDocNumber} />
-          <LedgerField label="Email" value={email} onChangeText={setEmail} />
-          <LedgerField label="Teléfono" value={phone} onChangeText={setPhone} />
-          <Text style={[styles.label, { color: colors.textMuted }]}>Roles</Text>
-          <LedgerChipRow>
-            {ROLES.map((r) => (
-              <LedgerChip key={r} label={ROLE_LABELS[r]} active={roles.includes(r)} onPress={() => toggleRole(r)} />
-            ))}
-          </LedgerChipRow>
-          <LedgerPrimaryBtn label="Guardar" onPress={save} loading={saving} />
-        </ScrollView>
-      </View>
-    </Modal>
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title={tercero ? "Editar tercero" : "Nuevo tercero"}
+      icon="people-outline"
+      closeDisabled={saving}
+      submitting={saving}
+      onSubmit={() => void save()}
+    >
+      <LedgerField label="Nombre *" value={name} onChangeText={setName} icon="person-outline" />
+      <LedgerField label="NIT / Documento *" value={docNumber} onChangeText={setDocNumber} icon="card-outline" />
+      <LedgerField label="Email" value={email} onChangeText={setEmail} icon="mail-outline" />
+      <LedgerField label="Teléfono" value={phone} onChangeText={setPhone} icon="call-outline" />
+      <Text style={[styles.label, { color: colors.primaryText }]}>Roles</Text>
+      <LedgerChipRow>
+        {ROLES.map((r) => (
+          <LedgerChip key={r} label={ROLE_LABELS[r]} active={roles.includes(r)} onPress={() => toggleRole(r)} />
+        ))}
+      </LedgerChipRow>
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, paddingTop: 48 },
-  head: { flexDirection: "row", justifyContent: "space-between", padding: 16, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 18, fontWeight: "700" },
-  body: { padding: 16, paddingBottom: 40 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6, marginTop: 8 },
+  label: { fontSize: 13, fontWeight: "600", marginTop: 4 },
 });

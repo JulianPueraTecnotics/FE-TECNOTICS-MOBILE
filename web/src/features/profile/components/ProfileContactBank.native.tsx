@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -5,9 +6,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import { DsField } from "../../../components/design-system-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
@@ -26,30 +27,24 @@ function Field({
   onChangeText,
   keyboardType,
   multiline,
+  icon = "create-outline",
 }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   keyboardType?: "default" | "phone-pad" | "email-address" | "url";
   multiline?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
 }) {
-  const colors = useThemeColors();
   return (
-    <View style={styles.field}>
-      <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
-      <TextInput
-        style={[
-          styles.input,
-          multiline && styles.multiline,
-          { backgroundColor: colors.bgSubtle, borderColor: colors.border, color: colors.primaryText },
-        ]}
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType}
-        multiline={multiline}
-        placeholderTextColor={colors.textMuted}
-      />
-    </View>
+    <DsField
+      label={label}
+      icon={icon}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={keyboardType}
+      multiline={multiline}
+    />
   );
 }
 
@@ -136,19 +131,16 @@ export default function ProfileContactBankNative({
   return (
     <ScrollView contentContainerStyle={styles.wrap} keyboardShouldPersistTaps="handled">
       <Text style={[styles.sectionTitle, { color: colors.primary }]}>Información de contacto</Text>
-      <View style={styles.field}>
-        <Text style={[styles.label, { color: colors.textMuted }]}>Email (solo lectura)</Text>
-        <View style={[styles.input, { backgroundColor: colors.bgSubtle, borderColor: colors.border, justifyContent: "center" }]}>
-          <Text style={{ color: colors.primaryText }}>{profile.company.email ?? "N/A"}</Text>
-        </View>
-      </View>
-      <Field label="Teléfono" value={phone} onChangeText={(v) => setPhone(v.replace(/\D/g, ""))} keyboardType="phone-pad" />
-      <Field label="Sitio Web" value={website} onChangeText={setWebsite} keyboardType="url" />
-      <Field label="Dirección" value={address} onChangeText={setAddress} multiline />
+      <DsField label="Email (solo lectura)" icon="mail-outline">
+        <Text style={{ color: colors.primaryText, paddingHorizontal: 12, paddingVertical: 10 }}>{profile.company.email ?? "N/A"}</Text>
+      </DsField>
+      <Field label="Teléfono" icon="call-outline" value={phone} onChangeText={(v) => setPhone(v.replace(/\D/g, ""))} keyboardType="phone-pad" />
+      <Field label="Sitio Web" icon="globe-outline" value={website} onChangeText={setWebsite} keyboardType="url" />
+      <Field label="Dirección" icon="location-outline" value={address} onChangeText={setAddress} multiline />
 
       <Text style={[styles.sectionTitle, { color: colors.primary, marginTop: 16 }]}>Datos bancarios</Text>
-      <Field label="Banco" value={bankName} onChangeText={setBankName} />
-      <Field label="Número de cuenta" value={accountNumber} onChangeText={setAccountNumber} keyboardType="phone-pad" />
+      <Field label="Banco" icon="business-outline" value={bankName} onChangeText={setBankName} />
+      <Field label="Número de cuenta" icon="card-outline" value={accountNumber} onChangeText={setAccountNumber} keyboardType="phone-pad" />
       <View style={styles.typeRow}>
         {(["ahorro", "corriente"] as const).map((t) => (
           <Pressable
@@ -170,7 +162,7 @@ export default function ProfileContactBankNative({
       </View>
 
       <Text style={[styles.sectionTitle, { color: colors.primary, marginTop: 16 }]}>Observaciones</Text>
-      <Field label="Observaciones en facturas" value={observations} onChangeText={setObservations} multiline />
+      <Field label="Observaciones en facturas" icon="document-text-outline" value={observations} onChangeText={setObservations} multiline />
       <Pressable onPress={() => void fillObservations()} style={styles.linkBtn}>
         <Text style={{ color: colors.headerAccent, fontWeight: "600" }}>Autocompletar con datos bancarios</Text>
       </Pressable>
@@ -187,19 +179,8 @@ export default function ProfileContactBankNative({
 }
 
 const styles = StyleSheet.create({
-  wrap: { paddingBottom: 24, gap: 4 },
+  wrap: { paddingBottom: 24, gap: 10 },
   sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
-  field: { marginBottom: 10 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6 },
-  input: {
-    borderWidth: 1,
-    borderRadius: SHELL_RADIUS.button,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-  },
-  multiline: { minHeight: 72, textAlignVertical: "top" },
-  readOnlyNote: { fontSize: 11, marginBottom: 8, marginTop: -4 },
   typeRow: { flexDirection: "row", gap: 8, marginBottom: 8 },
   typeChip: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 14, paddingVertical: 8 },
   linkBtn: { marginBottom: 12 },

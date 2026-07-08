@@ -138,7 +138,7 @@ function PortalOtpInputComponent({
               {digit ? (
                 <Text style={[styles.digit, { color: colors.primaryText }]}>{digit}</Text>
               ) : isActive && focused ? (
-                <View style={[styles.cursor, { backgroundColor: colors.secondary }]} />
+                <View style={[styles.cursor, { backgroundColor: colors.headerAccent }]} />
               ) : null}
             </Pressable>
           );
@@ -168,7 +168,7 @@ export function PortalOtpHeader({
 
   return (
     <View style={[styles.header, style]}>
-      <View style={[styles.headerIcon, { backgroundColor: colors.primary }]}>
+      <View style={[styles.headerIcon, { backgroundColor: colors.headerAccent }]}>
         <Ionicons name="mail-open-outline" size={32} color="#fff" />
       </View>
       <Text style={[styles.headerTitle, { color: colors.primary }]}>{title}</Text>

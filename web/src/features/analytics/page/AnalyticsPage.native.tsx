@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -5,13 +6,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import AnalyticsKpiNative from "../../../components/native/analytics/AnalyticsKpi.native";
 import AnalyticsSectionNative, { AnalyticsRow } from "../../../components/native/analytics/AnalyticsSection.native";
 import { SimpleGroupedBarChart } from "../../../components/native/analytics/SimpleMiniChart.native";
-import { DsModuleScreen } from "../../../components/design-system-native";
+import { DsField, DsModuleScreen } from "../../../components/design-system-native";
 import { getCompanyStatistics, type CompanyStatisticsData } from "../../../services/company-statistics.service";
 import {
   getCarteraAging,
@@ -223,7 +223,7 @@ export default function AnalyticsPageNative() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={{ maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }}
+        style={{ flexGrow: 0, height: 52, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border }}
         contentContainerStyle={styles.tabs}
       >
         {ANALYTICS_TABS.map((t) => (
@@ -650,20 +650,22 @@ function DateBar({
       </ScrollView>
       {preset === "custom" ? (
         <View style={styles.customRange}>
-          <TextInput
-            style={[styles.dateInput, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-            value={range.from ?? ""}
-            onChangeText={(v) => onRange({ ...range, from: v })}
-            placeholder="Desde AAAA-MM-DD"
-            placeholderTextColor={colors.textMuted}
-          />
-          <TextInput
-            style={[styles.dateInput, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-            value={range.to ?? ""}
-            onChangeText={(v) => onRange({ ...range, to: v })}
-            placeholder="Hasta AAAA-MM-DD"
-            placeholderTextColor={colors.textMuted}
-          />
+          <View style={{ flex: 1 }}>
+            <DsField
+              icon="calendar-outline"
+              value={range.from ?? ""}
+              onChangeText={(v) => onRange({ ...range, from: v })}
+              placeholder="Desde AAAA-MM-DD"
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DsField
+              icon="calendar-outline"
+              value={range.to ?? ""}
+              onChangeText={(v) => onRange({ ...range, to: v })}
+              placeholder="Hasta AAAA-MM-DD"
+            />
+          </View>
         </View>
       ) : null}
     </View>
@@ -684,7 +686,6 @@ const styles = StyleSheet.create({
   dateBar: { borderBottomWidth: StyleSheet.hairlineWidth },
   presetChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
   customRange: { flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingBottom: 10 },
-  dateInput: { flex: 1, borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13 },
   kpiGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
   toggleRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
   toggleBtn: {

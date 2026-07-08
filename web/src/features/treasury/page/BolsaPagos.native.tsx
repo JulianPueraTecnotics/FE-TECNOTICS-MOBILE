@@ -1,19 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import AnalyticsKpiNative from "../../../components/native/analytics/AnalyticsKpi.native";
-import { DsModuleScreen } from "../../../components/design-system-native";
-import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
+import { DsField, DsModuleScreen, DsSideModal } from "../../../components/design-system-native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { reclasificarBolsa, saldoBolsa, type ConceptoBolsa } from "../conciliacion.service";
 import { formatCOP } from "../treasury.shared";
@@ -116,27 +112,26 @@ export default function BolsaPagosNative() {
         )}
       </DsModuleScreen>
 
-      <Modal visible={!!reclas} animationType="slide" transparent onRequestClose={() => setReclas(null)}>
-        <View style={styles.overlay}>
-          <View style={[styles.sheet, { backgroundColor: colors.cardBg }]}>
-            <Text style={[styles.sheetTitle, { color: colors.primaryText }]}>Reclasificar concepto</Text>
-            <Text style={{ color: colors.textMuted, marginBottom: 12 }}>{reclas?.concepto} · {formatCOP(reclas?.suma ?? 0)}</Text>
-            <Text style={[styles.label, { color: colors.textMuted }]}>Cuenta destino (PUC)</Text>
-            <TextInput
-              value={cuentaDestino}
-              onChangeText={setCuentaDestino}
-              placeholder="Ej. 510506"
-              placeholderTextColor={colors.textMuted}
-              keyboardType="number-pad"
-              style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.pageBg }]}
-            />
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-              <LedgerPrimaryBtn label="Cancelar" variant="secondary" onPress={() => setReclas(null)} />
-              <LedgerPrimaryBtn label="Aplicar" onPress={handleReclasificar} loading={aplicando} />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <DsSideModal
+        visible={!!reclas}
+        onClose={() => setReclas(null)}
+        title="Reclasificar concepto"
+        icon="swap-horizontal-outline"
+        closeDisabled={aplicando}
+        submitting={aplicando}
+        submitLabel="Aplicar"
+        onSubmit={() => void handleReclasificar()}
+      >
+        <Text style={{ color: colors.textMuted }}>{reclas?.concepto} · {formatCOP(reclas?.suma ?? 0)}</Text>
+        <DsField
+          label="Cuenta destino (PUC)"
+          icon="calculator-outline"
+          value={cuentaDestino}
+          onChangeText={setCuentaDestino}
+          placeholder="Ej. 510506"
+          keyboardType="number-pad"
+        />
+      </DsSideModal>
     </>
   );
 }
@@ -146,9 +141,4 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10 },
   concepto: { fontSize: 14, fontWeight: "700", marginBottom: 6 },
   row: { flexDirection: "row", justifyContent: "space-between" },
-  overlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
-  sheet: { borderTopLeftRadius: SHELL_RADIUS.card, borderTopRightRadius: SHELL_RADIUS.card, padding: 16 },
-  sheetTitle: { fontSize: 18, fontWeight: "700", marginBottom: 4 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 4 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15 },
 });

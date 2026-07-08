@@ -163,6 +163,7 @@ const LoginPage: React.FC = () => {
     }
     setLoading(true);
     try {
+      console.log("[Login] turnstileToken en estado antes de enviar:", turnstileToken);
       const { message, data } = await loginService({ email, password, turnstileToken });
       if (data.need_twofa) {
         const acc =
@@ -268,7 +269,16 @@ const LoginPage: React.FC = () => {
                   onTogglePassword={() => setShowPassword((v) => !v)}
                 />
                 <View style={styles.turnstileWrap} collapsable={false}>
-                  <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken("")} />
+                  <Turnstile
+                    onVerify={(token) => {
+                      console.log("[Login] captcha onVerify token:", token);
+                      setTurnstileToken(token);
+                    }}
+                    onExpire={() => {
+                      console.log("[Login] captcha onExpire: token limpiado");
+                      setTurnstileToken("");
+                    }}
+                  />
                 </View>
                 <Pressable
                   style={[styles.primaryBtn, !turnstileToken && styles.primaryBtnDisabled]}

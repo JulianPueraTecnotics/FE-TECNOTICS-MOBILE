@@ -23,7 +23,7 @@ import {
   type RetentionParty,
   type ExogenaValidacionRow,
 } from "../dian.service";
-import { downloadExogenaXmlNative, downloadRetentionCertificateNative } from "../dian.service.native";
+import { downloadExogenaXmlNative, downloadRetentionCertificateNative } from "../dianDownload.native";
 import {
   annulEntry,
   createOpening,
@@ -109,6 +109,7 @@ function FinancialBlock({
 }
 
 export function ComprobantesSectionNative() {
+  const colors = useThemeColors();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [tipo, setTipo] = useState("");
@@ -220,7 +221,7 @@ export function ComprobantesSectionNative() {
           <LedgerEmpty text="No hay comprobantes." />
         ) : (
           entries.map((e) => (
-            <View key={e._id}>
+            <View key={e._id} style={{ marginBottom: 14 }}>
               <LedgerRow
                 cells={[
                   { label: "Comprobante", value: `${e.tipo}-${e.consecutivo}`, bold: true },
@@ -228,7 +229,7 @@ export function ComprobantesSectionNative() {
                   { label: "Valor", value: money(e.total_debito), align: "right" },
                 ]}
               />
-              <Text style={{ fontSize: 13, marginBottom: 4 }}>{e.descripcion || "—"}</Text>
+              <Text style={{ fontSize: 13, marginBottom: 8, color: colors.textMuted }}>{e.descripcion || "—"}</Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                 <LedgerStatusBadge label={JOURNAL_STATUS_LABELS[e.estado]} tone={statusTone(e.estado)} />
                 {e.estado === "borrador" ? (
@@ -277,6 +278,7 @@ export function ComprobantesSectionNative() {
 }
 
 export function DiarioSectionNative() {
+  const colors = useThemeColors();
   const [desde, setDesde] = useState(monthStart());
   const [hasta, setHasta] = useState(today());
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -314,7 +316,7 @@ export function DiarioSectionNative() {
         <LedgerEmpty text="No hay comprobantes en el rango." />
       ) : (
         entries.map((e) => (
-          <View key={e._id}>
+          <View key={e._id} style={{ marginBottom: 14 }}>
             <LedgerRow
               cells={[
                 { label: "Comp.", value: `${e.tipo}-${e.consecutivo}`, bold: true },
@@ -322,7 +324,7 @@ export function DiarioSectionNative() {
                 { label: "Total", value: money(e.total_debito), align: "right" },
               ]}
             />
-            <Text style={{ fontSize: 12, marginBottom: 6 }}>{e.descripcion}</Text>
+            <Text style={{ fontSize: 12, marginBottom: 6, color: colors.textMuted }}>{e.descripcion}</Text>
             {(e.lineas ?? []).map((l, i) => (
               <LedgerRow
                 key={i}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import ItemPickerFieldNative, { InvFieldLabel, InvTextInput } from "../../../components/native/inventory/InventoryUi.native";
+import ItemPickerFieldNative, { InvFieldLabel } from "../../../components/native/inventory/InventoryUi.native";
+import { DsField } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import { createTraslado, getWarehouses } from "../inventory.service";
 import type { Warehouse } from "../inventory.types";
@@ -99,12 +100,11 @@ export default function TrasladosNative() {
       <WarehousePicker label="Bodega origen *" value={fromId} onChange={setFromId} />
       <WarehousePicker label="Bodega destino *" value={toId} onChange={setToId} />
 
-      <InvFieldLabel>Cantidad *</InvFieldLabel>
-      <InvTextInput value={cantidad} onChangeText={setCantidad} keyboardType="decimal-pad" />
-      <InvFieldLabel>Fecha</InvFieldLabel>
-      <InvTextInput value={fecha} onChangeText={setFecha} placeholder="YYYY-MM-DD" />
-      <InvFieldLabel>Motivo</InvFieldLabel>
-      <InvTextInput value={motivo} onChangeText={setMotivo} multiline />
+      <View style={{ gap: 12 }}>
+        <DsField label="Cantidad *" icon="layers-outline" value={cantidad} onChangeText={setCantidad} keyboardType="decimal-pad" />
+        <DsField label="Fecha" icon="calendar-outline" value={fecha} onChangeText={setFecha} placeholder="YYYY-MM-DD" />
+        <DsField label="Motivo" icon="document-text-outline" value={motivo} onChangeText={setMotivo} multiline />
+      </View>
 
       <View style={{ marginTop: 12 }}>
         <LedgerPrimaryBtn label="Registrar traslado" icon="swap-horizontal-outline" onPress={submit} loading={saving} />

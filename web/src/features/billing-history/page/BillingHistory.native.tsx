@@ -6,12 +6,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import AnalyticsKpiNative from "../../../components/native/analytics/AnalyticsKpi.native";
 import AnalyticsSectionNative, { AnalyticsRow } from "../../../components/native/analytics/AnalyticsSection.native";
-import { DsModuleScreen } from "../../../components/design-system-native";
+import { DsField, DsModuleScreen } from "../../../components/design-system-native";
 import { getCompanyStatistics, type CompanyStatisticsData } from "../../../services/company-statistics.service";
 import {
   getCarteraAging,
@@ -76,20 +75,22 @@ function DateBar({
       </ScrollView>
       {preset === "custom" ? (
         <View style={{ flexDirection: "row", gap: 8 }}>
-          <TextInput
-            value={range.from ?? ""}
-            onChangeText={(v) => onRange({ ...range, from: v })}
-            placeholder="Desde (YYYY-MM-DD)"
-            placeholderTextColor={colors.textMuted}
-            style={[styles.dateInput, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-          />
-          <TextInput
-            value={range.to ?? ""}
-            onChangeText={(v) => onRange({ ...range, to: v })}
-            placeholder="Hasta"
-            placeholderTextColor={colors.textMuted}
-            style={[styles.dateInput, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-          />
+          <View style={{ flex: 1 }}>
+            <DsField
+              icon="calendar-outline"
+              value={range.from ?? ""}
+              onChangeText={(v) => onRange({ ...range, from: v })}
+              placeholder="Desde (YYYY-MM-DD)"
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DsField
+              icon="calendar-outline"
+              value={range.to ?? ""}
+              onChangeText={(v) => onRange({ ...range, to: v })}
+              placeholder="Hasta"
+            />
+          </View>
         </View>
       ) : null}
     </View>
@@ -344,6 +345,5 @@ const styles = StyleSheet.create({
   tabBtn: { flex: 1, alignItems: "center", paddingVertical: 10 },
   kpiGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
-  dateInput: { flex: 1, borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13 },
   empty: { textAlign: "center", marginTop: 24, lineHeight: 20, fontSize: 14 },
 });

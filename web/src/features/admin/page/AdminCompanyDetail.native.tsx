@@ -2,17 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useNavigate, useParams } from "react-router-dom";
 import NativePagination from "../../../components/native/list/NativePagination.native";
-import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
+import { DsButton, DsField, DsModuleScreen, DsSideModal } from "../../../components/design-system-native";
 import { PATHS } from "../../../router/paths.contants";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -235,7 +233,12 @@ export default function AdminCompanyDetailNative() {
           </>
         }
       >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabsScroll}
+          contentContainerStyle={styles.tabs}
+        >
           {tabs.map((t) => (
             <Pressable
               key={t.key}
@@ -254,7 +257,7 @@ export default function AdminCompanyDetailNative() {
           ))}
         </ScrollView>
 
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
           {tab === "info" && c ? (
             <>
               <View style={{ flexDirection: "row", gap: 8, marginBottom: 12 }}>
@@ -368,32 +371,36 @@ export default function AdminCompanyDetailNative() {
         </ScrollView>
       </DsModuleScreen>
 
-      <Modal visible={editOpen} transparent animationType="fade" onRequestClose={() => setEditOpen(false)}>
-        <Pressable style={styles.modalBg} onPress={() => setEditOpen(false)}>
-          <Pressable style={[styles.modalSheet, { backgroundColor: colors.cardBg }]} onPress={(e) => e.stopPropagation()}>
-            <Text style={[styles.modalTitle, { color: colors.primary }]}>Editar empresa</Text>
-            {[
-              { label: "Email", value: editEmail, set: setEditEmail },
-              { label: "Teléfono", value: editPhone, set: setEditPhone },
-              { label: "Sitio web", value: editWebsite, set: setEditWebsite },
-              { label: "Observaciones", value: editObs, set: setEditObservations },
-            ].map((f) => (
-              <View key={f.label} style={{ marginBottom: 10 }}>
-                <Text style={{ color: colors.textMuted, fontSize: 12 }}>{f.label}</Text>
-                <TextInput
-                  style={[styles.input, { borderColor: colors.border, color: colors.primaryText }]}
-                  value={f.value}
-                  onChangeText={f.set}
-                />
-              </View>
-            ))}
-            <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
-              <DsButton label="Cancelar" variant="secondary" onPress={() => setEditOpen(false)} />
-              <DsButton label={saving ? "…" : "Guardar"} onPress={() => void saveEdit()} disabled={saving} />
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <DsSideModal
+        visible={editOpen}
+        onClose={() => setEditOpen(false)}
+        title="Editar empresa"
+        icon="business-outline"
+        onSubmit={() => void saveEdit()}
+        submitLabel="Guardar"
+        submitting={saving}
+        closeDisabled={saving}
+      >
+        {(
+          [
+            { label: "Email", value: editEmail, set: setEditEmail, icon: "mail-outline", keyboardType: "email-address" },
+            { label: "Teléfono", value: editPhone, set: setEditPhone, icon: "call-outline", keyboardType: "phone-pad" },
+            { label: "Sitio web", value: editWebsite, set: setEditWebsite, icon: "globe-outline", keyboardType: "url" },
+            { label: "Observaciones", value: editObs, set: setEditObservations, icon: "document-text-outline", multiline: true },
+          ] as const
+        ).map((f) => (
+          <DsField
+            key={f.label}
+            label={f.label}
+            icon={f.icon}
+            value={f.value}
+            onChangeText={f.set}
+            keyboardType={"keyboardType" in f ? f.keyboardType : undefined}
+            autoCapitalize="none"
+            multiline={"multiline" in f ? f.multiline : undefined}
+          />
+        ))}
+      </DsSideModal>
     </>
   );
 }
@@ -408,12 +415,9 @@ function InfoRow({ label, value, colors }: { label: string; value?: string | nul
 }
 
 const styles = StyleSheet.create({
-  tabs: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+  tabsScroll: { flexGrow: 0, height: 52 },
+  tabs: { paddingHorizontal: 12, paddingVertical: 8, gap: 8, alignItems: "center" },
   tab: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, marginRight: 8 },
   card: { borderRadius: SHELL_RADIUS.card, borderWidth: 1, padding: 14, marginBottom: 10 },
   infoRow: { paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, marginBottom: 4 },
-  modalBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", padding: 24 },
-  modalSheet: { borderRadius: SHELL_RADIUS.card, padding: 20 },
-  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 12 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, marginTop: 4 },
 });

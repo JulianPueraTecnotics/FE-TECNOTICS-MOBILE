@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useNavigate } from "react-router-dom";
-import { DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
+import { DsField, DsModuleScreen, DsSearchField } from "../../../components/design-system-native";
 import { LedgerChip, LedgerChipRow, LedgerPrimaryBtn, LedgerRow, LedgerStatusBadge } from "../../../components/native/ledger/LedgerUi.native";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
@@ -171,12 +171,12 @@ export default function TreasuryPaymentsNative() {
                 />
                 {checked ? (
                   <View style={{ marginTop: 8 }}>
-                    <Text style={{ color: colors.textMuted, fontSize: 12, marginBottom: 4 }}>Monto a pagar</Text>
-                    <TextInput
+                    <DsField
+                      label="Monto a pagar"
+                      icon="cash-outline"
                       value={String(selected[r._id])}
                       onChangeText={(v) => setMonto(r._id, Number(v) || 0, r.balance)}
                       keyboardType="numeric"
-                      style={[styles.amount, { borderColor: colors.border, color: colors.primaryText }]}
                     />
                   </View>
                 ) : null}
@@ -195,6 +195,5 @@ export default function TreasuryPaymentsNative() {
 
 const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 12, marginBottom: 10 },
-  amount: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14 },
   bar: { padding: 16, borderTopWidth: StyleSheet.hairlineWidth, gap: 8 },
 });

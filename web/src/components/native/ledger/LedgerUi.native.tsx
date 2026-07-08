@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SHELL_RADIUS } from "../../mobile/shellStyles.native";
 import { useThemeColors } from "../../../theme/useThemeColors";
+import DsField from "../../design-system-native/DsField.native";
 
 export function LedgerCard({ children }: { children: React.ReactNode }) {
   const colors = useThemeColors();
@@ -125,6 +126,7 @@ export function LedgerField({
   placeholder,
   keyboardType,
   multiline,
+  icon,
 }: {
   label: string;
   value: string;
@@ -132,23 +134,25 @@ export function LedgerField({
   placeholder?: string;
   keyboardType?: "default" | "numeric" | "decimal-pad";
   multiline?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
 }) {
-  const colors = useThemeColors();
+  // Delegamos en DsField para tener el estilo del portal (campo con ícono).
+  const resolvedIcon =
+    icon ?? (keyboardType === "numeric" || keyboardType === "decimal-pad"
+      ? "calculator-outline"
+      : multiline
+        ? "document-text-outline"
+        : "create-outline");
   return (
     <View style={styles.field}>
-      <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>{label}</Text>
-      <TextInput
+      <DsField
+        label={label}
+        icon={resolvedIcon}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={colors.textMuted}
         keyboardType={keyboardType}
         multiline={multiline}
-        style={[
-          styles.input,
-          multiline ? styles.inputMulti : null,
-          { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.pageBg },
-        ]}
       />
     </View>
   );
@@ -241,14 +245,14 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    paddingVertical: 10,
+    gap: 12,
+    paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   cell: { minWidth: "30%", flex: 1 },
   cellRight: { alignItems: "flex-end" },
-  cellLabel: { fontSize: 11, marginBottom: 2 },
-  cellValue: { fontSize: 13 },
+  cellLabel: { fontSize: 10, marginBottom: 3, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.4 },
+  cellValue: { fontSize: 14, lineHeight: 19 },
   cellBold: { fontWeight: "700" },
   textRight: { textAlign: "right" },
   chipRow: { gap: 8, paddingVertical: 4 },

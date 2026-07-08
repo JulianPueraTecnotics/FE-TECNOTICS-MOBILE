@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
-import { useThemeColors } from "../../../theme/useThemeColors";
+import { TEC_COLORS } from "../tec.theme";
 import type { TecMessage as TecMessageType } from "../tec.service";
 
 const LONG_THRESHOLD = 350;
@@ -27,7 +27,7 @@ export default function TecMessageNative({
   isSendingByEmail,
   onSendByEmail,
 }: Props) {
-  const colors = useThemeColors();
+  const colors = TEC_COLORS;
   const isUser = message.role === "user";
   const showEmail =
     !isUser && canSendByEmail && !!onSendByEmail && message.content.length >= LONG_THRESHOLD;

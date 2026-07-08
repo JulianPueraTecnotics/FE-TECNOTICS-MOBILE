@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
-import { LedgerChip, LedgerChipRow, LedgerField, LedgerPrimaryBtn } from "../ledger/LedgerUi.native";
+import { StyleSheet, Switch, Text, View } from "react-native";
+import { LedgerChip, LedgerChipRow, LedgerField } from "../ledger/LedgerUi.native";
+import { DsSideModal } from "../../design-system-native";
 import { TIPO_CONTRATO_OPTIONS, TIPO_DOCUMENTO_OPTIONS, TIPO_TRABAJADOR_OPTIONS } from "../../../features/nomina/nomina.constants";
 import { createEmpleado, updateEmpleado, type Empleado, type EmpleadoInput } from "../../../services/empleados.service";
 import { errorToast, successToast } from "../../shared/toast/toasts";
@@ -88,55 +89,52 @@ export default function EmpleadoModalNative({ visible, empleado, onClose, onSave
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.head, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.primary }]}>{empleado ? "Editar empleado" : "Nuevo empleado"}</Text>
-          <Pressable onPress={onClose}>
-            <Text style={{ color: colors.accent, fontWeight: "600" }}>Cerrar</Text>
-          </Pressable>
-        </View>
-        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <Text style={[styles.label, { color: colors.textMuted }]}>Tipo documento</Text>
-          <LedgerChipRow>
-            {TIPO_DOCUMENTO_OPTIONS.slice(0, 4).map((o) => (
-              <LedgerChip
-                key={o.value}
-                label={o.label.split(" ")[0]}
-                active={form.tipo_documento === o.value}
-                onPress={() => set("tipo_documento", o.value)}
-              />
-            ))}
-          </LedgerChipRow>
-          <LedgerField label="Número documento *" value={form.numero_documento} onChangeText={(v) => set("numero_documento", v)} />
-          <LedgerField label="Primer nombre *" value={form.primer_nombre} onChangeText={(v) => set("primer_nombre", v)} />
-          <LedgerField label="Otros nombres" value={form.otros_nombres || ""} onChangeText={(v) => set("otros_nombres", v)} />
-          <LedgerField label="Primer apellido *" value={form.primer_apellido} onChangeText={(v) => set("primer_apellido", v)} />
-          <LedgerField label="Segundo apellido" value={form.segundo_apellido || ""} onChangeText={(v) => set("segundo_apellido", v)} />
-          <LedgerField label="Email" value={form.email || ""} onChangeText={(v) => set("email", v)} />
-          <LedgerField label="Sueldo *" value={String(form.sueldo || "")} onChangeText={(v) => set("sueldo", Number(v) || 0)} keyboardType="numeric" />
-          <LedgerField label="Fecha ingreso (YYYY-MM-DD) *" value={form.fecha_ingreso} onChangeText={(v) => set("fecha_ingreso", v)} />
-          <Text style={[styles.label, { color: colors.textMuted }]}>Tipo contrato</Text>
-          <LedgerChipRow>
-            {TIPO_CONTRATO_OPTIONS.map((o) => (
-              <LedgerChip key={o.value} label={o.label.split(" ")[0]} active={form.tipo_contrato === o.value} onPress={() => set("tipo_contrato", o.value)} />
-            ))}
-          </LedgerChipRow>
-          <Text style={[styles.label, { color: colors.textMuted, marginTop: 8 }]}>Tipo trabajador</Text>
-          <LedgerChip label={labelFrom(form.tipo_trabajador)} active onPress={() => {}} />
-          <LedgerChipRow>
-            {TIPO_TRABAJADOR_OPTIONS.slice(0, 3).map((o) => (
-              <LedgerChip key={o.value} label={o.label.slice(0, 12)} active={form.tipo_trabajador === o.value} onPress={() => set("tipo_trabajador", o.value)} />
-            ))}
-          </LedgerChipRow>
-          <View style={styles.switchRow}>
-            <Text style={{ color: colors.primaryText }}>Salario integral</Text>
-            <Switch value={form.salario_integral} onValueChange={(v) => set("salario_integral", v)} />
-          </View>
-          <LedgerPrimaryBtn label="Guardar" onPress={save} loading={saving} />
-        </ScrollView>
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title={empleado ? "Editar empleado" : "Nuevo empleado"}
+      icon="person-outline"
+      closeDisabled={saving}
+      submitting={saving}
+      onSubmit={() => void save()}
+    >
+      <Text style={[styles.label, { color: colors.primaryText }]}>Tipo documento</Text>
+      <LedgerChipRow>
+        {TIPO_DOCUMENTO_OPTIONS.slice(0, 4).map((o) => (
+          <LedgerChip
+            key={o.value}
+            label={o.label.split(" ")[0]}
+            active={form.tipo_documento === o.value}
+            onPress={() => set("tipo_documento", o.value)}
+          />
+        ))}
+      </LedgerChipRow>
+      <LedgerField label="Número documento *" value={form.numero_documento} onChangeText={(v) => set("numero_documento", v)} icon="card-outline" />
+      <LedgerField label="Primer nombre *" value={form.primer_nombre} onChangeText={(v) => set("primer_nombre", v)} icon="person-outline" />
+      <LedgerField label="Otros nombres" value={form.otros_nombres || ""} onChangeText={(v) => set("otros_nombres", v)} icon="person-outline" />
+      <LedgerField label="Primer apellido *" value={form.primer_apellido} onChangeText={(v) => set("primer_apellido", v)} icon="person-outline" />
+      <LedgerField label="Segundo apellido" value={form.segundo_apellido || ""} onChangeText={(v) => set("segundo_apellido", v)} icon="person-outline" />
+      <LedgerField label="Email" value={form.email || ""} onChangeText={(v) => set("email", v)} icon="mail-outline" />
+      <LedgerField label="Sueldo *" value={String(form.sueldo || "")} onChangeText={(v) => set("sueldo", Number(v) || 0)} keyboardType="numeric" icon="cash-outline" />
+      <LedgerField label="Fecha ingreso (YYYY-MM-DD) *" value={form.fecha_ingreso} onChangeText={(v) => set("fecha_ingreso", v)} icon="calendar-outline" />
+      <Text style={[styles.label, { color: colors.primaryText }]}>Tipo contrato</Text>
+      <LedgerChipRow>
+        {TIPO_CONTRATO_OPTIONS.map((o) => (
+          <LedgerChip key={o.value} label={o.label.split(" ")[0]} active={form.tipo_contrato === o.value} onPress={() => set("tipo_contrato", o.value)} />
+        ))}
+      </LedgerChipRow>
+      <Text style={[styles.label, { color: colors.primaryText, marginTop: 8 }]}>Tipo trabajador</Text>
+      <LedgerChip label={labelFrom(form.tipo_trabajador)} active onPress={() => {}} />
+      <LedgerChipRow>
+        {TIPO_TRABAJADOR_OPTIONS.slice(0, 3).map((o) => (
+          <LedgerChip key={o.value} label={o.label.slice(0, 12)} active={form.tipo_trabajador === o.value} onPress={() => set("tipo_trabajador", o.value)} />
+        ))}
+      </LedgerChipRow>
+      <View style={styles.switchRow}>
+        <Text style={{ color: colors.primaryText }}>Salario integral</Text>
+        <Switch value={form.salario_integral} onValueChange={(v) => set("salario_integral", v)} />
       </View>
-    </Modal>
+    </DsSideModal>
   );
 }
 
@@ -145,10 +143,6 @@ function labelFrom(value: string) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, paddingTop: 48 },
-  head: { flexDirection: "row", justifyContent: "space-between", padding: 16, borderBottomWidth: StyleSheet.hairlineWidth },
-  title: { fontSize: 18, fontWeight: "700" },
-  body: { padding: 16, paddingBottom: 40 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 6, marginTop: 4 },
-  switchRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginVertical: 12 },
+  label: { fontSize: 13, fontWeight: "600", marginTop: 4 },
+  switchRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginVertical: 4 },
 });

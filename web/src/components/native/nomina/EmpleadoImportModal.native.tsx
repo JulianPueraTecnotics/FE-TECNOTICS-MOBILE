@@ -3,9 +3,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -19,6 +17,7 @@ import {
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
+import { DsSideModal } from "../../design-system-native";
 import { createEmpleado, getAllEmpleadosFull, updateEmpleado, type Empleado } from "../../../services/empleados.service";
 
 type Props = {
@@ -126,82 +125,70 @@ export default function EmpleadoImportModalNative({ visible, onClose, onSuccess 
     }
   };
 
+  const footer = !results ? (
+    <>
+      <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={close} disabled={importing}>
+        <Text style={{ color: colors.primaryText }}>Cancelar</Text>
+      </Pressable>
+      <Pressable
+        style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, opacity: importing || !rows.length || !!effectiveHeaderError ? 0.5 : 1 }]}
+        onPress={() => void doImport()}
+        disabled={importing || !rows.length || !!effectiveHeaderError}
+      >
+        {importing ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>Importar</Text>}
+      </Pressable>
+    </>
+  ) : (
+    <Pressable style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, flex: 1 }]} onPress={close}>
+      <Text style={styles.btnPrimaryText}>Listo</Text>
+    </Pressable>
+  );
+
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={close}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={close} disabled={importing}>
-            <Ionicons name="close" size={24} color={colors.primaryText} />
+    <DsSideModal
+      visible={visible}
+      onClose={close}
+      title="Importar empleados (CSV)"
+      icon="cloud-upload-outline"
+      closeDisabled={importing}
+      footer={footer}
+    >
+      {!results ? (
+        <>
+          <Pressable style={[styles.drop, { borderColor: colors.headerAccent }]} onPress={() => void pickFile()}>
+            <Ionicons name="document-outline" size={32} color={colors.headerAccent} />
+            <Text style={{ color: colors.primaryText, fontWeight: "600" }}>Seleccionar CSV</Text>
+            {fileName ? <Text style={{ color: colors.textMuted, fontSize: 12 }}>{fileName}</Text> : null}
           </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>Importar empleados (CSV)</Text>
-          <View style={{ width: 24 }} />
-        </View>
-
-        <ScrollView contentContainerStyle={styles.body}>
-          {!results ? (
-            <>
-              <Pressable style={[styles.drop, { borderColor: colors.headerAccent }]} onPress={() => void pickFile()}>
-                <Ionicons name="document-outline" size={32} color={colors.headerAccent} />
-                <Text style={{ color: colors.primaryText, fontWeight: "600" }}>Seleccionar CSV</Text>
-                {fileName ? <Text style={{ color: colors.textMuted, fontSize: 12 }}>{fileName}</Text> : null}
-              </Pressable>
-              {effectiveHeaderError ? (
-                <Text style={{ color: "#dc2626", marginTop: 8 }}>{effectiveHeaderError}</Text>
-              ) : rows.length ? (
-                <Text style={{ color: colors.textMuted, marginTop: 8 }}>
-                  {rows.length} fila(s): {rows.filter((r) => !r.isUpdate && r.errors.length === 0).length} nuevos,{" "}
-                  {rows.filter((r) => r.isUpdate && r.errors.length === 0).length} actualizaciones
-                </Text>
-              ) : null}
-              {importing ? (
-                <Text style={{ color: colors.textMuted, marginTop: 12 }}>
-                  Procesando {progress.done}/{progress.total}…
-                </Text>
-              ) : null}
-            </>
-          ) : (
-            results.map((r, i) => (
-              <View key={i} style={[styles.resultRow, { borderColor: colors.border }]}>
-                <Text style={{ color: colors.primaryText, fontWeight: "600" }}>{r.row.input.numero_documento}</Text>
-                <Text style={{ color: r.ok ? "#059669" : "#dc2626", fontSize: 13 }}>{r.message}</Text>
-              </View>
-            ))
-          )}
-        </ScrollView>
-
-        <View style={[styles.footer, { borderTopColor: colors.border }]}>
-          {!results ? (
-            <>
-              <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={close} disabled={importing}>
-                <Text style={{ color: colors.primaryText }}>Cancelar</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, opacity: importing || !rows.length || !!effectiveHeaderError ? 0.5 : 1 }]}
-                onPress={() => void doImport()}
-                disabled={importing || !rows.length || !!effectiveHeaderError}
-              >
-                {importing ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>Importar</Text>}
-              </Pressable>
-            </>
-          ) : (
-            <Pressable style={[styles.btnPrimary, { backgroundColor: colors.headerAccent, flex: 1 }]} onPress={close}>
-              <Text style={styles.btnPrimaryText}>Listo</Text>
-            </Pressable>
-          )}
-        </View>
-      </View>
-    </Modal>
+          {effectiveHeaderError ? (
+            <Text style={{ color: "#dc2626", marginTop: 8 }}>{effectiveHeaderError}</Text>
+          ) : rows.length ? (
+            <Text style={{ color: colors.textMuted, marginTop: 8 }}>
+              {rows.length} fila(s): {rows.filter((r) => !r.isUpdate && r.errors.length === 0).length} nuevos,{" "}
+              {rows.filter((r) => r.isUpdate && r.errors.length === 0).length} actualizaciones
+            </Text>
+          ) : null}
+          {importing ? (
+            <Text style={{ color: colors.textMuted, marginTop: 12 }}>
+              Procesando {progress.done}/{progress.total}…
+            </Text>
+          ) : null}
+        </>
+      ) : (
+        results.map((r, i) => (
+          <View key={i} style={[styles.resultRow, { borderColor: colors.border }]}>
+            <Text style={{ color: colors.primaryText, fontWeight: "600" }}>{r.row.input.numero_documento}</Text>
+            <Text style={{ color: r.ok ? "#059669" : "#dc2626", fontSize: 13 }}>{r.message}</Text>
+          </View>
+        ))
+      )}
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 16, borderBottomWidth: StyleSheet.hairlineWidth },
-  headerTitle: { fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center" },
-  body: { padding: 16 },
   drop: { borderWidth: 2, borderStyle: "dashed", borderRadius: SHELL_RADIUS.card, padding: 24, alignItems: "center", gap: 8 },
   resultRow: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, padding: 12, marginBottom: 8, gap: 4 },
-  footer: { flexDirection: "row", gap: 10, padding: 16, borderTopWidth: StyleSheet.hairlineWidth },
   btnGhost: { flex: 1, alignItems: "center", paddingVertical: 12, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
   btnPrimary: { flex: 1, alignItems: "center", paddingVertical: 12, borderRadius: SHELL_RADIUS.button },
   btnPrimaryText: { color: "#fff", fontWeight: "700" },

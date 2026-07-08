@@ -6,7 +6,7 @@ interface ThemeBrandLogoProps {
   style?: StyleProp<ImageStyle>;
 }
 
-/** Logo Tecnotics Contable (Designer.png). */
+/** Logo Tecnotics Contable (assets/favicon.png). */
 const ThemeBrandLogo: React.FC<ThemeBrandLogoProps> = ({ style }) => {
   return <Image source={appLogo} style={style} resizeMode="contain" />;
 };

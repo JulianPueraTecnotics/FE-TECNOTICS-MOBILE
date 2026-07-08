@@ -31,7 +31,7 @@ import {
   type Nomina,
   type PlantillaLote,
 } from "../../../services/nomina.service";
-import { downloadForm220Native } from "../../../services/nomina.service.native";
+import { downloadForm220Native } from "../../../services/nominaDownload.native";
 import { TIPO_CONTRATO_OPTIONS, TIPO_TRABAJADOR_OPTIONS } from "../nomina.constants";
 import {
   NOMINA_TABS,
@@ -57,6 +57,12 @@ export default function NominaEmpleadosNative() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<NominaTab>(() => parseNominaTab(searchParams.get("sec")));
   const [refreshing, setRefreshing] = useState(false);
+
+  // Sincroniza la pestaña activa cuando se navega desde el menú lateral (cambia ?sec=).
+  useEffect(() => {
+    const next = parseNominaTab(searchParams.get("sec"));
+    setTab((prev) => (prev === next ? prev : next));
+  }, [searchParams]);
 
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [empPage, setEmpPage] = useState(1);
@@ -231,7 +237,12 @@ export default function NominaEmpleadosNative() {
         refreshing={refreshing}
         onRefresh={onRefresh}
       >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabsScroll}
+          contentContainerStyle={styles.tabs}
+        >
           {NOMINA_TABS.map((t) => (
             <Pressable
               key={t.key}
@@ -388,7 +399,8 @@ export default function NominaEmpleadosNative() {
 }
 
 const styles = StyleSheet.create({
-  tabs: { paddingHorizontal: 12, gap: 8, paddingVertical: 8 },
+  tabsScroll: { flexGrow: 0, height: 52 },
+  tabs: { paddingHorizontal: 12, gap: 8, paddingVertical: 8, alignItems: "center" },
   tab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: SHELL_RADIUS.button, borderWidth: 1, marginRight: 8 },
   card: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginBottom: 10 },
   chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },

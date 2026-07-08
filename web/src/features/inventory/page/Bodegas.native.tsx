@@ -1,10 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -12,8 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
-import ItemPickerFieldNative, { InvFieldLabel, InvTextInput } from "../../../components/native/inventory/InventoryUi.native";
+import { DsField, DsSideModal } from "../../../components/design-system-native";
 import LoadingScreen from "../../../router/LoadingScreen";
 import { createWarehouse, getWarehouses, updateWarehouse } from "../inventory.service";
 import type { Warehouse } from "../inventory.types";
@@ -138,36 +133,54 @@ export default function BodegasNative() {
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
-      <Modal visible={modalOpen} animationType="slide" transparent onRequestClose={() => setModalOpen(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.overlay}>
-          <View style={[styles.sheet, { backgroundColor: colors.cardBg }]}>
-            <Text style={[styles.sheetTitle, { color: colors.primaryText }]}>{editing ? "Editar bodega" : "Nueva bodega"}</Text>
-            {!editing ? (
-              <>
-                <InvFieldLabel>Código *</InvFieldLabel>
-                <InvTextInput value={form.codigo} onChangeText={(v) => setForm((f) => ({ ...f, codigo: v }))} placeholder="Ej. BOD01" />
-              </>
-            ) : null}
-            <InvFieldLabel>Nombre *</InvFieldLabel>
-            <InvTextInput value={form.nombre} onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))} />
-            <InvFieldLabel>Municipio</InvFieldLabel>
-            <InvTextInput value={form.municipio} onChangeText={(v) => setForm((f) => ({ ...f, municipio: v }))} />
-            <InvFieldLabel>Dirección</InvFieldLabel>
-            <InvTextInput value={form.direccion} onChangeText={(v) => setForm((f) => ({ ...f, direccion: v }))} multiline />
-            <Pressable
-              onPress={() => setForm((f) => ({ ...f, es_principal: !f.es_principal }))}
-              style={[styles.checkRow, { borderColor: colors.border }]}
-            >
-              <Ionicons name={form.es_principal ? "checkbox" : "square-outline"} size={22} color={colors.headerAccent} />
-              <Text style={{ color: colors.primaryText }}>Bodega principal</Text>
-            </Pressable>
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-              <LedgerPrimaryBtn label="Cancelar" variant="secondary" onPress={() => setModalOpen(false)} />
-              <LedgerPrimaryBtn label="Guardar" onPress={handleSave} loading={saving} />
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      <DsSideModal
+        visible={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Editar bodega" : "Nueva bodega"}
+        icon="business-outline"
+        onSubmit={() => void handleSave()}
+        submitLabel="Guardar"
+        submitting={saving}
+        closeDisabled={saving}
+      >
+        {!editing ? (
+          <DsField
+            label="Código"
+            required
+            icon="barcode-outline"
+            value={form.codigo}
+            onChangeText={(v) => setForm((f) => ({ ...f, codigo: v }))}
+            placeholder="Ej. BOD01"
+          />
+        ) : null}
+        <DsField
+          label="Nombre"
+          required
+          icon="business-outline"
+          value={form.nombre}
+          onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))}
+        />
+        <DsField
+          label="Municipio"
+          icon="location-outline"
+          value={form.municipio}
+          onChangeText={(v) => setForm((f) => ({ ...f, municipio: v }))}
+        />
+        <DsField
+          label="Dirección"
+          icon="map-outline"
+          value={form.direccion}
+          onChangeText={(v) => setForm((f) => ({ ...f, direccion: v }))}
+          multiline
+        />
+        <Pressable
+          onPress={() => setForm((f) => ({ ...f, es_principal: !f.es_principal }))}
+          style={[styles.checkRow, { borderColor: colors.border }]}
+        >
+          <Ionicons name={form.es_principal ? "checkbox" : "square-outline"} size={22} color={colors.headerAccent} />
+          <Text style={{ color: colors.primaryText }}>Bodega principal</Text>
+        </Pressable>
+      </DsSideModal>
     </View>
   );
 }
@@ -179,8 +192,5 @@ const styles = StyleSheet.create({
   badge: { backgroundColor: "#dcfce7", paddingHorizontal: 8, paddingVertical: 2, borderRadius: SHELL_RADIUS.button },
   name: { fontSize: 16, fontWeight: "700", marginTop: 4 },
   fab: { position: "absolute", right: 20, width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", elevation: 4 },
-  overlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
-  sheet: { maxHeight: "85%", borderTopLeftRadius: SHELL_RADIUS.menuItem, borderTopRightRadius: SHELL_RADIUS.menuItem, padding: 16 },
-  sheetTitle: { fontSize: 18, fontWeight: "700", marginBottom: 12 },
   checkRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 10, borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4 },
 });

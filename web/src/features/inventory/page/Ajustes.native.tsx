@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import ItemPickerFieldNative, { InvFieldLabel, InvTextInput } from "../../../components/native/inventory/InventoryUi.native";
+import ItemPickerFieldNative, { InvFieldLabel } from "../../../components/native/inventory/InventoryUi.native";
+import { DsField } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import { createAjuste, getWarehouses } from "../inventory.service";
 import type { Warehouse } from "../inventory.types";
@@ -95,14 +96,12 @@ export default function AjustesNative() {
         ))}
       </ScrollView>
 
-      <InvFieldLabel>Cantidad (+/−) *</InvFieldLabel>
-      <InvTextInput value={cantidad} onChangeText={setCantidad} keyboardType="decimal-pad" placeholder="Ej. 10 o -3" />
-      <InvFieldLabel>Costo unitario (opcional)</InvFieldLabel>
-      <InvTextInput value={costoUnitario} onChangeText={setCostoUnitario} keyboardType="decimal-pad" />
-      <InvFieldLabel>Fecha</InvFieldLabel>
-      <InvTextInput value={fecha} onChangeText={setFecha} placeholder="YYYY-MM-DD" />
-      <InvFieldLabel>Motivo</InvFieldLabel>
-      <InvTextInput value={motivo} onChangeText={setMotivo} multiline />
+      <View style={{ gap: 12 }}>
+        <DsField label="Cantidad (+/−) *" icon="swap-vertical-outline" value={cantidad} onChangeText={setCantidad} keyboardType="decimal-pad" placeholder="Ej. 10 o -3" />
+        <DsField label="Costo unitario (opcional)" icon="cash-outline" value={costoUnitario} onChangeText={setCostoUnitario} keyboardType="decimal-pad" />
+        <DsField label="Fecha" icon="calendar-outline" value={fecha} onChangeText={setFecha} placeholder="YYYY-MM-DD" />
+        <DsField label="Motivo" icon="document-text-outline" value={motivo} onChangeText={setMotivo} multiline />
+      </View>
 
       <View style={{ marginTop: 12 }}>
         <LedgerPrimaryBtn label="Registrar ajuste" icon="checkmark-outline" onPress={submit} loading={saving} />

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { DsField } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { generarPila, getPilaHistorial, previewPila, type PilaHistorialItem, type PilaPlanilla } from "../../../services/nomina.service";
-import { downloadPilaNative } from "../../../services/nomina.service.native";
+import { downloadPilaNative } from "../../../services/nominaDownload.native";
 import { formatCOP } from "../nomina.shared";
 
 const thisPeriodo = () => {
@@ -64,14 +65,15 @@ export default function NominaPilaPanelNative() {
 
   return (
     <View>
-      <Text style={{ color: colors.textMuted, marginBottom: 8 }}>Período (YYYY-MM)</Text>
-      <TextInput
-        style={{ borderWidth: 1, borderColor: colors.border, borderRadius: SHELL_RADIUS.menuItem, padding: 12, color: colors.primary, marginBottom: 12 }}
-        value={periodo}
-        onChangeText={setPeriodo}
-        placeholder="2026-06"
-        placeholderTextColor={colors.textMuted}
-      />
+      <View style={{ marginBottom: 12 }}>
+        <DsField
+          label="Período (YYYY-MM)"
+          icon="calendar-outline"
+          value={periodo}
+          onChangeText={setPeriodo}
+          placeholder="2026-06"
+        />
+      </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
         <LedgerPrimaryBtn label={loading ? "…" : "Previsualizar"} onPress={preview} disabled={loading} />
         <LedgerPrimaryBtn label={generando ? "…" : "Generar PILA"} onPress={generar} disabled={generando} />

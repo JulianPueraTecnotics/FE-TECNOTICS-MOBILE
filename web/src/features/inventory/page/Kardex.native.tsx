@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import ItemPickerFieldNative, { InvFieldLabel, InvTextInput } from "../../../components/native/inventory/InventoryUi.native";
+import ItemPickerFieldNative, { InvFieldLabel } from "../../../components/native/inventory/InventoryUi.native";
+import { DsField } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
@@ -75,10 +76,10 @@ export default function KardexNative() {
         ))}
       </ScrollView>
 
-      <InvFieldLabel>Desde</InvFieldLabel>
-      <InvTextInput value={desde} onChangeText={setDesde} placeholder="YYYY-MM-DD" />
-      <InvFieldLabel>Hasta</InvFieldLabel>
-      <InvTextInput value={hasta} onChangeText={setHasta} placeholder="YYYY-MM-DD" />
+      <View style={{ gap: 12 }}>
+        <DsField label="Desde" icon="calendar-outline" value={desde} onChangeText={setDesde} placeholder="YYYY-MM-DD" />
+        <DsField label="Hasta" icon="calendar-outline" value={hasta} onChangeText={setHasta} placeholder="YYYY-MM-DD" />
+      </View>
 
       <View style={{ marginTop: 8, marginBottom: 16 }}>
         <LedgerPrimaryBtn label={loading ? "Consultando…" : "Consultar kardex"} icon="search-outline" onPress={consultar} loading={loading} />

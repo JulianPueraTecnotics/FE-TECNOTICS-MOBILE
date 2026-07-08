@@ -1,5 +1,5 @@
 import { resolveImageUri } from "../utils/resolveImageUri";
-import appLogoAsset from "./Designer.png";
+import appLogoAsset from "../../../assets/favicon.png";
 
 /** Para `<Image source={…} />` (React Native). */
 export default appLogoAsset;

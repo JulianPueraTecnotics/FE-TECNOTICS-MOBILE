@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import AccentStrip from "./AccentStrip.native";
 import NativeNavMenu from "./NativeNavMenu.native";
 import { getDrawerShadow, SHELL_RADIUS } from "./shellStyles.native";
-import ThemeBrandLogo from "../shared/ThemeBrandLogo.native";
 import ThemeSwitch from "../shared/ThemeSwitch.native";
 import { PATHS } from "../../router/paths.contants";
 import { AuthContext } from "../../store/auth.context";
@@ -173,10 +172,6 @@ export default function MobilePrivateDrawer({ visible, onClose }: Props) {
               <Text style={styles.logoutText}>Cerrar sesión</Text>
             </Pressable>
           </ScrollView>
-
-          <View style={styles.brandFooter}>
-            <ThemeBrandLogo style={styles.brand} />
-          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -251,6 +246,4 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   logoutText: { color: "#ef4444", fontSize: 15, fontWeight: "700" },
-  brandFooter: { alignItems: "center", paddingTop: 8 },
-  brand: { width: 120, height: 36, opacity: 0.85 },
 });

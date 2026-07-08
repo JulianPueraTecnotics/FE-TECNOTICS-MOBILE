@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSearchParams } from "react-router-dom";
 import { DsModuleScreen } from "../../../components/design-system-native";
@@ -73,6 +73,14 @@ export default function AccountingNative() {
     isAccountingSection(initial) ? initial : "comprobantes"
   );
 
+  // Sincroniza la pestaña activa cuando se navega desde el menú lateral (cambia ?sec=).
+  useEffect(() => {
+    const sec = searchParams.get("sec");
+    if (isAccountingSection(sec)) {
+      setSection((prev) => (prev === sec ? prev : sec));
+    }
+  }, [searchParams]);
+
   const go = (s: AccountingSection) => {
     setSection(s);
     setSearchParams((prev) => {
@@ -138,8 +146,8 @@ export default function AccountingNative() {
 }
 
 const styles = StyleSheet.create({
-  tabsScroll: { maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
-  tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+  tabsScroll: { flexGrow: 0, height: 52, borderBottomWidth: StyleSheet.hairlineWidth },
+  tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8, alignItems: "center" },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,

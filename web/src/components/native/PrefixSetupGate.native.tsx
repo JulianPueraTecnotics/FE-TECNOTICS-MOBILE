@@ -29,7 +29,7 @@ export default function PrefixSetupGateNative({ onBack }: Props) {
           (resoluciones) de facturación de tu cuenta.
         </Text>
         <Pressable
-          style={[styles.btn, { backgroundColor: colors.primary }]}
+          style={[styles.btn, { backgroundColor: colors.headerAccent }]}
           onPress={() => navigate(`${PATHS.CONFIGURATION}?sec=facturacion`)}
         >
           <Text style={styles.btnText}>Configurar prefijos</Text>

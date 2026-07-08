@@ -2,18 +2,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNativePrivateInsets } from "../../../components/mobile/useNativePrivateInsets.native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
-import { DsButton, DsModuleScreen } from "../../../components/design-system-native";
+import { DsButton, DsField, DsModuleScreen, DsSideModal } from "../../../components/design-system-native";
 import { PATHS } from "../../../router/paths.contants";
 import { getAllClients, searchClients } from "../../../services/clients.service";
 import { getAllItems, searchItems } from "../../../services/items.service";
@@ -273,15 +271,17 @@ export default function QuoteEditorNative() {
               {selectedClient ? `${selectedClient.name}` : "Seleccionar cliente"}
             </Text>
           </Pressable>
-          <TextInput
-            value={clientEmail}
-            onChangeText={setClientEmail}
-            placeholder="Correo de envío"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle, marginTop: 8 }]}
-          />
+          <View style={{ marginTop: 8 }}>
+            <DsField
+              label="Correo de envío"
+              icon="mail-outline"
+              value={clientEmail}
+              onChangeText={setClientEmail}
+              placeholder="cliente@correo.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
         </View>
 
         <View style={[styles.card, getSoftCardShadow(colors), { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
@@ -335,28 +335,29 @@ export default function QuoteEditorNative() {
               </Pressable>
             ))}
           </ScrollView>
-          <Text style={[styles.label, { color: colors.textMuted }]}>Vencimiento (AAAA-MM-DD)</Text>
-          <TextInput
-            value={validUntil}
-            onChangeText={setValidUntil}
-            placeholder="2026-07-22"
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle }]}
-          />
-          <Text style={[styles.label, { color: colors.textMuted, marginTop: 8 }]}>Retención (%)</Text>
-          <TextInput
-            value={retenciones}
-            onChangeText={setRetenciones}
-            keyboardType="decimal-pad"
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle }]}
-          />
-          <Text style={[styles.label, { color: colors.textMuted, marginTop: 8 }]}>Observaciones</Text>
-          <TextInput
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            style={[styles.input, { borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.bgSubtle, minHeight: 72 }]}
-          />
+          <View style={{ gap: 8 }}>
+            <DsField
+              label="Vencimiento (AAAA-MM-DD)"
+              icon="calendar-outline"
+              value={validUntil}
+              onChangeText={setValidUntil}
+              placeholder="2026-07-22"
+            />
+            <DsField
+              label="Retención (%)"
+              icon="pricetag-outline"
+              value={retenciones}
+              onChangeText={setRetenciones}
+              keyboardType="decimal-pad"
+            />
+            <DsField
+              label="Observaciones"
+              icon="document-text-outline"
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+            />
+          </View>
         </View>
 
         <View style={[styles.totalsBox, { backgroundColor: colors.bgSubtle, borderColor: colors.border }]}>
@@ -366,86 +367,76 @@ export default function QuoteEditorNative() {
         </View>
       </DsModuleScreen>
 
-      <Modal visible={clientModalOpen} animationType="slide" onRequestClose={() => setClientModalOpen(false)}>
-        <View style={{ flex: 1, backgroundColor: colors.pageBg, paddingTop: insets.paddingTop }}>
-          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-            <Pressable onPress={() => setClientModalOpen(false)}>
-              <Ionicons name="close" size={26} color={colors.primaryText} />
+      <DsSideModal
+        visible={clientModalOpen}
+        onClose={() => setClientModalOpen(false)}
+        title="Cliente"
+        icon="person-outline"
+      >
+        <DsField
+          icon="search-outline"
+          value={clientQuery}
+          onChangeText={setClientQuery}
+          placeholder="Buscar cliente..."
+        />
+        {clientLoading ? (
+          <ActivityIndicator color={colors.headerAccent} style={{ marginTop: 24 }} />
+        ) : (
+          clientResults.map((c) => (
+            <Pressable
+              key={c._id}
+              onPress={() => pickClient(c)}
+              style={[styles.pickRow, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
+            >
+              <Text style={{ fontWeight: "600", color: colors.primaryText }}>{c.name}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 13 }}>{c.doc_type} {c.doc_number}</Text>
             </Pressable>
-            <Text style={{ fontWeight: "700", color: colors.primary, fontSize: 17 }}>Cliente</Text>
-            <View style={{ width: 26 }} />
-          </View>
-          <TextInput
-            value={clientQuery}
-            onChangeText={setClientQuery}
-            placeholder="Buscar cliente..."
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, { margin: 16, borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-          />
-          {clientLoading ? (
-            <ActivityIndicator color={colors.headerAccent} style={{ marginTop: 24 }} />
-          ) : (
-            <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}>
-              {clientResults.map((c) => (
-                <Pressable
-                  key={c._id}
-                  onPress={() => pickClient(c)}
-                  style={[styles.pickRow, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
-                >
-                  <Text style={{ fontWeight: "600", color: colors.primaryText }}>{c.name}</Text>
-                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>{c.doc_type} {c.doc_number}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          )}
-        </View>
-      </Modal>
+          ))
+        )}
+      </DsSideModal>
 
-      <Modal visible={itemModalOpen} animationType="slide" onRequestClose={() => setItemModalOpen(false)}>
-        <View style={{ flex: 1, backgroundColor: colors.pageBg, paddingTop: insets.paddingTop }}>
-          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-            <Pressable onPress={() => setItemModalOpen(false)}>
-              <Ionicons name="close" size={26} color={colors.primaryText} />
-            </Pressable>
-            <Text style={{ fontWeight: "700", color: colors.primary, fontSize: 17 }}>Producto o servicio</Text>
-            <View style={{ width: 26 }} />
-          </View>
-          <TextInput
-            value={itemQuery}
-            onChangeText={setItemQuery}
-            placeholder="Buscar en catálogo..."
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, { margin: 16, borderColor: colors.border, color: colors.primaryText, backgroundColor: colors.cardBg }]}
-          />
-          <View style={{ paddingHorizontal: 16, gap: 8, marginBottom: 8 }}>
-            <Text style={{ color: colors.textMuted, fontSize: 13 }}>Captura manual</Text>
-            <TextInput value={manualName} onChangeText={setManualName} placeholder="Nombre" placeholderTextColor={colors.textMuted} style={[styles.input, { borderColor: colors.border, color: colors.primaryText }]} />
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <TextInput value={manualPrice} onChangeText={setManualPrice} placeholder="Precio" keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} style={[styles.input, { flex: 1, borderColor: colors.border, color: colors.primaryText }]} />
-              <TextInput value={manualQty} onChangeText={setManualQty} placeholder="Cant." keyboardType="decimal-pad" placeholderTextColor={colors.textMuted} style={[styles.input, { width: 72, borderColor: colors.border, color: colors.primaryText }]} />
+      <DsSideModal
+        visible={itemModalOpen}
+        onClose={() => setItemModalOpen(false)}
+        title="Producto o servicio"
+        icon="cube-outline"
+      >
+        <DsField
+          icon="search-outline"
+          value={itemQuery}
+          onChangeText={setItemQuery}
+          placeholder="Buscar en catálogo..."
+        />
+        <View style={{ gap: 8 }}>
+          <Text style={{ color: colors.textMuted, fontSize: 13 }}>Captura manual</Text>
+          <DsField icon="cube-outline" value={manualName} onChangeText={setManualName} placeholder="Nombre" />
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <View style={{ flex: 1 }}>
+              <DsField icon="cash-outline" value={manualPrice} onChangeText={setManualPrice} placeholder="Precio" keyboardType="decimal-pad" />
             </View>
-            <Pressable onPress={addManualItem} style={[styles.addBtn, { backgroundColor: colors.headerAccent, alignSelf: "flex-start" }]}>
-              <Text style={styles.addBtnText}>Agregar manual</Text>
-            </Pressable>
+            <View style={{ width: 110 }}>
+              <DsField icon="layers-outline" value={manualQty} onChangeText={setManualQty} placeholder="Cant." keyboardType="decimal-pad" />
+            </View>
           </View>
-          {itemLoading ? (
-            <ActivityIndicator color={colors.headerAccent} />
-          ) : (
-            <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.paddingBottom }}>
-              {itemResults.map((item) => (
-                <Pressable
-                  key={item._id}
-                  onPress={() => addCatalogItem(item)}
-                  style={[styles.pickRow, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
-                >
-                  <Text style={{ fontWeight: "600", color: colors.primaryText }}>{item.name}</Text>
-                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>{formatCOP(item.price)}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          )}
+          <Pressable onPress={addManualItem} style={[styles.addBtn, { backgroundColor: colors.headerAccent, alignSelf: "flex-start" }]}>
+            <Text style={styles.addBtnText}>Agregar manual</Text>
+          </Pressable>
         </View>
-      </Modal>
+        {itemLoading ? (
+          <ActivityIndicator color={colors.headerAccent} />
+        ) : (
+          itemResults.map((item) => (
+            <Pressable
+              key={item._id}
+              onPress={() => addCatalogItem(item)}
+              style={[styles.pickRow, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
+            >
+              <Text style={{ fontWeight: "600", color: colors.primaryText }}>{item.name}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 13 }}>{formatCOP(item.price)}</Text>
+            </Pressable>
+          ))
+        )}
+      </DsSideModal>
     </>
   );
 }
@@ -455,8 +446,6 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 15, fontWeight: "700", marginBottom: 8 },
   selectBtn: { flexDirection: "row", alignItems: "center", gap: 8, borderWidth: 1, borderRadius: SHELL_RADIUS.input, padding: 12 },
   selectText: { flex: 1, fontSize: 14 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
-  label: { fontSize: 12, marginBottom: 4 },
   rowBetween: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   addBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: SHELL_RADIUS.button },
   addBtnText: { color: "#fff", fontWeight: "600", fontSize: 13 },
@@ -464,6 +453,5 @@ const styles = StyleSheet.create({
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8 },
   totalsBox: { borderWidth: 1, borderRadius: SHELL_RADIUS.card, padding: 14, marginTop: 4 },
   footer: { flexDirection: "row", gap: 10, paddingHorizontal: 16, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth },
-  modalHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
   pickRow: { borderWidth: 1, borderRadius: SHELL_RADIUS.input, padding: 12, marginBottom: 8 },
 });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import ItemPickerFieldNative, { InvFieldLabel, InvTextInput } from "../../../components/native/inventory/InventoryUi.native";
+import ItemPickerFieldNative, { InvFieldLabel } from "../../../components/native/inventory/InventoryUi.native";
+import { DsField } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import { cargarSaldosIniciales, getWarehouses } from "../inventory.service";
 import type { Warehouse } from "../inventory.types";
@@ -90,12 +91,11 @@ export default function SaldosInicialesNative() {
         ))}
       </ScrollView>
 
-      <InvFieldLabel>Cantidad *</InvFieldLabel>
-      <InvTextInput value={cantidad} onChangeText={setCantidad} keyboardType="decimal-pad" />
-      <InvFieldLabel>Costo unitario *</InvFieldLabel>
-      <InvTextInput value={costoUnitario} onChangeText={setCostoUnitario} keyboardType="decimal-pad" />
-      <InvFieldLabel>Fecha</InvFieldLabel>
-      <InvTextInput value={fecha} onChangeText={setFecha} placeholder="YYYY-MM-DD" />
+      <View style={{ gap: 12 }}>
+        <DsField label="Cantidad *" icon="layers-outline" value={cantidad} onChangeText={setCantidad} keyboardType="decimal-pad" />
+        <DsField label="Costo unitario *" icon="cash-outline" value={costoUnitario} onChangeText={setCostoUnitario} keyboardType="decimal-pad" />
+        <DsField label="Fecha" icon="calendar-outline" value={fecha} onChangeText={setFecha} placeholder="YYYY-MM-DD" />
+      </View>
 
       <View style={{ marginTop: 12 }}>
         <LedgerPrimaryBtn label="Cargar saldo inicial" icon="flag-outline" onPress={submit} loading={saving} />

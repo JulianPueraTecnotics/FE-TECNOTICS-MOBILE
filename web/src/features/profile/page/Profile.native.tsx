@@ -152,6 +152,10 @@ export default function ProfileNative({
     void loadData();
   }, [loadData]);
 
+  const refresh = useCallback(() => {
+    void loadData();
+  }, [loadData]);
+
   const docNumber = useMemo(() => {
     if (!profile) return "N/A";
     const base = profile.company.doc_number || "";
@@ -310,14 +314,14 @@ export default function ProfileNative({
 
         {activeSection === "contact-bank" ? (
           <ProfileCard title="Información de contacto y banco">
-            <ProfileContactBankNative profile={profile} onSaved={() => void loadData()} />
+            <ProfileContactBankNative profile={profile} onSaved={refresh} />
           </ProfileCard>
         ) : null}
 
         {activeSection === "billing-config" ? (
           <>
-            <BillingPrefixesNative embedded onPrefixesChanged={() => void loadData()} />
-            <ProfileBillingExtrasNative onChanged={() => void loadData()} />
+            <BillingPrefixesNative embedded onPrefixesChanged={refresh} />
+            <ProfileBillingExtrasNative onChanged={refresh} />
           </>
         ) : null}
 
@@ -395,8 +399,8 @@ export default function ProfileNative({
 }
 
 const styles = StyleSheet.create({
-  tabsScroll: { maxHeight: 52, borderBottomWidth: StyleSheet.hairlineWidth },
-  tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+  tabsScroll: { flexGrow: 0, height: 52, borderBottomWidth: StyleSheet.hairlineWidth },
+  tabsContent: { paddingHorizontal: 12, paddingVertical: 8, gap: 8, alignItems: "center" },
   tab: {
     paddingHorizontal: 14,
     paddingVertical: 8,

@@ -1,20 +1,9 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { createSubUser, updateSubUser } from "../../../services/sub-users.service";
 import { errorToast, successToast } from "../../shared/toast/toasts";
 import type { CreateSubUserRequest, ISubUser, UpdateSubUserRequest } from "../../../types";
+import { DsField, DsSideModal } from "../../design-system-native";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS } from "../../mobile/shellStyles.native";
 
@@ -143,103 +132,62 @@ export default function SubUserFormModalNative({ visible, subUser, onClose, onSu
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.overlay}>
-        <View style={[styles.sheet, { backgroundColor: colors.cardBg }]}>
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.primaryText }]}>{isEdit ? "Editar usuario" : "Nuevo usuario"}</Text>
-            <Pressable onPress={onClose} hitSlop={8}>
-              <Ionicons name="close" size={24} color={colors.textMuted} />
-            </Pressable>
-          </View>
-
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 24 }}>
-            <Field label="Nombre" value={form.name} onChangeText={(v) => setField("name", v)} colors={colors} />
-            <Field label="Apellido" value={form.last_name} onChangeText={(v) => setField("last_name", v)} colors={colors} />
-            <Field
-              label="Email"
-              value={form.email}
-              onChangeText={(v) => setField("email", v)}
-              colors={colors}
-              editable={!isEdit}
-              keyboardType="email-address"
-            />
-            <Field label="Teléfono" value={form.phone} onChangeText={(v) => setField("phone", v)} colors={colors} keyboardType="phone-pad" />
-
-            <Text style={[styles.label, { color: colors.textMuted }]}>Tipo documento</Text>
-            <View style={styles.chips}>
-              {DOC_TYPES.map((t) => (
-                <Pressable
-                  key={t}
-                  onPress={() => setField("doc_type", t)}
-                  style={[
-                    styles.chip,
-                    { borderColor: colors.border, backgroundColor: form.doc_type === t ? colors.accent : colors.bgSubtle },
-                  ]}
-                >
-                  <Text style={{ color: form.doc_type === t ? "#fff" : colors.primaryText, fontSize: 12, fontWeight: "600" }}>{t}</Text>
-                </Pressable>
-              ))}
-            </View>
-
-            <Field label="Número documento" value={form.doc_number} onChangeText={(v) => setField("doc_number", v)} colors={colors} />
-          </ScrollView>
-
-          <Pressable
-            onPress={handleSave}
-            disabled={!isValid || saving}
-            style={[styles.saveBtn, { backgroundColor: colors.accent, opacity: !isValid || saving ? 0.5 : 1 }]}
-          >
-            {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChangeText,
-  colors,
-  editable = true,
-  keyboardType,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  colors: ReturnType<typeof useThemeColors>;
-  editable?: boolean;
-  keyboardType?: "default" | "email-address" | "phone-pad";
-}) {
-  return (
-    <View style={styles.field}>
-      <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        editable={editable}
-        keyboardType={keyboardType}
-        style={[
-          styles.input,
-          { borderColor: colors.border, color: colors.primaryText, backgroundColor: editable ? colors.pageBg : colors.bgSubtle },
-        ]}
+    <DsSideModal
+      visible={visible}
+      onClose={onClose}
+      title={isEdit ? "Editar usuario" : "Nuevo usuario"}
+      icon="person-add-outline"
+      closeDisabled={saving}
+      submitting={saving}
+      submitDisabled={!isValid}
+      onSubmit={() => void handleSave()}
+    >
+      <DsField label="Nombre" required icon="person-outline" value={form.name} onChangeText={(v) => setField("name", v)} />
+      <DsField label="Apellido" required icon="person-outline" value={form.last_name} onChangeText={(v) => setField("last_name", v)} />
+      <DsField
+        label="Email"
+        required={!isEdit}
+        icon="mail-outline"
+        value={form.email}
+        onChangeText={(v) => setField("email", v)}
+        editable={!isEdit}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
-    </View>
+      <DsField
+        label="Teléfono"
+        required
+        icon="call-outline"
+        value={form.phone}
+        onChangeText={(v) => setField("phone", v)}
+        keyboardType="phone-pad"
+      />
+
+      <View style={{ gap: 6 }}>
+        <Text style={[styles.label, { color: colors.primaryText }]}>Tipo documento</Text>
+        <View style={styles.chips}>
+          {DOC_TYPES.map((t) => (
+            <Pressable
+              key={t}
+              onPress={() => setField("doc_type", t)}
+              style={[
+                styles.chip,
+                { borderColor: form.doc_type === t ? colors.headerAccent : colors.border, backgroundColor: form.doc_type === t ? colors.headerAccent : colors.bgSubtle },
+              ]}
+            >
+              <Text style={{ color: form.doc_type === t ? "#fff" : colors.primaryText, fontSize: 12, fontWeight: "600" }}>{t}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+
+      <DsField label="Número documento" required icon="card-outline" value={form.doc_number} onChangeText={(v) => setField("doc_number", v)} />
+    </DsSideModal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
-  sheet: { maxHeight: "90%", borderTopLeftRadius: SHELL_RADIUS.menuItem, borderTopRightRadius: SHELL_RADIUS.menuItem, padding: 16 },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  title: { fontSize: 18, fontWeight: "700" },
-  field: { marginBottom: 12 },
-  label: { fontSize: 12, fontWeight: "600", marginBottom: 4 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15 },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
+  label: { fontSize: 13, fontWeight: "600" },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: SHELL_RADIUS.button, borderWidth: 1 },
-  saveBtn: { marginTop: 8, paddingVertical: 14, borderRadius: SHELL_RADIUS.button, alignItems: "center" },
-  saveText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

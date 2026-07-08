@@ -2,19 +2,18 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import * as XLSX from "xlsx";
+import { DsField, DsSideModal } from "../../../components/design-system-native";
 import { LedgerPrimaryBtn } from "../../../components/native/ledger/LedgerUi.native";
 import LoadingScreen from "../../../router/LoadingScreen";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
@@ -126,16 +125,14 @@ function DefaultAccountsSection() {
       {DEFAULT_ACCOUNT_FIELDS.map((f) => {
         const pair = config[f.key] as { niif?: string } | undefined;
         return (
-          <View key={String(f.key)} style={[styles.field, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
-            <Text style={[styles.label, { color: colors.textMuted }]}>{f.label}</Text>
-            <TextInput
-              style={[styles.input, { color: colors.primary, borderColor: colors.border }]}
-              placeholder="Código NIIF"
-              placeholderTextColor={colors.textMuted}
-              value={pair?.niif ?? ""}
-              onChangeText={(v) => setNiif(f.key, v)}
-            />
-          </View>
+          <DsField
+            key={String(f.key)}
+            label={f.label}
+            icon="folder-outline"
+            placeholder="Código NIIF"
+            value={pair?.niif ?? ""}
+            onChangeText={(v) => setNiif(f.key, v)}
+          />
         );
       })}
       <LedgerPrimaryBtn label={saving ? "Guardando…" : "Guardar cuentas"} onPress={onSave} disabled={saving} />
@@ -180,14 +177,13 @@ function SequencesSection() {
     <ScrollView contentContainerStyle={styles.pad}>
       {(["egreso", "causacion"] as const).map((t) => (
         <View key={t} style={[styles.field, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
-          <Text style={[styles.label, { color: colors.primary, fontWeight: "600" }]}>{t === "egreso" ? "Comprobante de egreso" : "Causación"}</Text>
-          <TextInput
-            style={[styles.input, { color: colors.primary, borderColor: colors.border }]}
+          <DsField
+            label={t === "egreso" ? "Comprobante de egreso" : "Causación"}
+            icon="keypad-outline"
             keyboardType="number-pad"
             value={t === "egreso" ? egreso : causacion}
             onChangeText={t === "egreso" ? setEgreso : setCausacion}
             placeholder="Número base"
-            placeholderTextColor={colors.textMuted}
           />
           <Pressable onPress={() => save(t, t === "egreso" ? egreso : causacion)} style={[styles.smallBtn, { backgroundColor: colors.accent }]}>
             <Text style={{ color: "#fff", fontWeight: "600" }}>{saving === t ? "…" : "Guardar"}</Text>
@@ -254,9 +250,9 @@ function CostCentersSection() {
 
   return (
     <ScrollView contentContainerStyle={styles.pad}>
-      <View style={[styles.field, { borderColor: colors.border, backgroundColor: colors.cardBg }]}>
-        <TextInput style={[styles.input, { color: colors.primary, borderColor: colors.border }]} placeholder="Código" placeholderTextColor={colors.textMuted} value={codigo} onChangeText={setCodigo} />
-        <TextInput style={[styles.input, { color: colors.primary, borderColor: colors.border, marginTop: 8 }]} placeholder="Descripción" placeholderTextColor={colors.textMuted} value={desc} onChangeText={setDesc} />
+      <View style={[styles.field, { borderColor: colors.border, backgroundColor: colors.cardBg, gap: 8 }]}>
+        <DsField label="Código" icon="barcode-outline" placeholder="Código" value={codigo} onChangeText={setCodigo} />
+        <DsField label="Descripción" icon="document-text-outline" placeholder="Descripción" value={desc} onChangeText={setDesc} />
         <LedgerPrimaryBtn label="Agregar centro" onPress={onCreate} />
       </View>
       {items.map((c) => (
@@ -357,8 +353,8 @@ function PucSection() {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.toolRow}>
-        <View style={[styles.searchRow, { borderColor: colors.border, backgroundColor: colors.cardBg, flex: 1, marginHorizontal: 0 }]}>
-          <TextInput style={{ flex: 1, color: colors.primary, paddingVertical: 10 }} placeholder="Buscar cuenta…" placeholderTextColor={colors.textMuted} value={search} onChangeText={setSearch} />
+        <View style={{ flex: 1, minWidth: 160 }}>
+          <DsField icon="search-outline" placeholder="Buscar cuenta…" value={search} onChangeText={setSearch} />
         </View>
         <Pressable style={[styles.smallBtn, { backgroundColor: colors.headerAccent }]} onPress={() => void onImport()} disabled={importing}>
           <Text style={{ color: "#fff", fontWeight: "600" }}>{importing ? "…" : "Importar"}</Text>
@@ -503,14 +499,15 @@ function TaxesSection() {
       <ScrollView contentContainerStyle={styles.pad}>
         <Text style={[styles.sectionTitle, { color: colors.primary }]}>UVT {uvtYear}</Text>
         <View style={styles.toolRow}>
-          <TextInput
-            style={[styles.inputInline, { borderColor: colors.border, color: colors.primaryText, flex: 1 }]}
-            value={uvtValue}
-            onChangeText={setUvtValue}
-            keyboardType="numeric"
-            placeholder="Valor UVT"
-            placeholderTextColor={colors.textMuted}
-          />
+          <View style={{ flex: 1, minWidth: 140 }}>
+            <DsField
+              icon="calculator-outline"
+              value={uvtValue}
+              onChangeText={setUvtValue}
+              keyboardType="numeric"
+              placeholder="Valor UVT"
+            />
+          </View>
           <Pressable style={[styles.smallBtn, { backgroundColor: colors.headerAccent }]} onPress={() => void onSaveUvt()}>
             <Text style={{ color: "#fff", fontWeight: "600" }}>Guardar UVT</Text>
           </Pressable>
@@ -543,9 +540,18 @@ function TaxesSection() {
         )}
       </ScrollView>
 
-      <Modal visible={modalOpen} animationType="slide" onRequestClose={() => setModalOpen(false)}>
-        <ScrollView contentContainerStyle={[styles.pad, { paddingTop: 48 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.primary }]}>{editing ? "Editar concepto" : "Nuevo concepto"}</Text>
+      <DsSideModal
+        visible={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Editar concepto" : "Nuevo concepto"}
+        icon="receipt-outline"
+        onSubmit={() => void onSaveConcept()}
+        submitLabel="Guardar"
+        submitting={saving}
+        closeDisabled={saving}
+      >
+        <View style={{ gap: 6 }}>
+          <Text style={[styles.fieldLabel, { color: colors.primaryText }]}>Tipo</Text>
           <View style={styles.chipRow}>
             {RETENTION_TYPES.map((t) => (
               <Pressable key={t} onPress={() => setForm((f) => ({ ...f, tipo: t }))} style={[styles.chip, { borderColor: colors.border, backgroundColor: form.tipo === t ? colors.headerAccent : colors.cardBg }]}>
@@ -553,25 +559,26 @@ function TaxesSection() {
               </Pressable>
             ))}
           </View>
-          {(["codigo", "descripcion", "base_minima_uvt", "tarifa", "cuenta"] as const).map((key) => (
-            <TextInput
-              key={key}
-              style={[styles.inputInline, { borderColor: colors.border, color: colors.primaryText, marginBottom: 8 }]}
-              value={form[key]}
-              onChangeText={(v) => setForm((f) => ({ ...f, [key]: v }))}
-              placeholder={key}
-              placeholderTextColor={colors.textMuted}
-              keyboardType={key === "base_minima_uvt" || key === "tarifa" ? "numeric" : "default"}
-            />
-          ))}
-          <Pressable style={[styles.smallBtn, { backgroundColor: colors.headerAccent, opacity: saving ? 0.7 : 1 }]} disabled={saving} onPress={() => void onSaveConcept()}>
-            <Text style={{ color: "#fff", fontWeight: "700" }}>{saving ? "Guardando…" : "Guardar"}</Text>
-          </Pressable>
-          <Pressable style={{ marginTop: 12, alignItems: "center" }} onPress={() => setModalOpen(false)}>
-            <Text style={{ color: colors.textMuted }}>Cancelar</Text>
-          </Pressable>
-        </ScrollView>
-      </Modal>
+        </View>
+        {(
+          [
+            { key: "codigo", label: "Código", icon: "barcode-outline" },
+            { key: "descripcion", label: "Descripción", icon: "document-text-outline" },
+            { key: "base_minima_uvt", label: "Base mínima (UVT)", icon: "calculator-outline", numeric: true },
+            { key: "tarifa", label: "Tarifa (0-1)", icon: "pricetag-outline", numeric: true },
+            { key: "cuenta", label: "Cuenta", icon: "folder-outline" },
+          ] as const
+        ).map((fld) => (
+          <DsField
+            key={fld.key}
+            label={fld.label}
+            icon={fld.icon}
+            value={form[fld.key]}
+            onChangeText={(v) => setForm((f) => ({ ...f, [fld.key]: v }))}
+            keyboardType={"numeric" in fld && fld.numeric ? "numeric" : "default"}
+          />
+        ))}
+      </DsSideModal>
     </>
   );
 }
@@ -826,13 +833,10 @@ export default function ConfigurationAccountingNative({ section }: Props) {
 const styles = StyleSheet.create({
   pad: { padding: 16, paddingBottom: 32, gap: 12 },
   field: { borderWidth: 1, borderRadius: SHELL_RADIUS.menuItem, padding: 14, marginBottom: 4 },
-  label: { fontSize: 12, marginBottom: 6 },
-  input: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15 },
+  fieldLabel: { fontSize: 13, fontWeight: "600" },
   smallBtn: { marginTop: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: SHELL_RADIUS.button, alignItems: "center" },
   toolRow: { flexDirection: "row", gap: 8, alignItems: "center", marginHorizontal: 16, marginTop: 8, flexWrap: "wrap" },
-  inputInline: { borderWidth: 1, borderRadius: SHELL_RADIUS.button, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
   rowCard: { borderWidth: 1, borderRadius: SHELL_RADIUS.menuItem, padding: 14, marginBottom: 8, flexDirection: "row", alignItems: "center", gap: 12 },
-  searchRow: { marginHorizontal: 16, marginTop: 8, paddingHorizontal: 12, borderWidth: 1, borderRadius: SHELL_RADIUS.menuItem },
   pager: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 12 },
   sectionTitle: { fontSize: 15, fontWeight: "700", marginBottom: 8 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },

@@ -3,15 +3,14 @@ import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
+import { DsSideModal } from "../../design-system-native";
 import { SHELL_RADIUS, getSoftCardShadow } from "../../../components/mobile/shellStyles.native";
 import { importPurchaseFiles, type PurchaseUploadFile } from "../../../features/purchases/purchases.service";
 import { importResultTone, purchaseKindMeta } from "../../../features/purchases/purchases.shared";
@@ -91,21 +90,44 @@ export default function ImportModalNative({ visible, kind, onClose, onImported }
     }
   };
 
-  return (
-    <Modal visible={visible} animationType="slide" onRequestClose={close}>
-      <View style={[styles.wrap, { backgroundColor: colors.pageBg }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Pressable onPress={close} disabled={importing}>
-            <Ionicons name="close" size={24} color={colors.primaryText} />
-          </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>
-            Importar {meta.importLabel} (XML / ZIP)
-          </Text>
-          <View style={{ width: 24 }} />
-        </View>
+  const footer = !result ? (
+    <>
+      <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={close} disabled={importing}>
+        <Text style={{ color: colors.primaryText }}>Cancelar</Text>
+      </Pressable>
+      <Pressable
+        style={[styles.btnPrimary, { backgroundColor: colors.accent, opacity: importing || !files.length ? 0.6 : 1 }]}
+        onPress={() => void doImport()}
+        disabled={importing || !files.length}
+      >
+        {importing ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.btnPrimaryText}>Importar {files.length || ""}</Text>
+        )}
+      </Pressable>
+    </>
+  ) : (
+    <>
+      <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={reset}>
+        <Text style={{ color: colors.primaryText }}>Importar más</Text>
+      </Pressable>
+      <Pressable style={[styles.btnPrimary, { backgroundColor: colors.accent }]} onPress={close}>
+        <Text style={styles.btnPrimaryText}>Listo</Text>
+      </Pressable>
+    </>
+  );
 
-        <ScrollView contentContainerStyle={styles.body}>
-          {!result ? (
+  return (
+    <DsSideModal
+      visible={visible}
+      onClose={close}
+      title={`Importar ${meta.importLabel} (XML / ZIP)`}
+      icon="cloud-upload-outline"
+      closeDisabled={importing}
+      footer={footer}
+    >
+      {!result ? (
             <>
               <Pressable
                 style={[styles.dropzone, { borderColor: colors.accent, backgroundColor: colors.bgSubtle }]}
@@ -173,39 +195,7 @@ export default function ImportModalNative({ visible, kind, onClose, onImported }
               })}
             </>
           )}
-        </ScrollView>
-
-        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.cardBg }]}>
-          {!result ? (
-            <>
-              <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={close} disabled={importing}>
-                <Text style={{ color: colors.primaryText }}>Cancelar</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.btnPrimary, { backgroundColor: colors.accent, opacity: importing || !files.length ? 0.6 : 1 }]}
-                onPress={() => void doImport()}
-                disabled={importing || !files.length}
-              >
-                {importing ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.btnPrimaryText}>Importar {files.length || ""}</Text>
-                )}
-              </Pressable>
-            </>
-          ) : (
-            <>
-              <Pressable style={[styles.btnGhost, { borderColor: colors.border }]} onPress={reset}>
-                <Text style={{ color: colors.primaryText }}>Importar más</Text>
-              </Pressable>
-              <Pressable style={[styles.btnPrimary, { backgroundColor: colors.accent }]} onPress={close}>
-                <Text style={styles.btnPrimaryText}>Listo</Text>
-              </Pressable>
-            </>
-          )}
-        </View>
-      </View>
-    </Modal>
+    </DsSideModal>
   );
 }
 
@@ -220,17 +210,6 @@ function Chip({ label, tone }: { label: string; tone: "ok" | "dup" | "err" }) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 16, fontWeight: "700", flex: 1, textAlign: "center" },
-  body: { padding: 16, gap: 10, paddingBottom: 24 },
   dropzone: {
     borderWidth: 2,
     borderStyle: "dashed",
@@ -257,12 +236,6 @@ const styles = StyleSheet.create({
   resultFile: { fontSize: 14, fontWeight: "600" },
   resultMeta: { fontSize: 12 },
   resultMsg: { fontSize: 13, fontWeight: "500" },
-  footer: {
-    flexDirection: "row",
-    gap: 10,
-    padding: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
   btnGhost: {
     flex: 1,
     alignItems: "center",
