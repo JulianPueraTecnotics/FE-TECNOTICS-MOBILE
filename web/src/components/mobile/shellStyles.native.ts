@@ -1,13 +1,19 @@
 import type { NativeThemeColors } from "../../theme/theme.native";
 
+const DEFAULT_SHADOW_COLOR = "#002737";
+
+function shadowColor(theme?: NativeThemeColors) {
+  return theme?.accent ?? DEFAULT_SHADOW_COLOR;
+}
+
 /** Bordes y sombras estilo ACTIVA adaptados a tokens Tecnotics. */
 export function getShellBorder(theme: NativeThemeColors) {
   return theme.border;
 }
 
-export function getHeaderShadow(theme: NativeThemeColors) {
+export function getHeaderShadow(theme?: NativeThemeColors) {
   return {
-    shadowColor: theme.accent,
+    shadowColor: shadowColor(theme),
     shadowOffset: { width: 0, height: 4 } as const,
     shadowOpacity: 0.12,
     shadowRadius: 14,
@@ -15,9 +21,9 @@ export function getHeaderShadow(theme: NativeThemeColors) {
   };
 }
 
-export function getSoftCardShadow(theme: NativeThemeColors) {
+export function getSoftCardShadow(theme?: NativeThemeColors) {
   return {
-    shadowColor: theme.accent,
+    shadowColor: shadowColor(theme),
     shadowOffset: { width: 0, height: 4 } as const,
     shadowOpacity: 0.08,
     shadowRadius: 7,

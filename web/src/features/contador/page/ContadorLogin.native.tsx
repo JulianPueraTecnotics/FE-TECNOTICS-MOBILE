@@ -20,7 +20,7 @@ import { PATHS } from "../../../router/paths.contants";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
 import { useThemeColors } from "../../../theme/useThemeColors";
 import { SHELL_RADIUS } from "../../../components/mobile/shellStyles.native";
-import AuthScreenLayout from "../../../components/shared/AuthScreenLayout";
+import AuthScreenLayout from "../../../components/shared/AuthScreenLayout.native";
 import Turnstile from "../../login/page/Turnstile";
 import { contadorSelectCompany, contadorSignIn, contadorVerify2FA, type ContadorEmpresa } from "../../contador/contador.service";
 

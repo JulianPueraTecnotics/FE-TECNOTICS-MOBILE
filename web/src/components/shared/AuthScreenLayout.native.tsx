@@ -1,4 +1,5 @@
-import { View, type ReactNode } from "react-native";
+import type { ReactNode } from "react";
+import { View } from "react-native";
 
 /** Contenedor flex:1 para pantallas auth bajo el header fijo. */
 export default function AuthScreenLayout({ children }: { children: ReactNode }) {

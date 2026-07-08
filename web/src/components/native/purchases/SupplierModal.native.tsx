@@ -4,7 +4,7 @@ import { StyleSheet, Text } from "react-native";
 import { errorToast } from "../../../components/shared/toast/toasts";
 import { DsField, DsSideModal } from "../../../components/design-system-native";
 import { useThemeColors } from "../../../theme/useThemeColors";
-import type { Supplier } from "../purchases.types";
+import type { Supplier } from "../../../features/purchases/purchases.types";
 
 type Props = {
   visible: boolean;

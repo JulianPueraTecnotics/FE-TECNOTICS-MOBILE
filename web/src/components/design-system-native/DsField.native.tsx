@@ -91,4 +91,5 @@ const styles = StyleSheet.create({
   },
   inputMulti: { minHeight: 84, paddingTop: 10, textAlignVertical: "top" },
   customControl: { flex: 1, minWidth: 0, justifyContent: "center" },
+  hint: { fontSize: 12, lineHeight: 16 },
 });

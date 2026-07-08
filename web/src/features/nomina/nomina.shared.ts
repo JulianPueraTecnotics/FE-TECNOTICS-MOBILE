@@ -1,4 +1,4 @@
-import type { CatalogOption } from "../features/nomina/nomina.constants";
+import type { CatalogOption } from "./nomina.constants";
 
 export const formatCOP = (value: number | string): string => {
   const n = typeof value === "string" ? Number(value) : value;

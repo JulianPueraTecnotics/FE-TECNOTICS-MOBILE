@@ -1,3 +1,15 @@
+import type { KardexTipo } from "./inventory.types";
+
+export const TIPO_KARDEX_LABELS: Record<KardexTipo, string> = {
+    saldo_inicial: "Saldo inicial",
+    entrada: "Entrada",
+    salida: "Salida",
+    ajuste_pos: "Ajuste (+)",
+    ajuste_neg: "Ajuste (−)",
+    traslado_in: "Traslado entrada",
+    traslado_out: "Traslado salida",
+};
+
 export const formatMoney = (n: number) =>
     (n || 0).toLocaleString("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 });
 

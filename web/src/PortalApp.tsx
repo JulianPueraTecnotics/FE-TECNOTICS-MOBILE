@@ -2,7 +2,6 @@ import { Platform } from "react-native";
 import { useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
 import "./shims/fixExpoStaticError";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppRouter from "./router/index.route";
 import { AuthProvider } from "./store/auth.provider";
 import { AuthLoader } from "./store/AuthLoader";
@@ -41,9 +40,5 @@ export default function PortalApp() {
     </ThemeProvider>
   );
 
-  if (Platform.OS === "web") {
-    return app;
-  }
-
-  return <SafeAreaProvider>{app}</SafeAreaProvider>;
+  return app;
 }
