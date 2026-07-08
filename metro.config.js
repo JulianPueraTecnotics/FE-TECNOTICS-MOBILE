@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require("fs");
 const path = require("path");
 const { getDefaultConfig } = require("expo/metro-config");
+
+const turnstileVerifyHtmlPath = path.resolve(__dirname, "public/turnstile-verify.html");
 
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
@@ -58,6 +61,38 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return resolved;
   }
   return context.resolveRequest(context, moduleName, platform);
+};
+
+const previousEnhanceMiddleware = config.server?.enhanceMiddleware;
+config.server = {
+  ...config.server,
+  enhanceMiddleware: (middleware, metroServer) => {
+    const chain = previousEnhanceMiddleware
+      ? previousEnhanceMiddleware(middleware, metroServer)
+      : middleware;
+
+    return (req, res, next) => {
+      const pathname = (req.url ?? "").split("?")[0];
+      if (
+        pathname === "/turnstile-verify.html" ||
+        pathname === "/turnstile-verify"
+      ) {
+        try {
+          const html = fs.readFileSync(turnstileVerifyHtmlPath, "utf8");
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.setHeader("Cache-Control", "no-store");
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.end(html);
+          return;
+        } catch {
+          res.statusCode = 500;
+          res.end("turnstile-verify.html no disponible");
+          return;
+        }
+      }
+      return chain(req, res, next);
+    };
+  },
 };
 
 module.exports = config;

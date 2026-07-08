@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer crossorigin="anonymous"></script>
+  <title>Verificación de seguridad</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f8fafc;
+      color: #334155;
+    }
+    h1 { font-size: 18px; margin-bottom: 16px; text-align: center; }
+    #turnstile { min-height: 70px; width: 100%; max-width: 320px; display: flex; justify-content: center; align-items: center; }
+    .hint { margin-top: 16px; font-size: 13px; color: #64748b; text-align: center; max-width: 320px; line-height: 1.4; }
+    .status { margin-top: 12px; font-size: 14px; color: #0077b6; text-align: center; }
+    .error { color: #b91c1c; margin-top: 12px; font-size: 13px; text-align: center; max-width: 320px; line-height: 1.4; }
+    .warn { color: #b45309; margin-top: 8px; font-size: 12px; text-align: center; max-width: 320px; }
+  </style>
+</head>
+<body>
+  <h1>Verificación de seguridad</h1>
+  <div id="turnstile"><span id="loading">Cargando captcha…</span></div>
+  <p class="hint">Completa el captcha. Al terminar volverás automáticamente a la app.</p>
+  <p id="host-warn" class="warn" hidden></p>
+  <p id="status" class="status" hidden>Redirigiendo a la app…</p>
+  <p id="error" class="error" hidden></p>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var sitekey = params.get("sitekey") || "1x00000000000000000000AA";
+      var embedded = params.get("embedded") === "1";
+      var redirectRaw = params.get("redirect") || "tecnoticsmobile://turnstile-callback";
+      var redirect = redirectRaw;
+      try { redirect = decodeURIComponent(redirectRaw); } catch (e) { redirect = redirectRaw; }
+
+      var statusEl = document.getElementById("status");
+      var errorEl = document.getElementById("error");
+      var loadingEl = document.getElementById("loading");
+      var hostWarn = document.getElementById("host-warn");
+      var host = window.location.hostname || "";
+
+      if (/^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)) {
+        hostWarn.textContent = "Turnstile no funciona en IP LAN (" + host + "). Usa localhost con: adb reverse tcp:8081 tcp:8081";
+        hostWarn.hidden = false;
+      }
+
+      function postToApp(type, token, detail) {
+        if (!window.ReactNativeWebView) return;
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: type,
+          token: token || "",
+          detail: detail || ""
+        }));
+      }
+
+      if (embedded) {
+        document.querySelector("h1").style.display = "none";
+        document.querySelector(".hint").style.display = "none";
+        document.body.style.minHeight = "auto";
+        document.body.style.padding = "12px";
+      }
+
+      function showError(msg) {
+        if (loadingEl) loadingEl.remove();
+        errorEl.textContent = msg;
+        errorEl.hidden = false;
+        if (embedded) postToApp("error", "", msg);
+      }
+
+      function finish(token) {
+        if (!token) { showError("Token vacío."); return; }
+        if (embedded) {
+          postToApp("verify", token);
+          return;
+        }
+        if (loadingEl) loadingEl.remove();
+        statusEl.hidden = false;
+        var sep = redirect.indexOf("?") >= 0 ? "&" : "?";
+        var target = redirect + sep + "token=" + encodeURIComponent(token);
+        try {
+          var link = document.createElement("a");
+          link.href = target;
+          link.style.display = "none";
+          document.body.appendChild(link);
+          link.click();
+        } catch (e) { /* noop */ }
+        window.location.replace(target);
+        setTimeout(function () { window.location.href = target; }, 250);
+      }
+
+      var scriptLoaded = false;
+      document.querySelector('script[src*="turnstile"]').addEventListener("load", function () {
+        scriptLoaded = true;
+        renderWidget();
+      });
+      document.querySelector('script[src*="turnstile"]').addEventListener("error", function () {
+        showError("No se pudo cargar Cloudflare Turnstile. Revisa tu conexión.");
+      });
+
+      if (window.turnstile) {
+        scriptLoaded = true;
+        renderWidget();
+      }
+
+      var tries = 0;
+      function renderWidget() {
+        tries++;
+        if (!window.turnstile) {
+          if (tries > 100) {
+            showError("El captcha no cargó. En Android ejecuta: adb reverse tcp:8081 tcp:8081 y vuelve a intentar.");
+            return;
+          }
+          setTimeout(renderWidget, 100);
+          return;
+        }
+        if (loadingEl) loadingEl.remove();
+        window.turnstile.ready(function () {
+          try {
+            window.turnstile.render("#turnstile", {
+              sitekey: sitekey,
+              callback: finish,
+              "expired-callback": function () { showError("El captcha caducó. Cierra y vuelve a intentar."); },
+              "error-callback": function () { showError("Error al mostrar el captcha."); },
+              theme: "light",
+              size: "normal",
+            });
+            if (embedded) postToApp("ready");
+          } catch (e) {
+            showError("No se pudo iniciar Turnstile en esta URL.");
+          }
+        });
+      }
+
+      setTimeout(function () {
+        if (!scriptLoaded) {
+          showError("Tiempo de espera agotado. Ejecuta: npm run adb-reverse");
+        }
+      }, 35000);
+    })();
+  </script>
+</body>
+</html>

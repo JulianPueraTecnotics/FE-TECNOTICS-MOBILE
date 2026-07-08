@@ -19,6 +19,8 @@ import { useThemeColors } from "../../../theme/useThemeColors";
 import { PortalPasswordField, PortalTextField } from "../../../components/shared/PortalField.native";
 import PortalOtpInput, { PortalOtpPasteHint } from "../../../components/shared/PortalOtpInput.native";
 import { errorToast, successToast } from "../../../components/shared/toast/toasts";
+import { markSessionHint } from "../../../store/auth.service";
+import Turnstile from "./Turnstile";
 import {
   loginService,
   resendCompanyLogin2fa,
@@ -111,6 +113,7 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [phase, setPhase] = useState<"credentials" | "twofa">("credentials");
   const [twofaCode, setTwofaCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -148,14 +151,19 @@ const LoginPage: React.FC = () => {
       : 0;
 
   const applyUserAndGo = (next: AuthUser) => {
+    markSessionHint();
     setUser(next);
     navigate(next.role === "super_admin" ? PATHS.ADMIN_HOME : PATHS.DASHBOARD);
   };
 
   const handleCredentials = async () => {
+    if (!turnstileToken) {
+      errorToast("Completa la verificación de seguridad");
+      return;
+    }
     setLoading(true);
     try {
-      const { message, data } = await loginService({ email, password });
+      const { message, data } = await loginService({ email, password, turnstileToken });
       if (data.need_twofa) {
         const acc =
           data.account === "sub_user"
@@ -259,10 +267,13 @@ const LoginPage: React.FC = () => {
                   showPassword={showPassword}
                   onTogglePassword={() => setShowPassword((v) => !v)}
                 />
+                <View style={styles.turnstileWrap} collapsable={false}>
+                  <Turnstile onVerify={setTurnstileToken} onExpire={() => setTurnstileToken("")} />
+                </View>
                 <Pressable
-                  style={styles.primaryBtn}
+                  style={[styles.primaryBtn, !turnstileToken && styles.primaryBtnDisabled]}
                   onPress={() => void handleCredentials()}
-                  disabled={loading}
+                  disabled={loading || !turnstileToken}
                 >
                   {loading ? (
                     <ActivityIndicator color="#fff" />
@@ -322,6 +333,7 @@ const LoginPage: React.FC = () => {
                     setPhase("credentials");
                     setTwofaCode("");
                     setCodeExpiresAt(null);
+                    setTurnstileToken("");
                   }}
                 >
                   <Text style={styles.linkText}>Volver al inicio de sesión</Text>
@@ -337,6 +349,7 @@ const LoginPage: React.FC = () => {
 
 const styles = StyleSheet.create({
   page: { flex: 1, justifyContent: "center", padding: 24 },
+  turnstileWrap: { width: "100%", marginTop: 4, minHeight: 120 },
   card: {
     borderRadius: 16,
     padding: 24,
@@ -369,6 +382,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
   },
+  primaryBtnDisabled: { opacity: 0.5 },
   primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   secondaryBtn: { marginTop: 12, paddingVertical: 10, alignItems: "center" },
   secondaryBtnText: { color: "#0077b6", fontWeight: "600" },

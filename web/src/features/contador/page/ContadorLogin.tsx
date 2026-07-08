@@ -7,6 +7,7 @@ import Turnstile from "../../login/page/Turnstile";
 import { AuthContext, type AuthUser } from "../../../store/auth.context";
 import { PATHS } from "../../../router/paths.contants";
 import { errorToast } from "../../../components/shared/toast/toasts";
+import { markSessionHint } from "../../../store/auth.service";
 import { contadorSignIn, contadorVerify2FA, contadorSelectCompany, type ContadorEmpresa } from "../contador.service";
 import { FilterField, FieldControl } from "../../../components/design-system";
 
@@ -63,6 +64,7 @@ const ContadorLogin: React.FC = () => {
         try {
             const data = await contadorSelectCompany(contadorId, company_id);
             const user: AuthUser = { id: data.company_id, razon_social: data.razon_social, role: "company", avatar: data.avatar ?? null, company_id: data.company_id };
+            markSessionHint();
             setUser(user);
             navigate(PATHS.DASHBOARD);
         } catch (err) {

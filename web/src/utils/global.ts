@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import { resolveNativeApiBase } from "./nativeApiBase";
 
 export const APP_BRAND_NAME = "Tecnotics Contable";
 
@@ -13,58 +14,21 @@ function readExtra(): ExpoExtra {
   return (Constants.expoConfig?.extra ?? {}) as ExpoExtra;
 }
 
-function stripUrl(value: string | undefined): string {
+function strip(value: string | undefined): string {
   return typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
 }
 
 /**
- * Metro solo embebe EXPO_PUBLIC_* con acceso estático (process.env.EXPO_PUBLIC_X).
- * No usar process.env[variable]: en web queda undefined y cae al fallback de producción.
+ * Paridad con FE_TECNOTICS_PORTAL/src/utils/global.ts.
+ * El portal lee import.meta.env.VITE_*; app.config.js copia el mismo .env a extra.
  */
-function resolveApiUrl(): string {
-  const fromEnv = stripUrl(process.env.EXPO_PUBLIC_API_BASE_URL);
-  if (fromEnv) return fromEnv;
-  const fromExtra = stripUrl(readExtra().apiBaseUrl);
-  if (fromExtra) return fromExtra;
-  const fromVite = stripUrl(process.env.VITE_APP_BACK_URL);
-  if (fromVite) return fromVite;
-  return __DEV__ ? "http://localhost:3001" : "https://facturacionelectronicatt.tecnotics.co";
-}
+const extra = readExtra();
 
-function resolveFeUrl(): string {
-  const fromEnv = stripUrl(process.env.EXPO_PUBLIC_FE_URL);
-  if (fromEnv) return fromEnv;
-  const fromExtra = stripUrl(readExtra().feUrl);
-  if (fromExtra) return fromExtra;
-  const fromVite = stripUrl(process.env.VITE_APP_FE_URL);
-  if (fromVite) return fromVite;
-  return __DEV__ ? "http://localhost:8081" : "https://facturacionelectronicatt.tecnotics.co";
-}
-
-function resolveEnvKey(expoKey: string, extraKey: keyof ExpoExtra): string {
-  if (expoKey === "EXPO_PUBLIC_EPAYCO_PUBLIC_KEY") {
-    return (
-      stripUrl(process.env.EXPO_PUBLIC_EPAYCO_PUBLIC_KEY) ||
-      stripUrl(readExtra().epaycoPublicKey) ||
-      stripUrl(process.env.VITE_APP_EPAYCO_PUBLIC_KEY)
-    );
-  }
-  if (expoKey === "EXPO_PUBLIC_EPAYCO_CUSTOMER_ID") {
-    return (
-      stripUrl(process.env.EXPO_PUBLIC_EPAYCO_CUSTOMER_ID) ||
-      stripUrl(readExtra().epaycoCustomerId) ||
-      stripUrl(process.env.VITE_APP_EPAYCO_CUSTOMER_ID)
-    );
-  }
-  return stripUrl(readExtra()[extraKey]);
-}
-
-/** URLs del back — leídas por Expo (EXPO_PUBLIC_* + app.config.js extra). */
 export const ENV = {
-  API_URL: resolveApiUrl(),
-  FE_URL: resolveFeUrl(),
-  EPAYCO_PUBLIC_KEY: resolveEnvKey("EXPO_PUBLIC_EPAYCO_PUBLIC_KEY", "epaycoPublicKey"),
-  EPAYCO_CUSTOMER_ID: resolveEnvKey("EXPO_PUBLIC_EPAYCO_CUSTOMER_ID", "epaycoCustomerId"),
+  API_URL: resolveNativeApiBase(extra.apiBaseUrl),
+  FE_URL: resolveNativeApiBase(extra.feUrl || extra.apiBaseUrl),
+  EPAYCO_PUBLIC_KEY: strip(extra.epaycoPublicKey),
+  EPAYCO_CUSTOMER_ID: strip(extra.epaycoCustomerId),
 };
 
 export const API_ROUTES = {

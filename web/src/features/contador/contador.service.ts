@@ -34,9 +34,9 @@ const post = async <T>(url: string, body: unknown): Promise<T> => {
 export const contadorSignIn = (
   email: string,
   password: string,
-  turnstileToken?: string
+  turnstileToken: string
 ): Promise<ContadorSignInData> =>
-  post(API_ROUTES.CONTADOR_SIGNIN, { email, password, ...(turnstileToken ? { turnstileToken } : {}) });
+  post(API_ROUTES.CONTADOR_SIGNIN, { email, password, turnstileToken });
 
 export const contadorVerify2FA = (email: string, code: string): Promise<ContadorSignInData> =>
     post(API_ROUTES.CONTADOR_VERIFY_2FA, { email, code });

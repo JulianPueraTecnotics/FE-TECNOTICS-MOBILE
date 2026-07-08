@@ -26,24 +26,18 @@ function readExtra(): ExpoExtra {
   return (Constants.expoConfig?.extra ?? {}) as ExpoExtra;
 }
 
-function env(key: string, extraKey: keyof ExpoExtra): string {
-  const fromProcess = process.env[key];
-  if (typeof fromProcess === "string" && fromProcess.trim()) {
-    return fromProcess.trim().replace(/\\/$/, "");
-  }
-  const fromExtra = readExtra()[extraKey];
-  if (typeof fromExtra === "string" && fromExtra.trim()) {
-    return fromExtra.trim().replace(/\\/$/, "");
-  }
-  return "";
+function strip(value: string | undefined): string {
+  return typeof value === "string" ? value.trim().replace(/\\/$/, "") : "";
 }
 
-/** URLs del back — leídas por Expo (EXPO_PUBLIC_* + app.config.js extra). */
+/** Paridad portal: VITE_* en .env → extra vía app.config.js */
+const extra = readExtra();
+
 export const ENV = {
-  API_URL: env("EXPO_PUBLIC_API_BASE_URL", "apiBaseUrl") || "https://facturacionelectronicatt.tecnotics.co",
-  FE_URL: env("EXPO_PUBLIC_FE_URL", "feUrl") || "https://facturacionelectronicatt.tecnotics.co",
-  EPAYCO_PUBLIC_KEY: env("EXPO_PUBLIC_EPAYCO_PUBLIC_KEY", "epaycoPublicKey"),
-  EPAYCO_CUSTOMER_ID: env("EXPO_PUBLIC_EPAYCO_CUSTOMER_ID", "epaycoCustomerId"),
+  API_URL: strip(extra.apiBaseUrl),
+  FE_URL: strip(extra.feUrl),
+  EPAYCO_PUBLIC_KEY: strip(extra.epaycoPublicKey),
+  EPAYCO_CUSTOMER_ID: strip(extra.epaycoCustomerId),
 };
 
 `;

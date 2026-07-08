@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { useEffect } from "react";
+import * as WebBrowser from "expo-web-browser";
 import "./shims/fixExpoStaticError";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppRouter from "./router/index.route";
@@ -22,6 +23,7 @@ if (Platform.OS === "web") {
 export default function PortalApp() {
   useEffect(() => {
     void ensureStorageHydrated();
+    WebBrowser.maybeCompleteAuthSession();
   }, []);
 
   const app = (
