@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tecnotics Contable",
     "slug": "tecnotics-contable-mobile",
-    "version": "1.3.0",
+    "version": "1.3.2",
     "orientation": "portrait",
     "icon": "./assets/favicon.png",
     "scheme": "tecnoticsmobile",
@@ -16,14 +16,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tecnotics.facturacion.mobile",
-      "buildNumber": "4",
+      "buildNumber": "6",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.tecnotics.facturacion.mobile",
-      "versionCode": 4,
+      "versionCode": 6,
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/favicon.png",
@@ -53,6 +53,9 @@
         "expo-build-properties",
         {
           "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.0.0",
             "usesCleartextTraffic": true
           }
         }
